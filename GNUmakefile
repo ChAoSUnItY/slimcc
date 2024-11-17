@@ -11,6 +11,9 @@ TESTS=$(TEST_SRCS:.c=.exe)
 TEST_C23_SRCS=$(wildcard test/c23/*.c)
 TESTS_C23=$(TEST_C23_SRCS:.c=.exe)
 
+SHECC_SRCS=$(wildcard shecc/src/*.c)
+SHECC_OBJS=$(SHECC_SRCS:.c=.o)
+
 # Stage 1
 
 slimcc: $(OBJS)
@@ -54,6 +57,18 @@ stage2/test/c23/%.exe: stage2/slimcc test/c23/%.c
 test-stage2: $(TESTS:test/%=stage2/test/%) $(TESTS_C23:test/c23/%=stage2/test/c23/%)
 	for i in $^; do echo $$i; ./$$i || exit 1; echo; done
 	bash test/driver.sh ./stage2/slimcc $(CC)
+
+# Shecc
+
+SHECC_OUT ?= shecc/out
+ARCH ?= arm
+
+ifeq (,$(filter $(ARCH),arm riscv))
+$(error Support ARM and RISC-V only. Select the target with "ARCH=arm" or "ARCH=riscv")
+endif
+
+config:
+	cd shecc && $(MAKE) config ARCH=$(ARCH)
 
 # Misc.
 

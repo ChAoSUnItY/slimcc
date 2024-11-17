@@ -25,6 +25,7 @@ static bool opt_MMD;
 static bool opt_MP;
 static bool opt_S;
 static bool opt_c;
+static bool opt_C;
 static bool opt_cc1;
 static bool opt_hash_hash_hash;
 static bool opt_static;
@@ -154,6 +155,11 @@ static void parse_args(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-###")) {
       opt_hash_hash_hash = true;
+      continue;
+    }
+
+    if (!strcmp(argv[i], "-C")) {
+      opt_C = true;
       continue;
     }
 
@@ -725,7 +731,10 @@ static void cc1(void) {
   FILE *output_buf = open_memstream(&buf, &buflen);
 
   // Traverse the AST to emit assembly.
-  codegen(prog, output_buf);
+  if (opt_C)
+    codegen_c(prog, output_buf);
+  else 
+    codegen(prog, output_buf);
   fclose(output_buf);
 
   // Write the asembly text to a file.
@@ -897,6 +906,7 @@ static FileType get_file_type(char *filename) {
 int main(int argc, char **argv) {
   atexit(cleanup);
   init_macros();
+  init_tokenize_globals();
   parse_args(argc, argv);
 
   if (opt_cc1) {
@@ -942,6 +952,8 @@ int main(int argc, char **argv) {
       output = opt_o;
     else if (opt_S)
       output = replace_extn(input, ".s");
+    else if (opt_C)
+      output = replace_extn(input, ".c");
     else
       output = replace_extn(input, ".o");
 
@@ -1005,7 +1017,7 @@ int main(int argc, char **argv) {
     }
 
     // Compile
-    if (opt_S) {
+    if (opt_S || opt_C) {
       run_cc1(argc, argv, input, output, NULL);
       continue;
     }

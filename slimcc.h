@@ -155,6 +155,8 @@ Token *tokenize_file(char *filename, Token **end);
 File *add_input_file(char *path, char *content, bool not_input);
 void convert_pp_number(Token *tok);
 TokenKind ident_keyword(Token *tok);
+void init_tokenize_globals(void);
+void free_tokenize_globals(void);
 
 #define internal_error() \
   error("internal error at %s:%d", __FILE__, __LINE__)
@@ -580,6 +582,12 @@ void prepare_inline_asm(Node *node);
 int align_to(int n, int align);
 bool va_arg_need_copy(Type *ty);
 extern bool dont_reuse_stack;
+
+//
+// c-codegen.c
+//
+
+void codegen_c(Obj *prog, FILE *out);
 
 //
 // unicode.c
