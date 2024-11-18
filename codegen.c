@@ -4014,6 +4014,9 @@ static void store_gp(int r, int sz, int ofs, char *ptr) {
 
 static void emit_text(Obj *prog) {
   for (Obj *fn = prog; fn; fn = fn->next) {
+    if (fn->is_prototype)
+      continue;
+
     if (fn->ty->kind != TY_FUNC || !fn->is_definition)
       continue;
 

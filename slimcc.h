@@ -155,8 +155,6 @@ Token *tokenize_file(char *filename, Token **end);
 File *add_input_file(char *path, char *content, bool not_input);
 void convert_pp_number(Token *tok);
 TokenKind ident_keyword(Token *tok);
-void init_tokenize_globals(void);
-void free_tokenize_globals(void);
 
 #define internal_error() \
   error("internal error at %s:%d", __FILE__, __LINE__)
@@ -214,6 +212,7 @@ struct Obj {
   char *constexpr_data;
 
   // Function
+  bool is_prototype;
   bool is_inline;
   bool dealloc_vla;
   Node *body;
@@ -352,6 +351,7 @@ struct Node {
   Node *next;    // Next node
   Type *ty;      // Type, e.g. int or pointer to int
   Token *tok;    // Representative token
+  bool wrap;     // Whether wrapped in parentheses
 
   Node *lhs;     // Left-hand side
   Node *rhs;     // Right-hand side

@@ -906,7 +906,6 @@ static FileType get_file_type(char *filename) {
 int main(int argc, char **argv) {
   atexit(cleanup);
   init_macros();
-  init_tokenize_globals();
   parse_args(argc, argv);
 
   if (opt_cc1) {

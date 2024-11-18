@@ -165,7 +165,7 @@ static Node *funcall(Token **rest, Token *tok, Node *node);
 static Node *unary(Token **rest, Token *tok);
 static Node *primary(Token **rest, Token *tok);
 static Node *parse_typedef(Token **rest, Token *tok, Type *basety, VarAttr *attr);
-static Obj *func_prototype(Type *ty, VarAttr *attr, Token *name);
+static Obj *func_prototype(Type *ty, VarAttr *attr, Token *name, bool is_prototype);
 static Token *global_declaration(Token *tok, Type *basety, VarAttr *attr);
 static Node *compute_vla_size(Type *ty, Token *tok);
 static int64_t const_expr2(Token **rest, Token *tok, Type **ty);
@@ -1300,7 +1300,7 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
     if (ty->kind == TY_FUNC) {
       if (!name)
         error_tok(tok, "function name omitted");
-      Obj *fn = func_prototype(ty, attr, name);
+      Obj *fn = func_prototype(ty, attr, name, false);
       symbol_attr(fn, attr, name, tok);
       continue;
     }
@@ -4010,6 +4010,7 @@ static Node *primary(Token **rest, Token *tok) {
 
   if (equal(tok, "(")) {
     Node *node = expr(&tok, tok->next);
+    node->wrap = true;
     *rest = skip(tok, ")");
     return node;
   }
@@ -4383,13 +4384,14 @@ static void mark_fn_live(Obj *var) {
   }
 }
 
-static Obj *func_prototype(Type *ty, VarAttr *attr, Token *name) {
+static Obj *func_prototype(Type *ty, VarAttr *attr, Token *name, bool is_prototype) {
   char *name_str = get_ident(name);
 
   Obj *fn = find_func(name_str);
   if (!fn) {
     fn = new_gvar(name_str, ty);
     fn->is_static = attr->is_static || (attr->is_inline && !attr->is_extern);
+    fn->is_prototype = is_prototype;
   } else if (!fn->is_static && attr->is_static) {
     error_tok(name, "static declaration follows a non-static declaration");
   }
@@ -4400,6 +4402,8 @@ static Obj *func_prototype(Type *ty, VarAttr *attr, Token *name) {
 static void func_definition(Token **rest, Token *tok, Obj *fn, Type *ty) {
   if (fn->is_definition)
     error_tok(tok, "redefinition of %s", fn->name);
+  if (fn->is_prototype)
+    fn = new_gvar(fn->name, ty);
   fn->is_definition = true;
   fn->ty = ty;
 
@@ -4444,12 +4448,12 @@ static Token *global_declaration(Token *tok, Type *basety, VarAttr *attr) {
       if (equal(tok, "{")) {
         if (!first || scope->parent)
           error_tok(tok, "function definition is not allowed here");
-        Obj *fn = func_prototype(ty, attr, name);
+        Obj *fn = func_prototype(ty, attr, name, false);
         symbol_attr(fn, attr, name, tok);
         func_definition(&tok, tok, fn, ty);
         return tok;
       }
-      Obj *fn = func_prototype(ty, attr, name);
+      Obj *fn = func_prototype(ty, attr, name, true);
       symbol_attr(fn, attr, name, tok);
       continue;
     }
