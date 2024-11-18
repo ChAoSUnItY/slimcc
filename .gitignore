@@ -9,3 +9,7 @@
 /test/*.exe
 /test/c23/*.exe
 /stage2
+
+# CBE Branch specific
+/cbe-test/*.c.c
+/cbe-test/*.S
