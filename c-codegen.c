@@ -10,14 +10,12 @@ void print(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    if (newline)
-    {
+    if (indent > 0 && newline)
         for (int i = 0; i < indent; i++)
             fprintf(output_file, "  ");
-        newline = false;
-    }
     vfprintf(output_file, fmt, ap);
     va_end(ap);
+    newline = false;
 }
 
 FMTCHK(1, 2)
@@ -25,6 +23,9 @@ void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
+    if (indent > 0 && newline)
+        for (int i = 0; i < indent; i++)
+            fprintf(output_file, "  ");
     vfprintf(output_file, fmt, ap);
     va_end(ap);
     fprintf(output_file, "\n");
@@ -268,6 +269,10 @@ void emit_expr(Node *expr)
     case ND_NUM:
         print("%d", (int)expr->val);
         break;
+    case ND_CAST:
+        /* TODO: Handle more cases as much as possible */
+        emit_expr(expr->lhs);
+        break;
     default:
         break;
     }
@@ -291,12 +296,22 @@ void emit_stmt(Node *stmt)
             }
             println(";");
             break;
+        case ND_IF:
+            print("if (");
+            emit_expr(node->cond);
+            print(") ");
+            emit_stmt(node->then->body); /* Ignore outer synthetic block */
+            if (node->els) {
+                print("else ");
+                emit_stmt(node->els->body); /* Ignore outer synthetic block */
+            }
+            break;
         case ND_BLOCK:
-            indent++;
             println("{");
+            indent++;
             emit_stmt(node->body);
-            println("}");
             indent--;
+            println("}");
             break;
         default:
             break;
