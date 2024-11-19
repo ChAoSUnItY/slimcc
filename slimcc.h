@@ -345,6 +345,12 @@ typedef enum {
   ND_POST_INCDEC
 } NodeKind;
 
+typedef enum {
+  VDK_HEAD,      // At head of definition as variable definition statement.
+  VDK_TAIL_LEFT, // At any positions in tail of definition.
+  VDK_NONE       // Not a definition.
+} VarDefKind;
+
 // AST node type
 struct Node {
   NodeKind kind; // Node kind
@@ -411,6 +417,9 @@ struct Node {
 
   // Variable
   Obj *var;
+
+  // Assignment
+  VarDefKind var_def_kind;
 
   // Numeric literal
   int64_t val;

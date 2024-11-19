@@ -1290,7 +1290,7 @@ static void defr_cleanup(Obj *var, Obj *fn, Token *tok) {
 static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) {
   Node *expr = NULL;
 
-  bool first = true;
+  bool first = true, marked_defined = false;
   for (; comma_list(rest, &tok, ";", !first); first = false) {
     Token *name = NULL;
     int alt_align = attr ? attr->align : 0;
@@ -1354,6 +1354,13 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
         var->align = alt_align;
       chain_expr(&expr, new_vla(new_var_node(ty->vla_size, name), var));
 
+      if (!marked_defined) {
+        expr->var_def_kind = VDK_HEAD;
+        marked_defined = true;
+      } else {
+        expr->rhs->var_def_kind = VDK_TAIL_LEFT;
+      }
+
       DeferStmt *defr = new_defr(DF_VLA_DEALLOC);
       defr->vla = var;
 
@@ -1382,10 +1389,24 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
       constexpr_initializer(&tok, tok->next, init_var, var);
       chain_expr(&expr, new_binary(ND_ASSIGN, new_var_node(var, tok),
                                    new_var_node(init_var, tok), tok));
+
+      if (!marked_defined) {
+        expr->var_def_kind = VDK_HEAD;
+        marked_defined = true;
+      } else {
+        expr->rhs->var_def_kind = VDK_TAIL_LEFT;
+      }
       continue;
     }
     if (equal(tok, "="))
       chain_expr(&expr, lvar_initializer(&tok, tok->next, var));
+
+    if (!marked_defined) {
+      expr->var_def_kind = VDK_HEAD;
+      marked_defined = true;
+    } else {
+      expr->rhs->var_def_kind = VDK_TAIL_LEFT;
+    }
 
     if (var->ty->size < 0)
       error_tok(name, "variable has incomplete type");

@@ -13,3 +13,4 @@
 # CBE Branch specific
 /cbe-test/*.c.c
 /cbe-test/*.S
+/.vscode/*
