@@ -15,8 +15,13 @@ char *multiline = "LINE1\x21\n"
     "LINE2\n";
 int func2(int a);
 
+typedef char *str;
+
 int func1(int a, int b[10], int c) {
-    func2(1);
+    int d = 1, *e = b, f = c += 1;
+    str s1 = "D", *s2 = 0, *s3 = &multiline;
+    str s4 = "S", s5[10];
+
     if (a + c)
         return 1;
     else if (a - c) {
@@ -24,24 +29,19 @@ int func1(int a, int b[10], int c) {
     } else {
         return -1;
     }
+
+    for (int i = 0; i; i++) {
+        if (i + 1)
+            return 0;
+    }
+
+    for (int i = 10; i; i--);
+
+    for (int i = 0; i; ++i);
+
+    for (int i = 10; i; --i);
+
     return (a + 1) * c;
 }
 
-int func2(int a) {
-    return a * a;
-}
-
-int main(int a, int b)
-{
-    return 1;
-}
-
-void functionA();
-void functionB();
-
-void functionA() {
-    functionB(); // Function B is used before its implementation
-}
-
-void functionC() {}
 
