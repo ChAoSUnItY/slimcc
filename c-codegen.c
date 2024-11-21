@@ -151,8 +151,9 @@ void emit_type_suffix(Type *ty) {
   }
 }
 
-void emit_type_with_id(Type *typ, char *id) {
-  emit_type(typ);
+void emit_type_with_id(Type *typ, char *id, bool ignore_type) {
+  if (!ignore_type)
+    emit_type(typ);
   print("%s", id);
   emit_type_suffix(typ);
 }
@@ -342,41 +343,22 @@ void emit_expr(Node *expr) {
       break;
     }
     case ND_ASSIGN: {
-      switch (expr->var_def_kind) {
-        case VDK_HEAD: {
-          Obj *var = expr->lhs->var;
-          emit_type_with_id(var->ty, var->name);
-          break;
-        }
-        case VDK_TAIL_LEFT: {
-          Type *ty = expr->lhs->ty;
+      emit_expr(expr->lhs);
 
-          while (ty->base) {
-            print("*");
-            ty = ty->base;
+      if (expr->rhs) {
+        print(" = ");
+
+        switch (expr->rhs->arith_kind) {
+          case ND_ADD: {
+            emit_expr(expr->rhs->lhs);
+            print(" + ");
+            emit_expr(expr->rhs->rhs);
+            break;
           }
-
-          emit_expr(expr->lhs);
-          break;
-        }
-        case VDK_NONE: {
-          emit_expr(expr->lhs);
-          break;
-        }
-      }
-
-      print(" = ");
-
-      switch (expr->rhs->arith_kind) {
-        case ND_ADD: {
-          emit_expr(expr->rhs->lhs);
-          print(" + ");
-          emit_expr(expr->rhs->rhs);
-          break;
-        }
-        default: {
-          emit_expr(expr->rhs);
-          break;
+          default: {
+            emit_expr(expr->rhs);
+            break;
+          }
         }
       }
       break;
@@ -399,9 +381,48 @@ void emit_expr(Node *expr) {
       printf("TODO ND_MEMBER\n");
       break;
     }
+    case ND_NOT: {
+      print("!");
+      emit_expr(expr->lhs);
+      break;
+    }
+    case ND_BITNOT: {
+      print("~");
+      emit_expr(expr->lhs);
+      break;
+    }
+    case ND_LOGAND: {
+      emit_expr(expr->lhs);
+      print(" && ");
+      emit_expr(expr->rhs);
+      break;
+    }
+    case ND_LOGOR: {
+      emit_expr(expr->lhs);
+      print(" || ");
+      emit_expr(expr->rhs);
+      break;
+    }
     case ND_ADDR: {
       print("&");
       emit_expr(expr->lhs);
+      break;
+    }
+    case ND_DEREF: {
+      Node *index_expr = expr->lhs->rhs;
+
+      emit_expr(expr->lhs->lhs);
+      print("[");
+
+      if (index_expr->kind == ND_CAST && index_expr->lhs->kind == ND_MUL) {
+        /* Ignore scaling */
+        emit_expr(index_expr->lhs->lhs);
+      } else {
+        printf("WARNING: Unhandled deref rhs");
+        emit_expr(index_expr);
+      }
+
+      print("]");
       break;
     }
     case ND_VAR: {
@@ -422,19 +443,57 @@ void emit_expr(Node *expr) {
       break;
     }
     case ND_CHAIN: {
-      emit_expr(expr->lhs);
-      print(", ");
-      emit_expr(expr->rhs);
+      if (expr->lhs->kind == ND_DEFINE && expr->rhs->kind == ND_ASSIGN) {
+        emit_expr(expr->lhs);
+        print(" = ");
+        emit_expr(expr->rhs->rhs);
+      } else {
+        emit_expr(expr->lhs);
+        print(", ");
+        emit_expr(expr->rhs);
+      }
       break;
     }
     case ND_ARITH_ASSIGN: {
-      if (expr->arith_kind == ND_ADD) {
-        print("++");
-      } else if (expr->arith_kind == ND_SUB) {
-        print("--");
+      if (expr->rhs->kind == ND_NUM && expr->rhs->val == 1) {
+        if (expr->arith_kind == ND_ADD) {
+          print("++");
+        } else if (expr->arith_kind == ND_SUB) {
+          print("--");
+        }
+
+        emit_expr(expr->lhs);
+        break;
       }
 
       emit_expr(expr->lhs);
+
+      if (expr->arith_kind == ND_ADD) {
+        print(" += ");
+      } else if (expr->arith_kind == ND_SUB) {
+        print(" -= ");
+      }
+
+      emit_expr(expr->rhs);
+      break;
+    }
+    case ND_DEFINE: {
+      Obj *var = expr->lhs->var;
+
+      switch (expr->var_def_kind) {
+        case VDK_HEAD: {
+          emit_type_with_id(expr->ty, var->name, false);
+          break;
+        }
+        case VDK_TAIL_LEFT: {
+          emit_type_with_id(expr->ty, var->name, true);
+          break;
+        }
+        case VDK_NONE: {
+          emit_expr(expr->lhs);
+          break;
+        }
+      }
       break;
     }
     default:
@@ -473,21 +532,27 @@ void emit_stmt(Node *stmt) {
         break;
       }
       case ND_FOR: {
-        Node *body = node->then->body;
-        print("for (");
-        if (node->init)
-          emit_expr(node->init->lhs); /* Omit outer synthetic expr_stmt */
+        Node *init = node->init, *cond = node->cond, *inc = node->inc, *body = node->then->body;
 
-        if (node->cond) {
-          print("; ");
-          emit_expr(node->cond);
-        } else
-          print(";");
-        if (node->inc) {
-          print("; ");
-          emit_expr(node->inc);
-        } else
-          print(";");
+        if (!init && cond && !inc) {
+          print("while (");
+          emit_expr(cond);
+        } else {
+          print("for (");
+          if (node->init)
+            emit_expr(node->init->lhs); /* Omit outer synthetic expr_stmt */
+
+          if (node->cond) {
+            print("; ");
+            emit_expr(node->cond);
+          } else
+            print(";");
+          if (node->inc) {
+            print("; ");
+            emit_expr(node->inc);
+          } else
+            print(";");
+        }
 
         if (body->kind == ND_NULL_STMT) {
           println(");");
@@ -536,9 +601,9 @@ Obj *emit_definition(Obj *var) {
     Obj *head_param = var->ty->param_list;
     for (Obj *param = head_param; param; param = param->param_next) {
       if (param != head_param)
-        print(",");
+        print(", ");
 
-      emit_type_with_id(param->ty, param->name);
+      emit_type_with_id(param->ty, param->name, false);
     }
 
     print(")");
@@ -552,7 +617,7 @@ Obj *emit_definition(Obj *var) {
     emit_stmt(var->body);
   } else {
     Type *var_ty = var->ty;
-    emit_type_with_id(var->ty, var->name);
+    emit_type_with_id(var->ty, var->name, false);
 
     if (var->rel)
       /* The actual init_data is at the relocation */
