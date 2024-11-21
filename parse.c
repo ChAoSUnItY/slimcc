@@ -1357,7 +1357,7 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
       if (!marked_defined) {
         expr->var_def_kind = VDK_HEAD;
         marked_defined = true;
-      } else {
+      } else if (expr->rhs) {
         expr->rhs->var_def_kind = VDK_TAIL_LEFT;
       }
 
@@ -1370,6 +1370,17 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
     }
 
     Obj *var = new_lvar(get_ident(name), ty);
+    /* Synthesize define node for cgen */
+    Node *define_node = new_unary(ND_DEFINE, new_var_node(var, name), name);
+    define_node->ty = ty;
+    chain_expr(&expr, define_node);
+    if (!marked_defined) {
+      expr->var_def_kind = VDK_HEAD;
+      marked_defined = true;
+    } else if (expr->rhs) {
+      expr->rhs->var_def_kind = VDK_TAIL_LEFT;
+    }
+
     if (alt_align)
       var->align = alt_align;
 
@@ -1389,24 +1400,10 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
       constexpr_initializer(&tok, tok->next, init_var, var);
       chain_expr(&expr, new_binary(ND_ASSIGN, new_var_node(var, tok),
                                    new_var_node(init_var, tok), tok));
-
-      if (!marked_defined) {
-        expr->var_def_kind = VDK_HEAD;
-        marked_defined = true;
-      } else {
-        expr->rhs->var_def_kind = VDK_TAIL_LEFT;
-      }
       continue;
     }
     if (equal(tok, "="))
       chain_expr(&expr, lvar_initializer(&tok, tok->next, var));
-
-    if (!marked_defined) {
-      expr->var_def_kind = VDK_HEAD;
-      marked_defined = true;
-    } else {
-      expr->rhs->var_def_kind = VDK_TAIL_LEFT;
-    }
 
     if (var->ty->size < 0)
       error_tok(name, "variable has incomplete type");

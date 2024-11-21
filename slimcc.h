@@ -342,13 +342,14 @@ typedef enum {
   ND_CHAIN,     // ND_COMMA without array-to-pointer conversion
   ND_ALLOCA,
   ND_ARITH_ASSIGN,
-  ND_POST_INCDEC
+  ND_POST_INCDEC,
+  ND_DEFINE     // Pseudo node for cgen, local variable declaration
 } NodeKind;
 
 typedef enum {
-  VDK_HEAD,      // At head of definition as variable definition statement.
-  VDK_TAIL_LEFT, // At any positions in tail of definition.
-  VDK_NONE       // Not a definition.
+  VDK_NONE,     // Not a definition.
+  VDK_HEAD,     // At head of definition as variable definition statement.
+  VDK_TAIL_LEFT // At any positions in tail of definition.
 } VarDefKind;
 
 // AST node type

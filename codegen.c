@@ -1922,6 +1922,10 @@ static void gen_expr(Node *node) {
     println("  mov %%rdx, %%rax");
     return;
   }
+  case ND_DEFINE: {
+    /* No effect */
+    return;
+  }
   }
 
   switch (node->lhs->ty->kind) {
