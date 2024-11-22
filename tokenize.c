@@ -859,6 +859,8 @@ static void convert_universal_chars(char *p) {
         q += encode_utf8(q, c);
         continue;
       }
+    } else if (*p == '\\') {
+      *q++ = *p++;
     }
     *q++ = *p++;
   }
