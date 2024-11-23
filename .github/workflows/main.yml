@@ -1,0 +1,23 @@
+name: Github Actions
+
+on: [push, pull_request]
+
+jobs:
+  host-x86:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        compiler: [gcc-12, clang]
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: build artifact
+        env:
+          CC: ${{ matrix.compiler }}
+        run: |
+          sudo apt-get update -q -y
+          sudo apt-get install -q -y file
+          sudo apt-get install -q -y build-essential
+          make clean
+          make test-stage2 -j || exit 1
+        shell: bash
