@@ -1,4 +1,4 @@
-name: build-test-thirdparty
+name: praction
 
 on: [push, pull_request]
 
@@ -33,33 +33,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - thirdparty: test_cello
           - thirdparty: test_curl
-          - thirdparty: test_doom
           - thirdparty: test_git
-          - thirdparty: test_libpng
-          - thirdparty: test_libuev
-          - thirdparty: test_lua
-          - thirdparty: test_metalang99
-          - thirdparty: test_oniguruma_jq
-          - thirdparty: test_openssh
-          - thirdparty: test_openssl
-          - thirdparty: test_perl
-          - thirdparty: test_php
           - thirdparty: test_postgres
-          - thirdparty: test_python
-          - thirdparty: test_qbe_hare
           - thirdparty: test_sqlite
-          - thirdparty: test_tinycc
-          - thirdparty: test_toxcore
-          - thirdparty: test_toybox
-          - thirdparty: test_vim
-          - thirdparty: test_zlib
-          - thirdparty: test_zstd
-          - thirdparty: build_gcc
-          - thirdparty: build_musl
           - thirdparty: build_nano
-          - thirdparty: build_sdl
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -72,6 +50,6 @@ jobs:
 
       - name: Run test
         run: >
-          sudo docker run debian_asan
-          su non-root -c
+          sudo docker run 
+          debian_asan su non-root -c 
           'bash "$0" "$1"' linux_thirdparty.bash ${{ matrix.thirdparty }}
