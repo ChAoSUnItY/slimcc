@@ -30,7 +30,8 @@ url_tar() {
 # tests
 
 test_curl() {
- github_tar curl curl curl-8_10_0
+ github_tar curl curl curl-8_10_1
+ sed -i 's/^\if(MSVC OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")/if (TRUE)/g' tests/CMakeLists.txt
  mkdir build && cd "$_"
  cmake ../ -DCMAKE_C_FLAGS=-fPIC
  make && make test-quiet
