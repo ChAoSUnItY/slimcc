@@ -33,10 +33,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - thirdparty: test_curl
           - thirdparty: test_git
+          - thirdparty: test_libpng
+          - thirdparty: test_openssh
           - thirdparty: test_postgres
           - thirdparty: test_sqlite
+          - thirdparty: test_zlib
+          - thirdparty: test_zstd
           - thirdparty: build_nano
     steps:
       - name: Download artifact

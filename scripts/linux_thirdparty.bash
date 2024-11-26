@@ -41,6 +41,19 @@ test_git() {
  make CC="$CC" test
 }
 
+test_libpng() {
+ github_tar pnggroup libpng v1.6.44
+ fix_configure "./configure"
+ ./configure
+ make test
+}
+
+test_openssh() {
+ github_tar openssh openssh-portable V_9_8_P1
+ ./configure
+ make tests
+}
+
 test_postgres() {
  github_tar postgres postgres REL_17_2
  sed -i 's/^\#if defined(__GNUC__) || defined(__INTEL_COMPILER)/#if 1/g' src/include/storage/s_lock.h
@@ -53,6 +66,18 @@ test_sqlite() {
  fix_configure "./configure"
  CFLAGS=-D_GNU_SOURCE ./configure
  make tcltest
+}
+
+test_zlib() {
+ github_tar madler zlib v1.3.1
+ ./configure
+ make test
+}
+
+test_zstd() {
+ github_tar facebook zstd v1.5.6
+ sed -i 's/^\#if defined(__ELF__) && defined(__GNUC__)/#if 1/g' lib/decompress/huf_decompress_amd64.S
+ make check
 }
 
 build_nano() {
