@@ -34,13 +34,19 @@ jobs:
       matrix:
         include:
           - thirdparty: test_curl
+          - thirdparty: test_doom
           - thirdparty: test_git
           - thirdparty: test_libpng
+          - thirdparty: test_php
           - thirdparty: test_postgres
+          - thirdparty: test_python
           - thirdparty: test_sqlite
           - thirdparty: test_zlib
           - thirdparty: test_zstd
+          - thirdparty: build_gcc
+          - thirdparty: build_musl
           - thirdparty: build_nano
+          - thirdparty: build_sdl
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
