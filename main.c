@@ -1,7 +1,13 @@
 #include "slimcc.h"
 
 typedef enum {
-  FILE_NONE, FILE_C, FILE_ASM, FILE_OBJ, FILE_AR, FILE_DSO, FILE_PP_ASM
+  FILE_NONE,
+  FILE_C,
+  FILE_ASM,
+  FILE_OBJ,
+  FILE_AR,
+  FILE_DSO,
+  FILE_PP_ASM
 } FileType;
 
 StringArray include_paths;
@@ -24,6 +30,7 @@ static bool opt_MD;
 static bool opt_MMD;
 static bool opt_MP;
 static bool opt_S;
+static bool opt_qbe;
 static bool opt_c;
 static bool opt_cc1;
 static bool opt_hash_hash_hash;
@@ -52,7 +59,7 @@ static void usage(int status) {
 
 static bool take_arg(char *arg) {
   char *x[] = {
-    "-o", "-I", "-idirafter", "-include", "-x", "-MF", "-MT", "-Xlinker",
+      "-o", "-I", "-idirafter", "-include", "-x", "-MF", "-MT", "-Xlinker",
   };
 
   for (int i = 0; i < sizeof(x) / sizeof(*x); i++)
@@ -80,7 +87,8 @@ static void add_default_include_paths(char *argv0) {
 
   // We expect that compiler-provided include files are installed
   // to ./include relative to argv[0].
-  strarray_push(&std_include_paths, format("%s/include", dirname(strdup(argv0))));
+  strarray_push(&std_include_paths,
+                format("%s/include", dirname(strdup(argv0))));
 
   // Add standard include paths.
   strarray_push(&std_include_paths, "/usr/local/include");
@@ -190,6 +198,11 @@ static void parse_args(int argc, char **argv) {
 
     if (!strcmp(argv[i], "-S")) {
       opt_S = true;
+      continue;
+    }
+
+    if (!strcmp(argv[i], "-qbe")) {
+      opt_qbe = true;
       continue;
     }
 
@@ -474,24 +487,18 @@ static void parse_args(int argc, char **argv) {
     }
 
     // These options are ignored for now.
-    if (!strncmp(argv[i], "-W", 2) ||
-        !strncmp(argv[i], "-std=", 5) ||
-        !strncmp(argv[i], "-march=", 7) ||
-        !strcmp(argv[i], "-ffreestanding") ||
-        !strcmp(argv[i], "-fno-builtin") ||
-        !strcmp(argv[i], "-fno-lto") ||
+    if (!strncmp(argv[i], "-W", 2) || !strncmp(argv[i], "-std=", 5) ||
+        !strncmp(argv[i], "-march=", 7) || !strcmp(argv[i], "-ffreestanding") ||
+        !strcmp(argv[i], "-fno-builtin") || !strcmp(argv[i], "-fno-lto") ||
         !strcmp(argv[i], "-fno-asynchronous-unwind-tables") ||
         !strcmp(argv[i], "-fno-delete-null-pointer-checks") ||
         !strcmp(argv[i], "-fno-omit-frame-pointer") ||
         !strcmp(argv[i], "-fno-stack-protector") ||
         !strcmp(argv[i], "-fno-strict-aliasing") ||
         !strcmp(argv[i], "-fno-strict-overflow") ||
-        !strcmp(argv[i], "-fwrapv") ||
-        !strcmp(argv[i], "-m64") ||
-        !strcmp(argv[i], "-mfpmath=sse") ||
-        !strcmp(argv[i], "-mno-red-zone") ||
-        !strcmp(argv[i], "-no-pie") ||
-        !strcmp(argv[i], "-pedantic") ||
+        !strcmp(argv[i], "-fwrapv") || !strcmp(argv[i], "-m64") ||
+        !strcmp(argv[i], "-mfpmath=sse") || !strcmp(argv[i], "-mno-red-zone") ||
+        !strcmp(argv[i], "-no-pie") || !strcmp(argv[i], "-pedantic") ||
         !strcmp(argv[i], "-w"))
       continue;
 
@@ -572,7 +579,8 @@ static void run_subprocess(char **argv) {
     exit(1);
 }
 
-static void run_cc1(int argc, char **argv, char *input, char *output, char *option) {
+static void run_cc1(int argc, char **argv, char *input, char *output,
+                    char *option) {
   char **args = calloc(argc + 10, sizeof(char *));
   memcpy(args, argv, argc * sizeof(char *));
   args[argc++] = "-cc1";
@@ -686,12 +694,14 @@ static void cc1(void) {
   if (!opt_E) {
     Token *end;
     head.next = tokenize(add_input_file("slimcc_builtins",
-    "typedef struct {"
-    "  unsigned int gp_offset;"
-    "  unsigned int fp_offset;"
-    "  void *overflow_arg_area;"
-    "  void *reg_save_area;"
-    "} __builtin_va_list[1];", NULL), &end);
+                                        "typedef struct {"
+                                        "  unsigned int gp_offset;"
+                                        "  unsigned int fp_offset;"
+                                        "  void *overflow_arg_area;"
+                                        "  void *reg_save_area;"
+                                        "} __builtin_va_list[1];",
+                                        NULL),
+                         &end);
     cur = end;
   }
 
@@ -739,7 +749,11 @@ static void cc1(void) {
   FILE *output_buf = open_memstream(&buf, &buflen);
 
   // Traverse the AST to emit assembly.
-  codegen(prog, output_buf);
+  if (opt_qbe) {
+    gen_qbe(prog, output_buf);  
+  } else {
+    codegen(prog, output_buf);
+  }
   fclose(output_buf);
 
   // Write the asembly text to a file.
@@ -949,13 +963,16 @@ int main(int argc, char **argv) {
 
     if (opt_o && (opt_c || opt_S || opt_E))
       if (++file_count > 1)
-        error("cannot specify '-o' with '-c,' '-S' or '-E' with multiple files");
+        error(
+            "cannot specify '-o' with '-c,' '-S' or '-E' with multiple files");
 
     char *output;
     if (opt_o)
       output = opt_o;
     else if (opt_S)
       output = replace_extn(input, ".s");
+    else if (opt_qbe)
+      output = replace_extn(input, ".ssa");
     else
       output = replace_extn(input, ".o");
 
@@ -1020,6 +1037,11 @@ int main(int argc, char **argv) {
 
     // Compile
     if (opt_S) {
+      run_cc1(argc, argv, input, output, NULL);
+      continue;
+    }
+
+    if (opt_qbe) {
       run_cc1(argc, argv, input, output, NULL);
       continue;
     }

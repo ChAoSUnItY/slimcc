@@ -62,4 +62,7 @@ clean:
 	find * -type f '(' -name '*~' -o -name '*.o' ')' -exec rm {} ';'
 	find test/* -type f '(' -name '*~' -o -name '*.exe' ')' -exec rm {} ';'
 
+run: slimcc
+	./slimcc -qbe -o test_qbe/c.ssa test_qbe/c.c
+
 .PHONY: test clean test-stage2

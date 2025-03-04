@@ -1,0 +1,333 @@
+dump_ph1_ir
+print_indent
+global_release
+global_init
+add_insn
+add_symbol
+bb_disconnect
+bb_connect
+bb_create
+add_fn
+size_var
+find_var
+find_global_var
+find_local_var
+find_member
+find_func
+find_constant
+add_constant
+add_named_type
+add_type
+add_func
+find_macro_param_src_idx
+error
+remove_macro
+find_macro
+add_macro
+remove_alias
+find_alias
+add_alias
+add_block
+find_label_offset
+add_label
+set_var_liveout
+add_ph2_ir
+add_ph1_ir
+add_global_ir
+find_type
+data $hard_mul_div = { w 0 }
+data $dump_ir = { w 0 }
+find_trie
+insert_trie
+data $elf_section = { z 4 }
+data $elf_strtab = { z 4 }
+data $elf_symtab = { z 4 }
+data $elf_data_start = { z 4 }
+data $elf_code_start = { z 4 }
+data $elf_header_len = { w 84 }
+data $elf_header_idx = { w 0 }
+data $elf_header = { z 4 }
+data $elf_data_idx = { w 0 }
+data $elf_data = { z 4 }
+data $elf_code_idx = { w 0 }
+data $elf_code = { z 4 }
+data $source_idx = { w 0 }
+data $SOURCE = { z 4 }
+data $constants_idx = { w 0 }
+data $CONSTANTS = { z 4 }
+data $aliases_idx = { w 0 }
+data $ALIASES = { z 4 }
+data $REGS = { z 128 }
+data $elf_offset = { w 0 }
+data $MAIN_BB = { z 4 }
+data $GLOBAL_FUNC = { z 8520 }
+data $FUNC_LIST = { z 16 }
+data $label_lut_idx = { w 0 }
+data $LABEL_LUT = { z 4 }
+data $ph2_ir_idx = { w 0 }
+data $PH2_IR = { z 4 }
+data $ph1_ir_idx = { w 0 }
+data $PH1_IR = { z 4 }
+data $global_ir_idx = { w 0 }
+data $GLOBAL_IR = { z 4 }
+data $types_idx = { w 0 }
+data $TYPES = { z 4 }
+data $func_tries_idx = { w 1 }
+data $FUNC_TRIES = { z 4 }
+data $funcs_idx = { w 1 }
+data $FUNCS = { z 4 }
+data $macros_idx = { w 0 }
+data $MACROS = { z 4 }
+data $blocks_idx = { w 0 }
+data $BLOCKS = { z 4 }
+getloadavg
+getsubopt
+rpmatch
+wcstombs
+mbstowcs
+wctomb
+mbtowc
+mblen
+qfcvt_r
+qecvt_r
+fcvt_r
+ecvt_r
+qgcvt
+qfcvt
+qecvt
+gcvt
+fcvt
+ecvt
+lldiv
+ldiv
+div
+llabs
+labs
+abs
+qsort
+bsearch
+realpath
+system
+mkdtemp
+mkstemps
+mkstemp
+mktemp
+clearenv
+unsetenv
+setenv
+putenv
+getenv
+_Exit
+quick_exit
+exit
+on_exit
+at_quick_exit
+atexit
+abort
+aligned_alloc
+posix_memalign
+valloc
+alloca
+reallocarray
+free
+realloc
+calloc
+malloc
+lcong48_r
+seed48_r
+srand48_r
+jrand48_r
+mrand48_r
+nrand48_r
+lrand48_r
+erand48_r
+drand48_r
+lcong48
+seed48
+srand48
+jrand48
+mrand48
+nrand48
+lrand48
+erand48
+drand48
+rand_r
+srand
+rand
+setstate_r
+initstate_r
+srandom_r
+random_r
+setstate
+initstate
+srandom
+random
+pselect
+select
+__uint64_identity
+__uint32_identity
+__uint16_identity
+__bswap_64
+__bswap_32
+__bswap_16
+a64l
+l64a
+strtoull
+strtoll
+strtouq
+strtoq
+strtoul
+strtol
+strtold
+strtof
+strtod
+atoll
+atol
+atoi
+atof
+__ctype_get_mb_cur_max
+stpncpy
+__stpncpy
+stpcpy
+__stpcpy
+strsignal
+strsep
+explicit_bzero
+strncasecmp_l
+strcasecmp_l
+strncasecmp
+strcasecmp
+ffsll
+ffsl
+ffs
+rindex
+index
+bzero
+bcopy
+bcmp
+strerror_l
+__xpg_strerror_r
+strerror
+strnlen
+strlen
+strtok_r
+__strtok_r
+strtok
+strstr
+strpbrk
+strspn
+strcspn
+strrchr
+strchr
+strndup
+strdup
+strxfrm_l
+strcoll_l
+strxfrm
+strcoll
+strncmp
+strcmp
+strncat
+strcat
+strncpy
+strcpy
+memchr
+__memcmpeq
+memcmp
+memset
+memccpy
+memmove
+memcpy
+__overflow
+__uflow
+funlockfile
+ftrylockfile
+flockfile
+ctermid
+popen
+pclose
+fileno_unlocked
+fileno
+perror
+ferror_unlocked
+feof_unlocked
+clearerr_unlocked
+ferror
+feof
+clearerr
+fsetpos
+fgetpos
+ftello
+fseeko
+rewind
+ftell
+fseek
+fwrite_unlocked
+fread_unlocked
+fwrite
+fread
+ungetc
+puts
+fputs
+getline
+getdelim
+__getdelim
+fgets
+putw
+getw
+putchar_unlocked
+putc_unlocked
+fputc_unlocked
+putchar
+putc
+fputc
+fgetc_unlocked
+getchar_unlocked
+getc_unlocked
+getchar
+getc
+fgetc
+__isoc99_vsscanf
+__isoc99_vscanf
+__isoc99_vfscanf
+vsscanf
+vscanf
+vfscanf
+__isoc99_sscanf
+__isoc99_scanf
+__isoc99_fscanf
+sscanf
+scanf
+fscanf
+dprintf
+vdprintf
+vsnprintf
+snprintf
+vsprintf
+vprintf
+vfprintf
+sprintf
+printf
+fprintf
+setlinebuf
+setbuffer
+setvbuf
+setbuf
+open_memstream
+fmemopen
+fdopen
+freopen
+fopen
+fflush_unlocked
+fflush
+tempnam
+tmpnam_r
+tmpnam
+tmpfile
+fclose
+renameat
+rename
+remove
+data $stderr = { z 4 }
+data $stdout = { z 4 }
+data $stdin = { z 4 }

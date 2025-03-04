@@ -669,6 +669,12 @@ bool va_arg_need_copy(Type *ty);
 extern bool dont_reuse_stack;
 
 //
+// qbe.c
+//
+
+void gen_qbe(Obj *prog, FILE *out);
+
+//
 // unicode.c
 //
 
