@@ -403,7 +403,7 @@ static Obj *new_gvar(char *name, Type *ty) {
 
 char *new_unique_name(void) {
   static int id = 0;
-  return format(".L..%d", id++);
+  return format(opt_qbe ? "L_%d" : ".L..%d", id++);
 }
 
 static Obj *new_anon_gvar(Type *ty) {

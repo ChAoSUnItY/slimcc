@@ -8,10 +8,6 @@
 #ifndef SHECC_DEFS_H
 #define SHECC_DEFS_H
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-
 /* definitions */
 
 /* Limitations */

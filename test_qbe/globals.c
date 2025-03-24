@@ -7,8 +7,6 @@
 
 /* Global objects */
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include "defs.h"
 
 block_t *BLOCKS;

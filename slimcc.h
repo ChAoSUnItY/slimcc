@@ -711,3 +711,4 @@ extern char *opt_visibility;
 extern bool opt_cc1_asm_pp;
 extern char *base_file;
 extern StdVer opt_std;
+extern bool opt_qbe;

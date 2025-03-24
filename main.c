@@ -30,7 +30,7 @@ static bool opt_MD;
 static bool opt_MMD;
 static bool opt_MP;
 static bool opt_S;
-static bool opt_qbe;
+bool opt_qbe;
 static bool opt_c;
 static bool opt_cc1;
 static bool opt_hash_hash_hash;

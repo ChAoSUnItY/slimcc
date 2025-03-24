@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -g -fno-common -Wall -pedantic -Wno-switch
+CFLAGS=-std=c99 -g -fno-common -Wall -pedantic -Wno-switch -Wno-format-zero-length
 
 TEST_FLAGS=-Iinclude -Itest -fenable-universal-char
 
@@ -63,6 +63,6 @@ clean:
 	find test/* -type f '(' -name '*~' -o -name '*.exe' ')' -exec rm {} ';'
 
 run: slimcc
-	./slimcc -qbe -o test_qbe/c.ssa test_qbe/c.c
+	./slimcc -qbe -o test_qbe/c.ssa test_qbe/main.c
 
 .PHONY: test clean test-stage2
