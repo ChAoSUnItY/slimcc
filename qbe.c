@@ -640,10 +640,10 @@ void emit_function(Obj *prog) {
 
     print("%s(", var->name);
 
-    for (Obj *param = var->ty->param_list; param; param = param->next) {
+    for (Obj *param = var->ty->param_list; param; param = param->param_next) {
       print("%c %%%s", ty_specifier(param->ty), param->name);
 
-      if (param->next)
+      if (param->param_next)
         print(", ");
     }
 
