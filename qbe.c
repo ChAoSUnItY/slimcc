@@ -384,7 +384,10 @@ char *emit_expr(Node *expr) {
     }
     case ND_ASSIGN: {
       if (expr->lhs->kind == ND_DEREF) {
-        
+        char *rhs = emit_expr(expr->rhs);
+        char *lhs = emit_expr(expr->lhs->lhs);
+
+        println("store%c %s, %s", ty_specifier(expr->rhs->ty), rhs, lhs);
         break;
       } 
 
@@ -589,9 +592,43 @@ void emit_stmt(Node *stmt) {
       break;
     }
     case ND_SWITCH: {
+      char *cond = emit_expr(stmt->cond), *cond_var = tmp_var();
+      int c = count();
+
+      for (Node *case_nd = stmt->case_next; case_nd; case_nd = case_nd->case_next) {
+        if (stmt->case_next != case_nd) {
+          println("@L_case_%d", c);
+          c = count();
+        }
+
+        if (case_nd->begin == case_nd->end) {
+          println("%s =w ceq %s, %d", cond_var, cond, (int) case_nd->begin);
+          println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+          continue;
+        }
+
+        if (case_nd->begin == 0) {
+          println("%s =w cle %s, %d", cond_var, cond, (int) (case_nd->end - case_nd->begin));
+          println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+          continue;
+        }
+
+        println("%s =w cle %s, %d", cond_var, cond, (int) case_nd->end);
+        println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+      }
+
+      if (stmt->default_case)
+        println("jmp @%s", stmt->default_case->label);
+
+      println("jmp @%s", stmt->brk_label);
+      emit_stmt(stmt->then);
+      println("@%s", stmt->brk_label);
       break;
     }
     case ND_CASE: {
+      println("@%s", stmt->label);
+      if (stmt->lhs)
+        emit_stmt(stmt->lhs);
       break;
     }
     case ND_BLOCK: {
