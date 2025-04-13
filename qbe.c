@@ -675,7 +675,7 @@ void emit_function(Obj *prog) {
     if (return_ty)
       print("%c ", ty_specifier(return_ty));
 
-    print("%s(", var->name);
+    print("$%s(", var->name);
 
     for (Obj *param = var->ty->param_list; param; param = param->param_next) {
       print("%c %%%s", ty_specifier(param->ty), param->name);

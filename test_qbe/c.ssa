@@ -108,17 +108,17 @@ data $L_139 = { b ", " }
 data $L_136 = { b " @%s(" }
 data $L_135 = { b "*" }
 data $L_132 = { b "def %s" }
-function w __syscall(w %nr) {
+function w $__syscall(w %nr) {
   # DECLARATION ONLY
 }
-function v abort() {
+function v $abort() {
   %t0 =w $L_50
   call $printf(w %.0)
   %t1 =w -1
   %t2 =w %t1
   call $exit(w %.1)
 }
-function w strlen(w %str) {
+function w $strlen(w %str) {
   %t3 =w 0
   %i =w %t3
   @L_begin_0
@@ -137,7 +137,7 @@ function w strlen(w %str) {
   @L_0
   ret %i
 }
-function w strcmp(w %s1, w %s2) {
+function w $strcmp(w %s1, w %s2) {
   %t11 =w 0
   %i =w %t11
   @L_begin_1
@@ -202,7 +202,7 @@ function w strcmp(w %s1, w %s2) {
   %t52 =w sub %t47, %t51
   ret %t52
 }
-function w strncmp(w %s1, w %s2, w %len) {
+function w $strncmp(w %s1, w %s2, w %len) {
   %t53 =w 0
   %i =w %t53
   @L_begin_4
@@ -263,7 +263,7 @@ function w strncmp(w %s1, w %s2, w %len) {
   %t84 =w 0
   ret %t84
 }
-function w strcpy(w %dest, w %src) {
+function w $strcpy(w %dest, w %src) {
   %t85 =w 0
   %i =w %t85
   @L_begin_8
@@ -295,7 +295,7 @@ function w strcpy(w %dest, w %src) {
   storeb %t100, %t103
   ret %dest
 }
-function w strncpy(w %dest, w %src, w %len) {
+function w $strncpy(w %dest, w %src, w %len) {
   %t104 =w 0
   %i =w %t104
   %t105 =w 0
@@ -346,7 +346,7 @@ function w strncpy(w %dest, w %src, w %len) {
   @L_8
   ret %dest
 }
-function w memcpy(w %dest, w %src, w %count) {
+function w $memcpy(w %dest, w %src, w %count) {
   @L_begin_12
   %t130 =w 0
   %t131 =w cgt %count, %t130
@@ -369,7 +369,7 @@ function w memcpy(w %dest, w %src, w %count) {
   @L_10
   ret %dest
 }
-function v __str_base10(w %pb, w %val) {
+function v $__str_base10(w %pb, w %val) {
   %t142 =w 0
   %neg =w %t142
   %t143 =w 15
@@ -464,7 +464,7 @@ function v __str_base10(w %pb, w %val) {
   @L_else_16
   @L_end_16
 }
-function v __str_base8(w %pb, w %val) {
+function v $__str_base8(w %pb, w %val) {
   %t196 =w 15
   %c =w %t196
   %t197 =w 10
@@ -507,7 +507,7 @@ function v __str_base8(w %pb, w %val) {
   %t220 =w add %pb, %t219
   storeb %t217, %t220
 }
-function v __str_base16(w %pb, w %val) {
+function v $__str_base16(w %pb, w %val) {
   %t221 =w 15
   %c =w %t221
   %t222 =w 8
@@ -565,7 +565,7 @@ function v __str_base16(w %pb, w %val) {
   jmp @L_begin_18
   @L_17
 }
-function w __format(w %buffer, w %val, w %width, w %zeropad, w %base, w %alternate_form) {
+function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %alternate_form) {
   %t250 =w 0
   %bi =w %t250
   %t251 =w 0
@@ -853,7 +853,7 @@ function w __format(w %buffer, w %val, w %width, w %zeropad, w %base, w %alterna
   @L_34
   ret %bi
 }
-function v printf(w %str) {
+function v $printf(w %str) {
   %t397 =w 32
   %t398 =w add , %t397
   %var_args =w %t398
@@ -1146,7 +1146,7 @@ function v printf(w %str) {
   %t593 =w %t592
   %t594 =w call $__syscall(w %.592)
 }
-function v sprintf(w %buffer, w %str) {
+function v $sprintf(w %buffer, w %str) {
   %t595 =w 32
   %t596 =w add , %t595
   %var_args =w %t596
@@ -1393,7 +1393,7 @@ function v sprintf(w %buffer, w %str) {
   %t748 =w add %buffer, %t747
   storeb %t745, %t748
 }
-function w __free_all() {
+function w $__free_all() {
   %t749 =b ceq $__freelist_head, 0
   %t750 =b ceq $__alloc_head, 0
   %t751 =w and %t749, %t750
@@ -1448,13 +1448,13 @@ function w __free_all() {
   %t763 =w 0
   ret %t763
 }
-function v exit(w %exit_code) {
+function v $exit(w %exit_code) {
   %t764 =w call $__free_all()
   %t765 =w 1
   %t766 =w %t765
   %t767 =w call $__syscall(w %.765)
 }
-function w fopen(w %filename, w %mode) {
+function w $fopen(w %filename, w %mode) {
   %t768 =w %mode
   %t769 =w call $strcmp(w %.768)
   %t770 =b ceq %t769, 0
@@ -1482,14 +1482,14 @@ function w fopen(w %filename, w %mode) {
   %t780 =w 0
   ret %t780
 }
-function w fclose(w %stream) {
+function w $fclose(w %stream) {
   %t781 =w 6
   %t782 =w %t781
   %t783 =w call $__syscall(w %.781)
   %t784 =w 0
   ret %t784
 }
-function w fgetc(w %stream) {
+function w $fgetc(w %stream) {
   %t785 =w 1
   %t786 =w clt %r, %t785
   jnz %t786, @L_then_70, @L_else_70
@@ -1501,7 +1501,7 @@ function w fgetc(w %stream) {
   @L_end_70
   ret %buf
 }
-function w fgets(w %str, w %n, w %stream) {
+function w $fgets(w %str, w %n, w %stream) {
   %t788 =w 0
   %i =w %t788
   @L_begin_71
@@ -1568,7 +1568,7 @@ function w fgets(w %str, w %n, w %stream) {
   storeb %t817, %t820
   ret %str
 }
-function w fputc(w %c, w %stream) {
+function w $fputc(w %c, w %stream) {
   %t821 =w 0
   %t822 =w add %buf, %t821
   storeb %c, %t822
@@ -1578,15 +1578,15 @@ function w fputc(w %c, w %stream) {
   %t826 =w 0
   ret %t826
 }
-function v chunk_set_freed(w %chunk) {
+function v $chunk_set_freed(w %chunk) {
   %t827 =w 1
   %t828 =w or , %t827
 }
-function v chunk_clear_freed(w %chunk) {
+function v $chunk_clear_freed(w %chunk) {
   %t829 =w -2
   %t830 =w and , %t829
 }
-function w __align_up(w %size) {
+function w $__align_up(w %size) {
   %t831 =w 4095
   %mask =w %t831
   %t832 =w 1
@@ -1596,7 +1596,7 @@ function w __align_up(w %size) {
   %t836 =w add %t834, %t835
   ret %t836
 }
-function w malloc(w %size) {
+function w $malloc(w %size) {
   %t837 =w 0
   %t838 =w cle %size, %t837
   jnz %t838, @L_then_75, @L_else_75
@@ -1737,7 +1737,7 @@ function w malloc(w %size) {
   %ptr =w %t879
   ret %ptr
 }
-function w calloc(w %n, w %size) {
+function w $calloc(w %n, w %size) {
   %t880 =w mul %n, %size
   %t881 =w %t880
   %t882 =w call $malloc(w %.880)
@@ -1771,7 +1771,7 @@ function w calloc(w %n, w %size) {
   @L_57
   ret %p
 }
-function v __rfree(w %ptr, w %size) {
+function v $__rfree(w %ptr, w %size) {
   %t895 =b ceq %ptr, 0
   jnz %t895, @L_then_88, @L_else_88
   @L_then_88
@@ -1783,7 +1783,7 @@ function v __rfree(w %ptr, w %size) {
   %t897 =w %t896
   %t898 =w call $__syscall(w %.896)
 }
-function v free(w %ptr) {
+function v $free(w %ptr) {
   %t899 =b ceq %ptr, 0
   jnz %t899, @L_then_89, @L_else_89
   @L_then_89
@@ -1831,7 +1831,7 @@ function v free(w %ptr) {
    =w %cur
   $__freelist_head =w %cur
 }
-function w insert_trie(w %trie, w %name, w %funcs_index) {
+function w $insert_trie(w %trie, w %name, w %funcs_index) {
   @L_begin_93
   %t908 =b 1
   jnz %t908, @L_then_93, @L_64
@@ -1900,7 +1900,7 @@ function w insert_trie(w %trie, w %name, w %funcs_index) {
   jmp @L_begin_93
   @L_64
 }
-function w find_trie(w %trie, w %name) {
+function w $find_trie(w %trie, w %name) {
   @L_begin_98
   %t936 =b 1
   jnz %t936, @L_then_98, @L_68
@@ -1935,7 +1935,7 @@ function w find_trie(w %trie, w %name) {
   jmp @L_begin_98
   @L_68
 }
-function w find_type(w %type_name, w %flag) {
+function w $find_type(w %type_name, w %flag) {
   %t947 =w 0
   %i =w %t947
   @L_begin_101
@@ -2004,22 +2004,22 @@ function w find_type(w %type_name, w %flag) {
   %t969 =w 0
   ret %t969
 }
-function w add_global_ir(w %op) {
+function w $add_global_ir(w %op) {
   %ir =w 
    =w %op
   ret %ir
 }
-function w add_ph1_ir(w %op) {
+function w $add_ph1_ir(w %op) {
   %ph1_ir =w 
    =w %op
   ret %ph1_ir
 }
-function w add_ph2_ir(w %op) {
+function w $add_ph2_ir(w %op) {
   %ph2_ir =w 
    =w %op
   ret %ph2_ir
 }
-function v set_var_liveout(w %var, w %end) {
+function v $set_var_liveout(w %var, w %end) {
   %t970 =w cge , %end
   jnz %t970, @L_then_108, @L_else_108
   @L_then_108
@@ -2029,13 +2029,13 @@ function v set_var_liveout(w %var, w %end) {
   @L_end_108
    =w %end
 }
-function v add_label(w %name, w %offset) {
+function v $add_label(w %name, w %offset) {
   %lut =w 
   %t971 =w 
   %t972 =w call $strcpy(w %.971)
    =w %offset
 }
-function w find_label_offset(w %name) {
+function w $find_label_offset(w %name) {
   %t973 =w 0
   %i =w %t973
   @L_begin_109
@@ -2061,7 +2061,7 @@ function w find_label_offset(w %name) {
   %t981 =w -1
   ret %t981
 }
-function w add_block(w %parent, w %func, w %macro) {
+function w $add_block(w %parent, w %func, w %macro) {
   %blk =w 
   %t982 =w 1
   $blocks_idx =w add $blocks_idx, %t982
@@ -2075,7 +2075,7 @@ function w add_block(w %parent, w %func, w %macro) {
    =w %t985
   ret %blk
 }
-function v add_alias(w %alias, w %value) {
+function v $add_alias(w %alias, w %value) {
   %al =w 
   %t986 =w 
   %t987 =w call $strcpy(w %.986)
@@ -2084,7 +2084,7 @@ function v add_alias(w %alias, w %value) {
   %t990 =b 0
    =b %t990
 }
-function w find_alias(w %alias) {
+function w $find_alias(w %alias) {
   %t991 =w 0
   %i =w %t991
   @L_begin_111
@@ -2112,7 +2112,7 @@ function w find_alias(w %alias) {
   %t1001 =w 0
   ret %t1001
 }
-function b remove_alias(w %alias) {
+function b $remove_alias(w %alias) {
   %t1002 =w 0
   %i =w %t1002
   @L_begin_113
@@ -2143,7 +2143,7 @@ function b remove_alias(w %alias) {
   %t1014 =b 0
   ret %t1014
 }
-function w add_macro(w %name) {
+function w $add_macro(w %name) {
   %ma =w 
   %t1015 =w 
   %t1016 =w call $strcpy(w %.1015)
@@ -2151,7 +2151,7 @@ function w add_macro(w %name) {
    =b %t1017
   ret %ma
 }
-function w find_macro(w %name) {
+function w $find_macro(w %name) {
   %t1018 =w 0
   %i =w %t1018
   @L_begin_115
@@ -2179,7 +2179,7 @@ function w find_macro(w %name) {
   %t1028 =w 0
   ret %t1028
 }
-function b remove_macro(w %name) {
+function b $remove_macro(w %name) {
   %t1029 =w 0
   %i =w %t1029
   @L_begin_117
@@ -2210,7 +2210,7 @@ function b remove_macro(w %name) {
   %t1041 =b 0
   ret %t1041
 }
-function v error(w %msg) {
+function v $error(w %msg) {
   %t1042 =w 0
   %i =w %t1042
   %offset =w $source_idx
@@ -2310,7 +2310,7 @@ function v error(w %msg) {
   call $printf(w %.1105)
   call $abort()
 }
-function w find_macro_param_src_idx(w %name, w %parent) {
+function w $find_macro_param_src_idx(w %name, w %parent) {
   %macro =w 
   %t1106 =b ceq %parent, 0
   jnz %t1106, @L_then_122, @L_else_122
@@ -2357,7 +2357,7 @@ function w find_macro_param_src_idx(w %name, w %parent) {
   %t1122 =w 0
   ret %t1122
 }
-function w add_func(w %name) {
+function w $add_func(w %name) {
   %t1123 =w $FUNC_TRIES
   %t1124 =w call $insert_trie(w %.1123)
   %index =w %t1124
@@ -2375,23 +2375,23 @@ function w add_func(w %name) {
    =w %t1128
   ret %fn
 }
-function w add_type() {
+function w $add_type() {
   ret 
 }
-function w add_named_type(w %name) {
+function w $add_named_type(w %name) {
   %t1129 =w call $add_type()
   %type =w %t1129
   %t1130 =w 
   %t1131 =w call $strcpy(w %.1130)
   ret %type
 }
-function v add_constant(w %alias, w %value) {
+function v $add_constant(w %alias, w %value) {
   %constant =w 
   %t1132 =w 
   %t1133 =w call $strcpy(w %.1132)
    =w %value
 }
-function w find_constant(w %alias) {
+function w $find_constant(w %alias) {
   %t1134 =w 0
   %i =w %t1134
   @L_begin_127
@@ -2417,7 +2417,7 @@ function w find_constant(w %alias) {
   %t1142 =w 0
   ret %t1142
 }
-function w find_func(w %func_name) {
+function w $find_func(w %func_name) {
   %t1143 =w $FUNC_TRIES
   %t1144 =w call $find_trie(w %.1143)
   %index =w %t1144
@@ -2430,7 +2430,7 @@ function w find_func(w %func_name) {
   %t1145 =w 0
   ret %t1145
 }
-function w find_member(w %token, w %type) {
+function w $find_member(w %token, w %type) {
   %t1146 =w 0
   %t1147 =w ceq , %t1146
   jnz %t1147, @L_then_130, @L_else_130
@@ -2464,7 +2464,7 @@ function w find_member(w %token, w %type) {
   %t1156 =w 0
   ret %t1156
 }
-function w find_local_var(w %token, w %block) {
+function w $find_local_var(w %token, w %block) {
   %fn =w 
   @L_begin_133
   jnz %block, @L_then_133, @L_89
@@ -2525,7 +2525,7 @@ function w find_local_var(w %token, w %block) {
   %t1173 =w 0
   ret %t1173
 }
-function w find_global_var(w %token) {
+function w $find_global_var(w %token) {
   %block =w 
   %t1174 =w 0
   %i =w %t1174
@@ -2552,7 +2552,7 @@ function w find_global_var(w %token) {
   %t1182 =w 0
   ret %t1182
 }
-function w find_var(w %token, w %parent) {
+function w $find_var(w %token, w %parent) {
   %t1183 =w %token
   %t1184 =w call $find_local_var(w %.1183)
   %var =w %t1184
@@ -2567,7 +2567,7 @@ function w find_var(w %token, w %parent) {
   @L_end_141
   ret %var
 }
-function w size_var(w %var) {
+function w $size_var(w %var) {
   %t1188 =w 0
   %t1189 =w cgt , %t1188
   %t1190 =w or %t1189, 
@@ -2609,7 +2609,7 @@ function w size_var(w %var) {
   @L_end_145
   ret %size
 }
-function w add_fn() {
+function w $add_fn() {
   %t1201 =w 1
   %t1202 =w %t1201
   %t1203 =w call $calloc(w %.1201)
@@ -2627,7 +2627,7 @@ function w add_fn() {
    =w %n
   ret %n
 }
-function w bb_create(w %parent) {
+function w $bb_create(w %parent) {
   %t1205 =w 1
   %t1206 =w %t1205
   %t1207 =w call $calloc(w %.1205)
@@ -2654,7 +2654,7 @@ function w bb_create(w %parent) {
    =w 
   ret %bb
 }
-function v bb_connect(w %pred, w %succ, w %type) {
+function v $bb_connect(w %pred, w %succ, w %type) {
   %t1216 =b ceq %pred, 0
   jnz %t1216, @L_then_148, @L_else_148
   @L_then_148
@@ -2716,7 +2716,7 @@ function v bb_connect(w %pred, w %succ, w %type) {
   call $abort()
   @L_103
 }
-function v bb_disconnect(w %pred, w %succ) {
+function v $bb_disconnect(w %pred, w %succ) {
   %t1226 =w 0
   %i =w %t1226
   @L_begin_155
@@ -2766,7 +2766,7 @@ function v bb_disconnect(w %pred, w %succ) {
   jmp @L_begin_155
   @L_108
 }
-function v add_symbol(w %bb, w %var) {
+function v $add_symbol(w %bb, w %var) {
   %t1238 =b ceq %bb, 0
   jnz %t1238, @L_then_160, @L_else_160
   @L_then_160
@@ -2810,7 +2810,7 @@ function v add_symbol(w %bb, w %var) {
    =w %sym
   @L_end_163
 }
-function v add_insn(w %block, w %bb, w %op, w %rd, w %rs1, w %rs2, w %sz, w %str) {
+function v $add_insn(w %block, w %bb, w %op, w %rd, w %rs1, w %rs2, w %sz, w %str) {
   %t1247 =b ceq %bb, 0
   jnz %t1247, @L_then_164, @L_else_164
   @L_then_164
@@ -2847,7 +2847,7 @@ function v add_insn(w %block, w %bb, w %op, w %rd, w %rs1, w %rs2, w %sz, w %str
    =w 
    =w %n
 }
-function v global_init() {
+function v $global_init() {
   %t1254 =w 65536
   %t1255 =w add %t1254, $elf_header_len
   $elf_code_start =w %t1255
@@ -2926,7 +2926,7 @@ function v global_init() {
   %t1310 =w 4
    =w %t1310
 }
-function v global_release() {
+function v $global_release() {
   %t1311 =w $BLOCKS
   call $free(w %.1311)
   %t1312 =w $MACROS
@@ -2964,7 +2964,7 @@ function v global_release() {
   %t1328 =w $elf_section
   call $free(w %.1328)
 }
-function v print_indent(w %indent) {
+function v $print_indent(w %indent) {
   %t1329 =w 0
   %i =w %t1329
   @L_begin_167
@@ -2981,7 +2981,7 @@ function v print_indent(w %indent) {
   jmp @L_begin_167
   @L_125
 }
-function v dump_ph1_ir() {
+function v $dump_ph1_ir() {
   %t1335 =w 0
   %indent =w %t1335
   %t1336 =w 0
