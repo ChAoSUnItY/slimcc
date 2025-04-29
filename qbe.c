@@ -214,24 +214,35 @@ char ty_specifier(Type *ty) {
   }
 }
 
+char *emit_addr(Node *node);
 char *emit_expr(Node *expr);
 void emit_stmt(Node *stmt);
 
 char *emit_var_expr(Node *expr) {
+  if (expr->var->ty->kind == TY_FUNC) {
+    char *tmp = tmp_var();
+
+    println("%s =w loadw $%s", tmp, expr->var->name);
+    return tmp;
+  }
+
   return format(expr->var->is_local ? "%%%s" : "$%s", expr->var->name);
 }
 
 char *emit_arith_assign(Node *expr) {
-  char *lhs, *rhs, *var, *op;
+  char *lhs, *rhs, *var, *addr, *op, ty_spec = ty_specifier(expr->ty);
 
   if (expr->lhs->kind == ND_VAR) {
     lhs = emit_var_expr(expr->lhs);
     rhs = emit_expr(expr->rhs);
     var = lhs;
   } else {
-    lhs = emit_expr(expr->lhs);
+    addr = emit_addr(expr->lhs);
     rhs = emit_expr(expr->rhs);
+    lhs = tmp_var();
     var = tmp_var();
+
+    println("%s =%c loadw %s", lhs, ty_spec, addr);
   }
 
   switch (expr->arith_kind) {
@@ -285,7 +296,12 @@ char *emit_arith_assign(Node *expr) {
     }
   }
 
-  println("%s =%c %s %s, %s", var, ty_specifier(expr->ty), op, lhs, rhs);
+  if (expr->lhs->kind == ND_VAR) {
+    println("%s =%c %s %s, %s", var, ty_spec, op, lhs, rhs);
+  } else {
+    println("%s =%c %s %s, %s", var, ty_spec, op, lhs, rhs);
+    println("store%c %s, %s", ty_spec, addr, var);
+  }
 
   return var;
 }
@@ -293,6 +309,55 @@ char *emit_arith_assign(Node *expr) {
 char *emit_binary_expr(Node *expr, char *op) {
   char *lhs = emit_expr(expr->lhs), *rhs = emit_expr(expr->rhs), *var = tmp_var();
   println("%s =%c %s %s, %s", var, ty_specifier(expr->ty), op, lhs, rhs);
+  return var;
+}
+
+char *emit_addr(Node *node) {
+  char *var = tmp_var(), *addr;
+
+  switch (node->kind) {
+    case ND_VAR: {
+      if (node->var->is_local) {
+        // local variable
+        println("%s =w addr %%%s", var, node->var->name);
+        return var;
+      }
+
+      if (node->ty->kind == TY_FUNC) {
+        // Function ptr
+        println("%s =w loadw $%s", var, node->var->name);
+        return var;
+      }
+
+      // global variable
+      println("%s =w gaddr %%%s", var, node->var->name);
+      return var;
+    }
+    case ND_DEREF:
+      var = emit_expr(node->lhs);
+      return var;
+    case ND_CHAIN:
+    case ND_COMMA:
+      var = emit_expr(node->rhs);
+      return var;
+    case ND_MEMBER:
+      switch (node->lhs->kind) {
+        case ND_FUNCALL:
+        case ND_ASSIGN:
+        case ND_COND:
+        case ND_STMT_EXPR:
+        case ND_VA_ARG:
+          addr = emit_expr(node->lhs);
+          println("%s =w add %s, %d", var, addr, node->member->offset);
+          return var;
+        default:
+          addr = emit_addr(node->lhs);
+          println("%s =w add %s, %d", var, addr, node->member->offset);
+          return var;
+      }
+  }
+
+  error_tok(node->tok, "not an lvalue");
   return var;
 }
 
@@ -389,7 +454,7 @@ char *emit_expr(Node *expr) {
 
         println("store%c %s, %s", ty_specifier(expr->rhs->ty), rhs, lhs);
         break;
-      } 
+      }
 
       var = emit_expr(expr->lhs);
       char *rhs = emit_expr(expr->rhs);
@@ -410,12 +475,18 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_COMMA: {
+      emit_expr(expr->rhs);
       break;
     }
     case ND_MEMBER: {
+      char *addr = emit_addr(expr), ty_spec = ty_specifier(expr->member->ty);
+      var = tmp_var();
+
+      println("%s =%c load%c %s", var, ty_spec, ty_spec, addr);
       break;
     }
     case ND_ADDR: {
+      var = emit_addr(expr->lhs);
       break;
     }
     case ND_DEREF: {
@@ -491,7 +562,7 @@ char *emit_expr(Node *expr) {
     }
     case ND_NUM: {
       var = tmp_var();
-      println("%s =%c %d", var, ty_specifier(expr->ty), (int)expr->val);
+      println("%s =%c copy %d", var, ty_specifier(expr->ty), (int)expr->val);
       break;
     }
     case ND_CAST: {
@@ -602,18 +673,18 @@ void emit_stmt(Node *stmt) {
         }
 
         if (case_nd->begin == case_nd->end) {
-          println("%s =w ceq %s, %d", cond_var, cond, (int) case_nd->begin);
+          println("%s =w ceq %s, %d", cond_var, cond, (int)case_nd->begin);
           println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
           continue;
         }
 
         if (case_nd->begin == 0) {
-          println("%s =w cle %s, %d", cond_var, cond, (int) (case_nd->end - case_nd->begin));
+          println("%s =w cle %s, %d", cond_var, cond, (int)(case_nd->end - case_nd->begin));
           println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
           continue;
         }
 
-        println("%s =w cle %s, %d", cond_var, cond, (int) case_nd->end);
+        println("%s =w cle %s, %d", cond_var, cond, (int)case_nd->end);
         println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
       }
 
