@@ -271,7 +271,7 @@ function w $strcpy(w %dest, w %src) {
   %t94 =w copy 1
   %t95 =w mul %i, %t94
   %t96 =w add %dest, %t95
-  storeb %t93, %t96
+  storeb %t96, %t93
   %t97 =w copy 1
   %i =w add %i, %t97
   %t98 =w copy -1
@@ -283,7 +283,7 @@ function w $strcpy(w %dest, w %src) {
   %t101 =w copy 1
   %t102 =w mul %i, %t101
   %t103 =w add %dest, %t102
-  storeb %t100, %t103
+  storeb %t103, %t100
   ret %dest
 }
 function w $strncpy(w %dest, w %src, w %len) {
@@ -306,7 +306,7 @@ function w $strncpy(w %dest, w %src, w %len) {
   %t113 =w copy 1
   %t114 =w mul %i, %t113
   %t115 =w add %dest, %t114
-  storeb %t112, %t115
+  storeb %t115, %t112
   %t116 =w copy 1
   %t117 =w mul %i, %t116
   %t118 =w add %src, %t117
@@ -326,7 +326,7 @@ function w $strncpy(w %dest, w %src, w %len) {
   %t124 =w copy 1
   %t125 =w mul %i, %t124
   %t126 =w add %dest, %t125
-  storeb %t123, %t126
+  storeb %t126, %t123
   @L_end_10
   %t127 =w copy 1
   %i =w add %i, %t127
@@ -354,7 +354,7 @@ function w $memcpy(w %dest, w %src, w %count) {
   %t139 =w copy 1
   %t140 =w mul %count, %t139
   %t141 =w add %dest, %t140
-  storeb %t138, %t141
+  storeb %t141, %t138
   @L_11
   jmp @L_begin_12
   @L_10
@@ -449,7 +449,7 @@ function v $__str_base10(w %pb, w %val) {
   %t194 =w copy 1
   %t195 =w mul %i, %t194
   %t196 =w add %pb, %t195
-  storeb %t193, %t196
+  storeb %t196, %t193
   jmp @L_end_16
   @L_else_16
   @L_end_16
@@ -474,7 +474,7 @@ function v $__str_base8(w %pb, w %val) {
   %t205 =w copy 1
   %t206 =w mul %c, %t205
   %t207 =w add %pb, %t206
-  storeb %t204, %t207
+  storeb %t207, %t204
   %t208 =w copy 3
   %val =w sar %val, %t208
   %t209 =w copy -1
@@ -496,7 +496,7 @@ function v $__str_base8(w %pb, w %val) {
   %t219 =w copy 1
   %t220 =w mul %c, %t219
   %t221 =w add %pb, %t220
-  storeb %t218, %t221
+  storeb %t221, %t218
   ret
 }
 function v $__str_base16(w %pb, w %val) {
@@ -522,7 +522,7 @@ function v $__str_base16(w %pb, w %val) {
   %t232 =w copy 1
   %t233 =w mul %c, %t232
   %t234 =w add %pb, %t233
-  storeb %t231, %t234
+  storeb %t234, %t231
   jmp @L_end_19
   @L_else_19
   %t235 =w copy 16
@@ -536,7 +536,7 @@ function v $__str_base16(w %pb, w %val) {
   %t241 =w copy 1
   %t242 =w mul %c, %t241
   %t243 =w add %pb, %t242
-  storeb %t240, %t243
+  storeb %t243, %t240
   jmp @L_end_20
   @L_else_20
   call $abort()
@@ -572,7 +572,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t256 =w copy 1
   %t257 =w mul %pbi, %t256
   %t258 =w add %pb, %t257
-  storeb %t255, %t258
+  storeb %t258, %t255
   @L_20
   %t259 =w copy 1
   %pbi =w add %pbi, %t259
@@ -657,7 +657,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t292 =w copy 1
   %t293 =w mul %t291, %t292
   %t294 =w add %buffer, %t293
-  storeb %t288, %t294
+  storeb %t294, %t288
   %t295 =w copy 1
   %width =w sub %width, %t295
   jmp @L_end_30
@@ -676,7 +676,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t304 =w copy 1
   %t305 =w mul %pbi, %t304
   %t306 =w add %pb, %t305
-  storeb %t302, %t306
+  storeb %t306, %t302
   jmp @L_end_31
   @L_else_31
   @L_end_31
@@ -704,7 +704,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t319 =w copy 1
   %t320 =w mul %t318, %t319
   %t321 =w add %buffer, %t320
-  storeb %t315, %t321
+  storeb %t321, %t315
   %t322 =w copy 1
   %pbi =w add %pbi, %t322
   %t323 =w copy -1
@@ -738,7 +738,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t340 =w copy 1
   %t341 =w mul %t339, %t340
   %t342 =w add %buffer, %t341
-  storeb %t336, %t342
+  storeb %t342, %t336
   %t343 =b copy 120
   %t344 =w copy 1
   %bi =w add %bi, %t344
@@ -747,7 +747,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t347 =w copy 1
   %t348 =w mul %t346, %t347
   %t349 =w add %buffer, %t348
-  storeb %t343, %t349
+  storeb %t349, %t343
   %t350 =w copy 2
   %width =w sub %width, %t350
   jmp @L_end_34
@@ -766,14 +766,14 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t359 =w copy 1
   %t360 =w mul %pbi, %t359
   %t361 =w add %pb, %t360
-  storeb %t357, %t361
+  storeb %t361, %t357
   %t362 =b copy 48
   %t363 =w copy 1
   %pbi =w sub %pbi, %t363
   %t364 =w copy 1
   %t365 =w mul %pbi, %t364
   %t366 =w add %pb, %t365
-  storeb %t362, %t366
+  storeb %t366, %t362
   jmp @L_end_35
   @L_else_35
   @L_end_35
@@ -812,7 +812,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t377 =w copy 1
   %t378 =w mul %t376, %t377
   %t379 =w add %buffer, %t378
-  storeb %zeropad, %t379
+  storeb %t379, %zeropad
   %t380 =w copy -1
   %width =w add %width, %t380
   %t381 =w copy 1
@@ -836,7 +836,7 @@ function w $__format(w %buffer, w %val, w %width, w %zeropad, w %base, w %altern
   %t392 =w copy 1
   %t393 =w mul %t391, %t392
   %t394 =w add %buffer, %t393
-  storeb %t388, %t394
+  storeb %t394, %t388
   @L_35
   %t395 =w copy 1
   %pbi =w add %pbi, %t395
@@ -873,7 +873,7 @@ function v $printf(w %str) {
   %t415 =w copy 1
   %t416 =w mul %bi, %t415
   %t417 =w add %buffer, %t416
-  storeb %t414, %t417
+  storeb %t417, %t414
   %t418 =w copy 1
   %bi =w add %bi, %t418
   %t419 =w copy -1
@@ -1021,7 +1021,7 @@ function v $printf(w %str) {
   %t519 =w copy 1
   %t520 =w mul %bi, %t519
   %t521 =w add %buffer, %t520
-  storeb %t518, %t521
+  storeb %t521, %t518
   %t522 =w copy 1
   %bi =w add %bi, %t522
   jmp @L_end_47
@@ -1101,7 +1101,7 @@ function v $printf(w %str) {
   %t575 =w copy 1
   %t576 =w mul %bi, %t575
   %t577 =w add %buffer, %t576
-  storeb %t574, %t577
+  storeb %t577, %t574
   %t578 =w copy 1
   %bi =w add %bi, %t578
   %t579 =w copy -1
@@ -1133,7 +1133,7 @@ function v $printf(w %str) {
   %t591 =w copy 1
   %t592 =w mul %bi, %t591
   %t593 =w add %buffer, %t592
-  storeb %t590, %t593
+  storeb %t593, %t590
   %t594 =w copy 4
   %t595 =w copy %t594
   %t596 =w call $__syscall(w %t594)
@@ -1166,7 +1166,7 @@ function v $sprintf(w %buffer, w %str) {
   %t614 =w copy 1
   %t615 =w mul %bi, %t614
   %t616 =w add %buffer, %t615
-  storeb %t613, %t616
+  storeb %t616, %t613
   %t617 =w copy 1
   %bi =w add %bi, %t617
   %t618 =w copy -1
@@ -1307,7 +1307,7 @@ function v $sprintf(w %buffer, w %str) {
   %t700 =w copy 1
   %t701 =w mul %t699, %t700
   %t702 =w add %buffer, %t701
-  storeb %t696, %t702
+  storeb %t702, %t696
   %t703 =w copy 1
   %si =w add %si, %t703
   %t704 =w copy -1
@@ -1325,7 +1325,7 @@ function v $sprintf(w %buffer, w %str) {
   %t713 =w copy 1
   %t714 =w mul %t712, %t713
   %t715 =w add %buffer, %t714
-  storeb %t709, %t715
+  storeb %t715, %t709
   jmp @L_42
   @L_45
   %t716 =w copy 1
@@ -1385,7 +1385,7 @@ function v $sprintf(w %buffer, w %str) {
   %t749 =w copy 1
   %t750 =w mul %bi, %t749
   %t751 =w add %buffer, %t750
-  storeb %t748, %t751
+  storeb %t751, %t748
   ret
 }
 function w $__free_all() {
@@ -1538,13 +1538,13 @@ function w $fgets(w %str, w %n, w %stream) {
   %t836 =w copy 1
   %t837 =w mul %i, %t836
   %t838 =w add %str, %t837
-  storeb %t835, %t838
+  storeb %t838, %t835
   ret %str
   @L_else_72
   %t839 =w copy 1
   %t840 =w mul %i, %t839
   %t841 =w add %str, %t840
-  storeb %c, %t841
+  storeb %t841, %c
   %t842 =w copy 10
   %t843 =w ceq %c, %t842
   jnz %t843, @L_then_74, @L_else_74
@@ -1555,7 +1555,7 @@ function w $fgets(w %str, w %n, w %stream) {
   %t847 =w copy 1
   %t848 =w mul %t846, %t847
   %t849 =w add %str, %t848
-  storeb %t844, %t849
+  storeb %t849, %t844
   ret %str
   @L_else_74
   @L_54
@@ -1569,13 +1569,13 @@ function w $fgets(w %str, w %n, w %stream) {
   %t854 =w copy 1
   %t855 =w mul %i, %t854
   %t856 =w add %str, %t855
-  storeb %t853, %t856
+  storeb %t856, %t853
   ret %str
 }
 function w $fputc(w %c, w %stream) {
   %t857 =w copy 0
   %t858 =w add %buf, %t857
-  storeb %c, %t858
+  storeb %t858, %c
   %t859 =w copy 4
   %t860 =w copy %t859
   %t861 =w call $__syscall(w %t859)
@@ -1819,7 +1819,7 @@ function w $calloc(w %n, w %size) {
   %t1006 =w copy 1
   %t1007 =w mul %i, %t1006
   %t1008 =w add %p, %t1007
-  storeb %t1005, %t1008
+  storeb %t1008, %t1005
   @L_58
   %t1009 =w copy 1
   %i =w add %i, %t1009
@@ -1959,7 +1959,7 @@ function w $insert_trie(w %trie, w %name, w %funcs_index) {
   %t1094 =w copy 4
   %t1095 =w mul %fc, %t1094
   %t1096 =w add %t1093, %t1095
-  storew %t1090, %t1096
+  storew %t1096, %t1090
   %t1097 =w copy 0
   %i =w copy %t1097
   @L_begin_97
@@ -1982,7 +1982,7 @@ function w $insert_trie(w %trie, w %name, w %funcs_index) {
   %t1114 =w copy 4
   %t1115 =w mul %i, %t1114
   %t1116 =w add %t1113, %t1115
-  storew %t1100, %t1116
+  storew %t1116, %t1100
   @L_67
   %t1117 =w copy 1
   %i =w add %i, %t1117
@@ -2537,7 +2537,7 @@ function v $error(w %msg) {
   %t1503 =w copy 1
   %t1504 =w mul %t1502, %t1503
   %t1505 =w add %diagnostic, %t1504
-  storeb %t1499, %t1505
+  storeb %t1505, %t1499
   @L_120
   %t1506 =w copy 1
   %offset =w add %offset, %t1506
@@ -2553,7 +2553,7 @@ function v $error(w %msg) {
   %t1513 =w copy 1
   %t1514 =w mul %t1512, %t1513
   %t1515 =w add %diagnostic, %t1514
-  storeb %t1509, %t1515
+  storeb %t1515, %t1509
   %offset =w copy %start_idx
   @L_begin_121
   %t1516 =w clt %offset, $source_idx
@@ -2567,7 +2567,7 @@ function v $error(w %msg) {
   %t1521 =w copy 1
   %t1522 =w mul %t1520, %t1521
   %t1523 =w add %diagnostic, %t1522
-  storeb %t1517, %t1523
+  storeb %t1523, %t1517
   @L_122
   %t1524 =w copy 1
   %offset =w add %offset, %t1524

@@ -454,7 +454,7 @@ char *emit_expr(Node *expr) {
         char *rhs = emit_expr(expr->rhs);
         char *lhs = emit_expr(expr->lhs->lhs);
 
-        println("store%c %s, %s", ty_specifier(expr->rhs->ty), rhs, lhs);
+        println("store%c %s, %s", ty_specifier(expr->rhs->ty), lhs, rhs);
         break;
       }
 
