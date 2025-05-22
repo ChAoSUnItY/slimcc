@@ -6,12 +6,14 @@ static int indent = 0;
 
 static int tmp_var_idx = 0;
 
+static bool is_last_insn_jmp = false;
+
 char *tmp_var() {
   return format("%%t%d", tmp_var_idx++);
 }
 
 char *as_tmp_var(int idx) {
-  return format("%%.%d", idx);
+  return format("%%t%d", idx);
 }
 
 void write_indent();
@@ -458,7 +460,7 @@ char *emit_expr(Node *expr) {
 
       var = emit_expr(expr->lhs);
       char *rhs = emit_expr(expr->rhs);
-      print("%s =%c %s", var, ty_specifier(expr->lhs->ty), rhs);
+      print("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
       println("");
       break;
     }
@@ -524,7 +526,7 @@ char *emit_expr(Node *expr) {
 
       for (Obj *arg = expr->args; arg; arg = arg->next) {
         var = emit_expr(arg->arg_expr);
-        print("%s =%c %s", tmp_var(), ty_specifier(arg->arg_expr->ty), var);
+        print("%s =%c copy %s", tmp_var(), ty_specifier(arg->arg_expr->ty), var);
         println("");
       }
 
@@ -593,6 +595,7 @@ char *emit_expr(Node *expr) {
     }
   }
 
+  is_last_insn_jmp = false;
   return var;
 }
 
@@ -601,6 +604,8 @@ char *emit_cond(Node *cond) {
 }
 
 void emit_stmt(Node *stmt) {
+  bool cond;
+
   switch (stmt->kind) {
     case ND_NULL_STMT: {
       if (stmt->next)
@@ -610,11 +615,13 @@ void emit_stmt(Node *stmt) {
     case ND_RETURN: {
       if (!stmt->lhs) {
         println("ret");
+        is_last_insn_jmp = true;
         return;
       }
 
       char *result_var = emit_expr(stmt->lhs);
       println("ret %s", result_var);
+      is_last_insn_jmp = true;
       break;
     }
     case ND_IF: {
@@ -623,11 +630,13 @@ void emit_stmt(Node *stmt) {
       println("jnz %s, @L_then_%d, @L_else_%d", result_var, c, c);
       println("@L_then_%d", c);
       emit_stmt(stmt->then);
-      println("jmp @L_end_%d", c);
+      if (!(cond = is_last_insn_jmp))
+        println("jmp @L_end_%d", c);
       println("@L_else_%d", c);
       if (stmt->els)
         emit_stmt(stmt->els);
-      println("@L_end_%d", c);
+      if (!cond)
+        println("@L_end_%d", c);
       break;
     }
     case ND_FOR: {
@@ -659,7 +668,6 @@ void emit_stmt(Node *stmt) {
       char *result_var = emit_expr(stmt->cond);
       println("jnz %s, @%s, %s", result_var, stmt->cont_label, stmt->brk_label);
       println("@%s", stmt->brk_label);
-
       break;
     }
     case ND_SWITCH: {
@@ -709,6 +717,7 @@ void emit_stmt(Node *stmt) {
     }
     case ND_GOTO: {
       println("jmp @%s", stmt->unique_label);
+      is_last_insn_jmp = true;
       break;
     }
     case ND_GOTO_EXPR: {
@@ -762,6 +771,10 @@ void emit_function(Obj *prog) {
       emit_stmt(body);
     else
       println("# DECLARATION ONLY");
+
+    /* Generates implicit return */
+    if (return_ty->kind == TY_VOID)
+      println("ret");
 
     indent--;
     println("}");
