@@ -322,8 +322,7 @@ char *emit_addr(Node *node) {
     case ND_VAR: {
       if (node->var->is_local) {
         // local variable
-        println("%s =w addr %%%s", var, node->var->name);
-        return var;
+        return format("%%%s", node->var->name);
       }
 
       if (node->ty->kind == TY_FUNC) {
