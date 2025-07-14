@@ -300,6 +300,7 @@ struct Obj {
   bool is_inline;
   bool dealloc_vla;
   Node *body;
+  Node *decls;
 
   // Static inline function
   bool is_live;

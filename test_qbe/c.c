@@ -13,6 +13,9 @@
 #define true 1
 #define false 0
 
+#define INT_MAX 0x7fffffff
+#define INT_MIN 0x80000000
+
 // HACK
 #define __arm__
 
@@ -212,15 +215,83 @@ void __str_base16(char *pb, int val)
     }
 }
 
-int __format(char *buffer,
-             int val,
-             int width,
-             int zeropad,
-             int base,
-             int alternate_form)
+/*
+ * The specification of snprintf() is defined in C99 7.19.6.5,
+ * and its behavior and return value should comply with the
+ * following description:
+ *
+ * - If n is zero, nothing is written.
+ * - Writes at most n bytes, including the null character.
+ * - On success, the return value should be the length of the
+ *   entire converted string even if n is insufficient to store it.
+ *
+ * Therefore, the following code defines a structure called fmtbuf_t
+ * to implement formatted output conversion for the functions in the
+ * printf() family.
+ *
+ * @buf: the current position of the buffer.
+ * @n  : the remaining space of the buffer.
+ * @len: the number of characters that would have been written
+ *       had n been sufficiently large.
+ *
+ * Once a write operation is performed, buf and n will be
+ * respectively incremented and decremented by the actual written
+ * size if n is sufficient, and len must be incremented to store
+ * the length of the entire converted string.
+ */
+typedef struct {
+    char *buf;
+    int n;
+    int len;
+} fmtbuf_t;
+
+void __fmtbuf_write_char(fmtbuf_t *fmtbuf, int val)
 {
-    int bi = 0;
-    char pb[INT_BUF_LEN];
+    fmtbuf->len += 1;
+
+    /*
+     * Write the given character when n is greater than 1.
+     * This means preserving one position for the null character.
+     */
+    if (fmtbuf->n <= 1)
+        return;
+
+    char ch = val & 0xFF;
+    fmtbuf->buf[0] = ch;
+    fmtbuf->buf += 1;
+    fmtbuf->n -= 1;
+}
+
+void __fmtbuf_write_str(fmtbuf_t *fmtbuf, char *str, int l)
+{
+    fmtbuf->len += l;
+
+    /*
+     * Write the given string when n is greater than 1.
+     * This means preserving one position for the null character.
+     */
+    if (fmtbuf->n <= 1)
+        return;
+
+    /*
+     * If the remaining space is less than the length of the string,
+     * write only n - 1 bytes.
+     */
+    int sz = fmtbuf->n - 1;
+    l = l <= sz ? l : sz;
+    strncpy(fmtbuf->buf, str, l);
+    fmtbuf->buf += l;
+    fmtbuf->n -= l;
+}
+
+void __format(fmtbuf_t *fmtbuf,
+              int val,
+              int width,
+              int zeropad,
+              int base,
+              int alternate_form)
+{
+    char pb[INT_BUF_LEN], ch;
     int pbi;
 
     /* set to zeroes */
@@ -251,7 +322,7 @@ int __format(char *buffer,
     case 8:
         if (alternate_form) {
             if (width && zeropad && pb[pbi] != '0') {
-                buffer[bi++] = '0';
+                __fmtbuf_write_char(fmtbuf, '0');
                 width -= 1;
             } else if (pb[pbi] != '0')
                 pb[--pbi] = '0';
@@ -259,7 +330,7 @@ int __format(char *buffer,
         break;
     case 10:
         if (width && zeropad && pb[pbi] == '-') {
-            buffer[bi++] = '-';
+            __fmtbuf_write_char(fmtbuf, '-');
             pbi++;
             width--;
         }
@@ -267,8 +338,8 @@ int __format(char *buffer,
     case 16:
         if (alternate_form) {
             if (width && zeropad && pb[pbi] != '0') {
-                buffer[bi++] = '0';
-                buffer[bi++] = 'x';
+                __fmtbuf_write_char(fmtbuf, '0');
+                __fmtbuf_write_char(fmtbuf, 'x');
                 width -= 2;
             } else if (pb[pbi] != '0') {
                 pb[--pbi] = 'x';
@@ -282,74 +353,69 @@ int __format(char *buffer,
     if (width < 0)
         width = 0;
 
+    ch = zeropad ? '0' : ' ';
     while (width) {
-        buffer[bi++] = zeropad ? '0' : ' ';
+        __fmtbuf_write_char(fmtbuf, ch);
         width--;
     }
 
-    for (; pbi < INT_BUF_LEN; pbi++)
-        buffer[bi++] = pb[pbi];
-
-    return bi;
+    __fmtbuf_write_str(fmtbuf, pb + pbi, INT_BUF_LEN - pbi);
 }
 
-void printf(char *str, ...)
+void __format_to_buf(fmtbuf_t *fmtbuf, char *format, int *var_args)
 {
-    int *var_args = &str + 4;
-    char buffer[200];
-    int si = 0, bi = 0, pi = 0;
+    int si = 0, pi = 0;
 
-    while (str[si]) {
-        if (str[si] != '%') {
-            buffer[bi] = str[si];
-            bi++;
+    while (format[si]) {
+        if (format[si] != '%') {
+            __fmtbuf_write_char(fmtbuf, format[si]);
             si++;
         } else {
-            int w = 0, zp = 0, pp = 0;
+            int w = 0, zp = 0, pp = 0, v = var_args[pi], l;
 
             si++;
-            if (str[si] == '#') {
+            if (format[si] == '#') {
                 pp = 1;
                 si++;
             }
-            if (str[si] == '0') {
+            if (format[si] == '0') {
                 zp = 1;
                 si++;
             }
-            if (str[si] >= '1' && str[si] <= '9') {
-                w = str[si] - '0';
+            if (format[si] >= '1' && format[si] <= '9') {
+                w = format[si] - '0';
                 si++;
-                while (str[si] >= '0' && str[si] <= '9') {
+                while (format[si] >= '0' && format[si] <= '9') {
                     w *= 10;
-                    w += str[si] - '0';
+                    w += format[si] - '0';
                     si++;
                 }
             }
-            if (str[si] == 's') {
+            switch (format[si]) {
+            case 's':
                 /* append param pi as string */
-                int l = strlen(var_args[pi]);
-                strcpy(buffer + bi, var_args[pi]);
-                bi += l;
-            } else if (str[si] == 'c') {
+                l = strlen(v);
+                __fmtbuf_write_str(fmtbuf, v, l);
+                break;
+            case 'c':
                 /* append param pi as char */
-                buffer[bi] = var_args[pi];
-                bi += 1;
-            } else if (str[si] == 'o') {
+                __fmtbuf_write_char(fmtbuf, v);
+                break;
+            case 'o':
                 /* append param as octal */
-                int v = var_args[pi];
-                bi += __format(buffer + bi, v, w, zp, 8, pp);
-            } else if (str[si] == 'd') {
+                __format(fmtbuf, v, w, zp, 8, pp);
+                break;
+            case 'd':
                 /* append param as decimal */
-                int v = var_args[pi];
-                bi += __format(buffer + bi, v, w, zp, 10, 0);
-            } else if (str[si] == 'x') {
+                __format(fmtbuf, v, w, zp, 10, 0);
+                break;
+            case 'x':
                 /* append param as hex */
-                int v = var_args[pi];
-                bi += __format(buffer + bi, v, w, zp, 16, pp);
-            } else if (str[si] == '%') {
+                __format(fmtbuf, v, w, zp, 16, pp);
+                break;
+            case '%':
                 /* append literal '%' character */
-                buffer[bi] = '%';
-                bi++;
+                __fmtbuf_write_char(fmtbuf, '%');
                 si++;
                 continue;
             }
@@ -357,74 +423,47 @@ void printf(char *str, ...)
             si++;
         }
     }
-    buffer[bi] = 0;
-    __syscall(__syscall_write, 1, buffer, bi);
+
+    /* If n is still greater than 0, set the null character. */
+    if (fmtbuf->n)
+        fmtbuf->buf[0] = 0;
 }
 
-void sprintf(char *buffer, char *str, ...)
+int printf(char *str, ...)
 {
-    int *var_args = &str + 4;
-    int si = 0, bi = 0, pi = 0;
+    char buffer[200];
+    fmtbuf_t fmtbuf;
 
-    while (str[si]) {
-        if (str[si] != '%') {
-            buffer[bi] = str[si];
-            bi++;
-            si++;
-        } else {
-            int w = 0, zp = 0, pp = 0;
-
-            si++;
-            if (str[si] == '#') {
-                pp = 1;
-                si++;
-            }
-            if (str[si] == '0') {
-                zp = 1;
-                si++;
-            }
-            if (str[si] >= '1' && str[si] <= '9') {
-                w = str[si] - '0';
-                si++;
-                if (str[si] >= '0' && str[si] <= '9') {
-                    w *= 10;
-                    w += str[si] - '0';
-                    si++;
-                }
-            }
-            switch (str[si]) {
-            case 37: /* % */
-                buffer[bi++] = '%';
-                si++;
-                continue;
-            case 99: /* c */
-                buffer[bi++] = var_args[pi];
-                break;
-            case 115: /* s */
-                strcpy(buffer + bi, var_args[pi]);
-                bi += strlen(var_args[pi]);
-                break;
-            case 111: /* o */
-                bi += __format(buffer + bi, var_args[pi], w, zp, 8, pp);
-                break;
-            case 100: /* d */
-                bi += __format(buffer + bi, var_args[pi], w, zp, 10, 0);
-                break;
-            case 120: /* x */
-                bi += __format(buffer + bi, var_args[pi], w, zp, 16, pp);
-                break;
-            default:
-                abort();
-                break;
-            }
-            pi++;
-            si++;
-        }
-    }
-    buffer[bi] = 0;
+    fmtbuf.buf = buffer;
+    fmtbuf.n = INT_MAX;
+    fmtbuf.len = 0;
+    __format_to_buf(&fmtbuf, str, &str + 4);
+    return __syscall(__syscall_write, 1, buffer, fmtbuf.len);
 }
 
-int __free_all();
+int sprintf(char *buffer, char *str, ...)
+{
+    fmtbuf_t fmtbuf;
+
+    fmtbuf.buf = buffer;
+    fmtbuf.n = INT_MAX;
+    fmtbuf.len = 0;
+    __format_to_buf(&fmtbuf, str, &str + 4);
+    return fmtbuf.len;
+}
+
+int snprintf(char *buffer, int n, char *str, ...)
+{
+    fmtbuf_t fmtbuf;
+
+    fmtbuf.buf = buffer;
+    fmtbuf.n = n;
+    fmtbuf.len = 0;
+    __format_to_buf(&fmtbuf, str, &str + 4);
+    return fmtbuf.len;
+}
+
+int __free_all(void);
 
 void exit(int exit_code)
 {
@@ -432,7 +471,7 @@ void exit(int exit_code)
     __syscall(__syscall_exit, exit_code);
 }
 
-void abort()
+void abort(void)
 {
     printf("Abnormal program termination\n");
     exit(-1);
@@ -501,10 +540,9 @@ char *fgets(char *str, int n, FILE *stream)
 
 int fputc(int c, FILE *stream)
 {
-    char buf[1];
-    buf[0] = c;
-    __syscall(__syscall_write, stream, buf, 1);
-    return 0;
+    if (__syscall(__syscall_write, stream, &c, 1) < 0)
+        return -1;
+    return c;
 }
 
 /* Non-portable: Assume page size is 4KiB */
@@ -634,12 +672,27 @@ void *malloc(int size)
 
 void *calloc(int n, int size)
 {
-    char *p = malloc(n * size);
+    int total = n * size;
+    char *p = malloc(total);
 
     if (!p)
         return NULL;
-    for (int i = 0; i < n * size; i++)
-        p[i] = 0;
+
+    /* TODO: Replace the byte buffer clearing algorithm with memset once
+     * implemented.
+     */
+
+    /* Currently malloc uses mmap(2) to request allocation, which guarantees
+     * memory to be page-aligned
+     */
+    int *pi = p, num_words = total >> 2, offset = num_words << 2;
+
+    for (int i = 0; i < num_words; i++)
+        pi[i] = 0;
+
+    while (offset < total)
+        p[offset++] = 0;
+
     return p;
 }
 
@@ -650,7 +703,7 @@ void __rfree(void *ptr, int size)
     __syscall(__syscall_munmap, ptr, size);
 }
 
-int __free_all()
+int __free_all(void)
 {
     if (!__freelist_head && !__alloc_head)
         return 0;

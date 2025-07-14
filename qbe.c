@@ -189,6 +189,9 @@ void emit_init_data(char *init_data, int offset, Type *ty) {
 }
 
 char ty_specifier(Type *ty) {
+  if (!ty)
+    return 'w';
+
   switch (ty->kind) {
     case TY_VOID:
       return 'v';
@@ -199,10 +202,8 @@ char ty_specifier(Type *ty) {
     case TY_PTR:
     case TY_ENUM:
       return 'w';
-    case TY_STRUCT: {
-      error("Struct parameter is not yet supported");
-      break;
-    }
+    case TY_STRUCT:
+      return 'w'; // TODO: We are going to treat this like an address in QBE SIL
     case TY_FLOAT:
     case TY_DOUBLE:
     case TY_LDOUBLE:
@@ -450,24 +451,22 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_ASSIGN: {
-      if (expr->lhs->kind == ND_DEREF) {
-        char *rhs = emit_expr(expr->rhs);
-        char *lhs = emit_expr(expr->lhs->lhs);
+      var = emit_addr(expr->lhs);
+      char *rhs = emit_expr(expr->rhs);
 
-        println("store%c %s, %s", ty_specifier(expr->rhs->ty), lhs, rhs);
-        break;
+      if (expr->lhs->kind != ND_VAR) {
+        println("store%c %s, %s", ty_specifier(expr->rhs->ty), var, rhs);
+      } else {
+        println("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
       }
 
-      var = emit_expr(expr->lhs);
-      char *rhs = emit_expr(expr->rhs);
-      print("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
-      println("");
+      var = rhs;
       break;
     }
     case ND_COND: {
       int c = count();
       var = emit_expr(expr->cond);
-      println("jnz %s, @L_cond_true_%d, @L_cond_false%d", var, c, c);
+      println("jnz %s, @L_cond_true_%d, @L_cond_false_%d", var, c, c);
       println("@L_cond_true_%d", c);
       emit_expr(expr->then);
       println("jmp @L_cond_end_%d", c);
@@ -521,13 +520,16 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_FUNCALL: {
+      char *args[16];
+      int i = 0;
       bool has_ret_val = expr->ty->kind != TY_VOID;
-      int start_tmp_idx = tmp_var_idx;
 
-      for (Obj *arg = expr->args; arg; arg = arg->next) {
+      for (Obj *arg = expr->args; arg; arg = arg->param_next) {
         var = emit_expr(arg->arg_expr);
-        print("%s =%c copy %s", tmp_var(), ty_specifier(arg->arg_expr->ty), var);
+        args[i] = tmp_var();
+        print("%s =%c copy %s", args[i], ty_specifier(arg->arg_expr->ty), var);
         println("");
+        i++;
       }
 
       if (has_ret_val) {
@@ -535,11 +537,13 @@ char *emit_expr(Node *expr) {
         print("%s =%c call $%s(", var, ty_specifier(expr->ty), expr->lhs->var->name);
       } else
         print("call $%s(", expr->lhs->var->name);
+      
+      i = 0;
 
-      for (Obj *arg = expr->args; arg; arg = arg->next) {
-        print("%c %s", ty_specifier(arg->arg_expr->ty), as_tmp_var(start_tmp_idx++));
+      for (Obj *arg = expr->args; arg; arg = arg->param_next) {
+        print("%c %s", ty_specifier(arg->arg_expr->ty), args[i++]);
 
-        if (arg->next)
+        if (arg->param_next)
           print(", ");
       }
 
@@ -583,9 +587,12 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_CHAIN: {
+      emit_expr(expr->lhs);
+      emit_expr(expr->rhs);
       break;
     }
     case ND_ALLOCA: {
+      println("%%%s =%c alloc %d", expr->var->name, ty_specifier(expr->ty), (int)expr->ty->size);
       break;
     }
     case ND_ARITH_ASSIGN:
@@ -626,17 +633,18 @@ void emit_stmt(Node *stmt) {
     }
     case ND_IF: {
       int c = count();
+      println("@L_if_begin_%d", c);
       char *result_var = emit_cond(stmt->cond);
-      println("jnz %s, @L_then_%d, @L_else_%d", result_var, c, c);
-      println("@L_then_%d", c);
+      println("jnz %s, @L_if_then_%d, @L_if_else_%d", result_var, c, c);
+      println("@L_if_then_%d", c);
       emit_stmt(stmt->then);
       if (!(cond = is_last_insn_jmp))
-        println("jmp @L_end_%d", c);
-      println("@L_else_%d", c);
+        println("jmp @L_if_end_%d", c);
+      println("@L_if_else_%d", c);
       if (stmt->els)
         emit_stmt(stmt->els);
       if (!cond)
-        println("@L_end_%d", c);
+        println("@L_if_end_%d", c);
       break;
     }
     case ND_FOR: {
@@ -645,17 +653,17 @@ void emit_stmt(Node *stmt) {
       if (stmt->init)
         emit_stmt(stmt->init);
 
-      println("@L_begin_%d", c);
+      println("@L_for_begin_%d", c);
       char *result_var = emit_cond(stmt->cond);
-      println("jnz %s, @L_then_%d, @%s", result_var, c, stmt->brk_label);
-      println("@L_then_%d", c);
+      println("jnz %s, @L_for_then_%d, @%s", result_var, c, stmt->brk_label);
+      println("@L_for_then_%d", c);
       emit_stmt(stmt->then);
       println("@%s", stmt->cont_label);
 
       if (stmt->inc)
         emit_expr(stmt->inc);
 
-      println("jmp @L_begin_%d", c);
+      println("jmp @L_for_begin_%d", c);
       println("@%s", stmt->brk_label);
       break;
     }
@@ -671,7 +679,7 @@ void emit_stmt(Node *stmt) {
       break;
     }
     case ND_SWITCH: {
-      char *cond = emit_expr(stmt->cond), *cond_var = tmp_var();
+      char *cond = emit_expr(stmt->cond), *cond_var = tmp_var(), case_label[32];
       int c = count();
 
       for (Node *case_nd = stmt->case_next; case_nd; case_nd = case_nd->case_next) {
@@ -679,27 +687,32 @@ void emit_stmt(Node *stmt) {
           println("@L_case_%d", c);
           c = count();
         }
+        
+        if (!case_nd->case_next) {
+          if (stmt->default_case)
+            strncpy(case_label, stmt->default_case->label, 32);
+          else
+            strncpy(case_label, stmt->brk_label, 32);
+        } else {
+          snprintf(case_label, 32, "L_case_%d", c);
+        }
 
         if (case_nd->begin == case_nd->end) {
           println("%s =w ceq %s, %d", cond_var, cond, (int)case_nd->begin);
-          println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+          println("jnz %s, @%s, @%s", cond_var, case_nd->label, case_label);
           continue;
         }
 
         if (case_nd->begin == 0) {
           println("%s =w cle %s, %d", cond_var, cond, (int)(case_nd->end - case_nd->begin));
-          println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+          println("jnz %s, @%s, @%s", cond_var, case_nd->label, case_label);
           continue;
         }
 
         println("%s =w cle %s, %d", cond_var, cond, (int)case_nd->end);
-        println("jnz %s, @%s, @L_case_%d", cond_var, case_nd->label, c);
+        println("jnz %s, @%s, @%s", cond_var, case_nd->label, case_label);
       }
 
-      if (stmt->default_case)
-        println("jmp @%s", stmt->default_case->label);
-
-      println("jmp @%s", stmt->brk_label);
       emit_stmt(stmt->then);
       println("@%s", stmt->brk_label);
       break;
@@ -764,8 +777,14 @@ void emit_function(Obj *prog) {
         print(", ");
     }
 
+    if (var->ty->is_variadic)
+      print(", ...");
+
     println(") {");
     indent++;
+
+    if (var->decls)
+      emit_expr(var->decls);
 
     if (body)
       emit_stmt(body);
