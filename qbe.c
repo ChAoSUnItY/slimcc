@@ -217,7 +217,7 @@ char ty_specifier(Type *ty) {
   }
 }
 
-char *emit_addr(Node *node);
+char *emit_addr(Node *node, bool eval);
 char *emit_expr(Node *expr);
 void emit_stmt(Node *stmt);
 
@@ -240,7 +240,7 @@ char *emit_arith_assign(Node *expr) {
     rhs = emit_expr(expr->rhs);
     var = lhs;
   } else {
-    addr = emit_addr(expr->lhs);
+    addr = emit_addr(expr->lhs, false);
     rhs = emit_expr(expr->rhs);
     lhs = tmp_var();
     var = tmp_var();
@@ -315,14 +315,18 @@ char *emit_binary_expr(Node *expr, char *op) {
   return var;
 }
 
-char *emit_addr(Node *node) {
+char *emit_addr(Node *node, bool eval) {
   char *var = tmp_var(), *addr;
 
   switch (node->kind) {
     case ND_VAR: {
       if (node->var->is_local) {
         // local variable
-        return format("%%%s", node->var->name);
+        if (!eval) {
+          println("%s =w addr %%%s", var, node->var->name);
+          return var;
+        } else
+          return format("%%%s", node->var->name);
       }
 
       if (node->ty->kind == TY_FUNC) {
@@ -353,7 +357,7 @@ char *emit_addr(Node *node) {
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
         default:
-          addr = emit_addr(node->lhs);
+          addr = emit_addr(node->lhs, false);
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
       }
@@ -450,7 +454,7 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_ASSIGN: {
-      var = emit_addr(expr->lhs);
+      var = emit_addr(expr->lhs, expr->lhs->kind == ND_VAR);
       char *rhs = emit_expr(expr->rhs);
 
       if (expr->lhs->kind != ND_VAR) {
@@ -479,14 +483,14 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_MEMBER: {
-      char *addr = emit_addr(expr), ty_spec = ty_specifier(expr->member->ty);
+      char *addr = emit_addr(expr, false), ty_spec = ty_specifier(expr->member->ty);
       var = tmp_var();
 
       println("%s =%c load%c %s", var, ty_spec, ty_spec, addr);
       break;
     }
     case ND_ADDR: {
-      var = emit_addr(expr->lhs);
+      var = emit_addr(expr->lhs, false);
       break;
     }
     case ND_DEREF: {
@@ -678,7 +682,7 @@ void emit_stmt(Node *stmt) {
       break;
     }
     case ND_SWITCH: {
-      char *cond = emit_expr(stmt->cond), *cond_var = tmp_var(), case_label[32];
+      char *cond, *cond_var = tmp_var(), case_label[32];
       int c = count();
 
       for (Node *case_nd = stmt->case_next; case_nd; case_nd = case_nd->case_next) {
@@ -686,6 +690,11 @@ void emit_stmt(Node *stmt) {
           println("@L_case_%d", c);
           c = count();
         }
+
+        // FIXME: Evil hack to temporarily resolve SSA Phi function insertion resolution problem
+        // observed in shecc. This will not be able to be performed with CSE by shecc due to
+        // implementation reason.
+        cond = emit_expr(stmt->cond);
         
         if (!case_nd->case_next) {
           if (stmt->default_case)

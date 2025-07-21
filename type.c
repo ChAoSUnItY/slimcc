@@ -208,7 +208,8 @@ bool is_compatible(Type *t1, Type *t2) {
 }
 
 Type *pointer_to(Type *base) {
-  Type *ty = new_type(TY_PTR, 8, 8);
+  // FIXME: Hack, perhaps rely on options to switch from 32 to 64 or vice versa?
+  Type *ty = new_type(TY_PTR, 1, 4);
   ty->base = base;
   ty->is_unsigned = true;
   return ty;

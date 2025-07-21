@@ -24,11 +24,11 @@ data $PH2_IR = { z 4 }
 data $ph2_ir_idx = { w 0 }
 data $LABEL_LUT = { z 4 }
 data $label_lut_idx = { w 0 }
-data $FUNC_LIST = { z 16 }
-data $GLOBAL_FUNC = { z 8520 }
+data $FUNC_LIST = { z 8 }
+data $GLOBAL_FUNC = { z 4156 }
 data $MAIN_BB = { z 4 }
 data $elf_offset = { w 0 }
-data $REGS = { z 128 }
+data $REGS = { z 64 }
 data $ALIASES = { z 4 }
 data $aliases_idx = { w 0 }
 data $CONSTANTS = { z 4 }
@@ -594,13 +594,13 @@ function v $__str_base16(w %pb, w %val) {
 }
 function v $__fmtbuf_write_char(w %fmtbuf, w %val) {
   %ch =b alloc 1
-  %t289 =w add %fmtbuf, 12
+  %t289 =w add %fmtbuf, 8
   %t291 =w copy 1
   %t292 =w loadw %t289
   %t293 =w add %t292, %t291
   storew %t289, %t293
   @L_if_begin_21
-  %t294 =w add %fmtbuf, 8
+  %t294 =w add %fmtbuf, 4
   %t296 =w loadw %t294
   %t297 =w copy 1
   %t298 =w cle %t296, %t297
@@ -623,7 +623,7 @@ function v $__fmtbuf_write_char(w %fmtbuf, w %val) {
   %t313 =w loadw %t308
   %t314 =w add %t313, %t312
   storew %t308, %t314
-  %t315 =w add %fmtbuf, 8
+  %t315 =w add %fmtbuf, 4
   %t317 =w copy 1
   %t318 =w loadw %t315
   %t319 =w sub %t318, %t317
@@ -632,12 +632,12 @@ function v $__fmtbuf_write_char(w %fmtbuf, w %val) {
 }
 function v $__fmtbuf_write_str(w %fmtbuf, w %str, w %l) {
   %sz =w alloc 4
-  %t320 =w add %fmtbuf, 12
+  %t320 =w add %fmtbuf, 8
   %t322 =w loadw %t320
   %t323 =w add %t322, %l
   storew %t320, %t323
   @L_if_begin_22
-  %t324 =w add %fmtbuf, 8
+  %t324 =w add %fmtbuf, 4
   %t326 =w loadw %t324
   %t327 =w copy 1
   %t328 =w cle %t326, %t327
@@ -645,7 +645,7 @@ function v $__fmtbuf_write_str(w %fmtbuf, w %str, w %l) {
   @L_if_then_22
   ret
   @L_if_else_22
-  %t330 =w add %fmtbuf, 8
+  %t330 =w add %fmtbuf, 4
   %t332 =w loadw %t330
   %t333 =w copy 1
   %t334 =w sub %t332, %t333
@@ -669,7 +669,7 @@ function v $__fmtbuf_write_str(w %fmtbuf, w %str, w %l) {
   %t348 =w loadw %t344
   %t349 =w add %t348, %t347
   storew %t344, %t349
-  %t350 =w add %fmtbuf, 8
+  %t350 =w add %fmtbuf, 4
   %t352 =w loadw %t350
   %t353 =w sub %t352, %l
   storew %t350, %t353
@@ -703,96 +703,96 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   %t368 =w ceq %base, 16
   jnz %t368, @L_24, @L_case_25
   @L_case_25
-  %t369 =w ceq %base, 10
-  jnz %t369, @L_23, @L_case_26
+  %t368 =w ceq %base, 10
+  jnz %t368, @L_23, @L_case_26
   @L_case_26
-  %t370 =w ceq %base, 8
-  jnz %t370, @L_22, @L_25
+  %t368 =w ceq %base, 8
+  jnz %t368, @L_22, @L_25
   @L_22
-  %t372 =w copy %pb
-  %t373 =w copy %val
-  call $__str_base8(w %t372, w %t373)
+  %t369 =w copy %pb
+  %t370 =w copy %val
+  call $__str_base8(w %t369, w %t370)
   jmp @L_21
   @L_23
-  %t374 =w copy %pb
-  %t375 =w copy %val
-  call $__str_base10(w %t374, w %t375)
+  %t371 =w copy %pb
+  %t372 =w copy %val
+  call $__str_base10(w %t371, w %t372)
   jmp @L_21
   @L_24
-  %t376 =w copy %pb
-  %t377 =w copy %val
-  call $__str_base16(w %t376, w %t377)
+  %t373 =w copy %pb
+  %t374 =w copy %val
+  call $__str_base16(w %t373, w %t374)
   jmp @L_21
   @L_25
   call $abort()
   jmp @L_21
   @L_21
   @L_for_begin_28
-  %t378 =w copy 1
-  %t379 =w mul %pbi, %t378
-  %t380 =w add %pb, %t379
-  %t381 =b loadb %t380
-  %t382 =w copy 48
-  %t383 =w ceq %t381, %t382
-  %t384 =w copy 15
-  %t385 =w clt %pbi, %t384
-  %t386 =w and %t383, %t385
-  jnz %t386, @L_for_then_28, @L_26
+  %t375 =w copy 1
+  %t376 =w mul %pbi, %t375
+  %t377 =w add %pb, %t376
+  %t378 =b loadb %t377
+  %t379 =w copy 48
+  %t380 =w ceq %t378, %t379
+  %t381 =w copy 15
+  %t382 =w clt %pbi, %t381
+  %t383 =w and %t380, %t382
+  jnz %t383, @L_for_then_28, @L_26
   @L_for_then_28
-  %t387 =w copy 1
-  %pbi =w add %pbi, %t387
-  %t388 =w copy -1
-  %t389 =w add %pbi, %t388
+  %t384 =w copy 1
+  %pbi =w add %pbi, %t384
+  %t385 =w copy -1
+  %t386 =w add %pbi, %t385
   @L_27
   jmp @L_for_begin_28
   @L_26
-  %t390 =w ceq %base, 16
-  jnz %t390, @L_31, @L_case_29
+  %t387 =w ceq %base, 16
+  jnz %t387, @L_31, @L_case_29
   @L_case_29
-  %t391 =w ceq %base, 10
-  jnz %t391, @L_30, @L_case_30
+  %t387 =w ceq %base, 10
+  jnz %t387, @L_30, @L_case_30
   @L_case_30
-  %t392 =w ceq %base, 8
-  jnz %t392, @L_29, @L_28
+  %t387 =w ceq %base, 8
+  jnz %t387, @L_29, @L_28
   @L_29
   @L_if_begin_32
   jnz %alternate_form, @L_if_then_32, @L_if_else_32
   @L_if_then_32
   @L_if_begin_33
-  %t394 =w and %width, %zeropad
-  %t395 =w copy 1
-  %t396 =w mul %pbi, %t395
-  %t397 =w add %pb, %t396
-  %t398 =b loadb %t397
-  %t399 =w copy 48
-  %t400 =w cne %t398, %t399
-  %t401 =w and %t394, %t400
-  jnz %t401, @L_if_then_33, @L_if_else_33
+  %t388 =w and %width, %zeropad
+  %t389 =w copy 1
+  %t390 =w mul %pbi, %t389
+  %t391 =w add %pb, %t390
+  %t392 =b loadb %t391
+  %t393 =w copy 48
+  %t394 =w cne %t392, %t393
+  %t395 =w and %t388, %t394
+  jnz %t395, @L_if_then_33, @L_if_else_33
   @L_if_then_33
-  %t402 =w copy %fmtbuf
-  %t403 =w copy 48
-  %t404 =w copy %t403
-  call $__fmtbuf_write_char(w %t402, w %t404)
-  %t405 =w copy 1
-  %width =w sub %width, %t405
+  %t396 =w copy %fmtbuf
+  %t397 =w copy 48
+  %t398 =w copy %t397
+  call $__fmtbuf_write_char(w %t396, w %t398)
+  %t399 =w copy 1
+  %width =w sub %width, %t399
   jmp @L_if_end_33
   @L_if_else_33
   @L_if_begin_34
-  %t406 =w copy 1
-  %t407 =w mul %pbi, %t406
-  %t408 =w add %pb, %t407
-  %t409 =b loadb %t408
-  %t410 =w copy 48
-  %t411 =w cne %t409, %t410
-  jnz %t411, @L_if_then_34, @L_if_else_34
+  %t400 =w copy 1
+  %t401 =w mul %pbi, %t400
+  %t402 =w add %pb, %t401
+  %t403 =b loadb %t402
+  %t404 =w copy 48
+  %t405 =w cne %t403, %t404
+  jnz %t405, @L_if_then_34, @L_if_else_34
   @L_if_then_34
-  %t413 =w copy 1
-  %pbi =w sub %pbi, %t413
-  %t414 =w copy 1
-  %t415 =w mul %pbi, %t414
-  %t416 =w add %pb, %t415
-  %t417 =b copy 48
-  storeb %t416, %t417
+  %t407 =w copy 1
+  %pbi =w sub %pbi, %t407
+  %t408 =w copy 1
+  %t409 =w mul %pbi, %t408
+  %t410 =w add %pb, %t409
+  %t411 =b copy 48
+  storeb %t410, %t411
   jmp @L_if_end_34
   @L_if_else_34
   @L_if_end_34
@@ -803,28 +803,28 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   jmp @L_28
   @L_30
   @L_if_begin_35
-  %t418 =w and %width, %zeropad
-  %t419 =w copy 1
-  %t420 =w mul %pbi, %t419
-  %t421 =w add %pb, %t420
-  %t422 =b loadb %t421
-  %t423 =w copy 45
-  %t424 =w ceq %t422, %t423
-  %t425 =w and %t418, %t424
-  jnz %t425, @L_if_then_35, @L_if_else_35
+  %t412 =w and %width, %zeropad
+  %t413 =w copy 1
+  %t414 =w mul %pbi, %t413
+  %t415 =w add %pb, %t414
+  %t416 =b loadb %t415
+  %t417 =w copy 45
+  %t418 =w ceq %t416, %t417
+  %t419 =w and %t412, %t418
+  jnz %t419, @L_if_then_35, @L_if_else_35
   @L_if_then_35
-  %t426 =w copy %fmtbuf
-  %t427 =w copy 45
-  %t428 =w copy %t427
-  call $__fmtbuf_write_char(w %t426, w %t428)
-  %t429 =w copy 1
-  %pbi =w add %pbi, %t429
-  %t430 =w copy -1
-  %t431 =w add %pbi, %t430
-  %t432 =w copy -1
-  %width =w add %width, %t432
-  %t433 =w copy 1
-  %t434 =w add %width, %t433
+  %t420 =w copy %fmtbuf
+  %t421 =w copy 45
+  %t422 =w copy %t421
+  call $__fmtbuf_write_char(w %t420, w %t422)
+  %t423 =w copy 1
+  %pbi =w add %pbi, %t423
+  %t424 =w copy -1
+  %t425 =w add %pbi, %t424
+  %t426 =w copy -1
+  %width =w add %width, %t426
+  %t427 =w copy 1
+  %t428 =w add %width, %t427
   jmp @L_if_end_35
   @L_if_else_35
   @L_if_end_35
@@ -834,51 +834,51 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   jnz %alternate_form, @L_if_then_36, @L_if_else_36
   @L_if_then_36
   @L_if_begin_37
-  %t435 =w and %width, %zeropad
-  %t436 =w copy 1
-  %t437 =w mul %pbi, %t436
-  %t438 =w add %pb, %t437
-  %t439 =b loadb %t438
-  %t440 =w copy 48
-  %t441 =w cne %t439, %t440
-  %t442 =w and %t435, %t441
-  jnz %t442, @L_if_then_37, @L_if_else_37
+  %t429 =w and %width, %zeropad
+  %t430 =w copy 1
+  %t431 =w mul %pbi, %t430
+  %t432 =w add %pb, %t431
+  %t433 =b loadb %t432
+  %t434 =w copy 48
+  %t435 =w cne %t433, %t434
+  %t436 =w and %t429, %t435
+  jnz %t436, @L_if_then_37, @L_if_else_37
   @L_if_then_37
-  %t443 =w copy %fmtbuf
-  %t444 =w copy 48
-  %t445 =w copy %t444
-  call $__fmtbuf_write_char(w %t443, w %t445)
-  %t446 =w copy %fmtbuf
-  %t447 =w copy 120
-  %t448 =w copy %t447
-  call $__fmtbuf_write_char(w %t446, w %t448)
-  %t449 =w copy 2
-  %width =w sub %width, %t449
+  %t437 =w copy %fmtbuf
+  %t438 =w copy 48
+  %t439 =w copy %t438
+  call $__fmtbuf_write_char(w %t437, w %t439)
+  %t440 =w copy %fmtbuf
+  %t441 =w copy 120
+  %t442 =w copy %t441
+  call $__fmtbuf_write_char(w %t440, w %t442)
+  %t443 =w copy 2
+  %width =w sub %width, %t443
   jmp @L_if_end_37
   @L_if_else_37
   @L_if_begin_38
-  %t450 =w copy 1
-  %t451 =w mul %pbi, %t450
-  %t452 =w add %pb, %t451
-  %t453 =b loadb %t452
-  %t454 =w copy 48
-  %t455 =w cne %t453, %t454
-  jnz %t455, @L_if_then_38, @L_if_else_38
+  %t444 =w copy 1
+  %t445 =w mul %pbi, %t444
+  %t446 =w add %pb, %t445
+  %t447 =b loadb %t446
+  %t448 =w copy 48
+  %t449 =w cne %t447, %t448
+  jnz %t449, @L_if_then_38, @L_if_else_38
   @L_if_then_38
+  %t451 =w copy 1
+  %pbi =w sub %pbi, %t451
+  %t452 =w copy 1
+  %t453 =w mul %pbi, %t452
+  %t454 =w add %pb, %t453
+  %t455 =b copy 120
+  storeb %t454, %t455
   %t457 =w copy 1
   %pbi =w sub %pbi, %t457
   %t458 =w copy 1
   %t459 =w mul %pbi, %t458
   %t460 =w add %pb, %t459
-  %t461 =b copy 120
+  %t461 =b copy 48
   storeb %t460, %t461
-  %t463 =w copy 1
-  %pbi =w sub %pbi, %t463
-  %t464 =w copy 1
-  %t465 =w mul %pbi, %t464
-  %t466 =w add %pb, %t465
-  %t467 =b copy 48
-  storeb %t466, %t467
   jmp @L_if_end_38
   @L_if_else_38
   @L_if_end_38
@@ -888,49 +888,49 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   @L_if_end_36
   jmp @L_28
   @L_28
-  %t468 =w copy 16
-  %t469 =w sub %t468, %pbi
-  %width =w sub %width, %t469
+  %t462 =w copy 16
+  %t463 =w sub %t462, %pbi
+  %width =w sub %width, %t463
   @L_if_begin_39
-  %t470 =w copy 0
-  %t471 =w clt %width, %t470
-  jnz %t471, @L_if_then_39, @L_if_else_39
+  %t464 =w copy 0
+  %t465 =w clt %width, %t464
+  jnz %t465, @L_if_then_39, @L_if_else_39
   @L_if_then_39
-  %t473 =w copy 0
-  %width =w copy %t473
+  %t467 =w copy 0
+  %width =w copy %t467
   jmp @L_if_end_39
   @L_if_else_39
   @L_if_end_39
   jnz %zeropad, @L_cond_true_40, @L_cond_false_40
   @L_cond_true_40
-  %t475 =w copy 48
+  %t469 =w copy 48
   jmp @L_cond_end_40
   @L_cond_false_40
-  %t476 =w copy 32
+  %t470 =w copy 32
   @L_cond_end_40
   %ch =b copy %zeropad
   @L_for_begin_41
   jnz %width, @L_for_then_41, @L_32
   @L_for_then_41
-  %t477 =w copy %fmtbuf
-  %t478 =w copy %ch
-  call $__fmtbuf_write_char(w %t477, w %t478)
-  %t479 =w copy -1
-  %width =w add %width, %t479
-  %t480 =w copy 1
-  %t481 =w add %width, %t480
+  %t471 =w copy %fmtbuf
+  %t472 =w copy %ch
+  call $__fmtbuf_write_char(w %t471, w %t472)
+  %t473 =w copy -1
+  %width =w add %width, %t473
+  %t474 =w copy 1
+  %t475 =w add %width, %t474
   @L_33
   jmp @L_for_begin_41
   @L_32
-  %t482 =w copy %fmtbuf
-  %t483 =w copy 1
-  %t484 =w mul %pbi, %t483
-  %t485 =w add %pb, %t484
-  %t486 =w copy %t485
-  %t487 =w copy 16
-  %t488 =w sub %t487, %pbi
-  %t489 =w copy %t488
-  call $__fmtbuf_write_str(w %t482, w %t486, w %t489)
+  %t476 =w copy %fmtbuf
+  %t477 =w copy 1
+  %t478 =w mul %pbi, %t477
+  %t479 =w add %pb, %t478
+  %t480 =w copy %t479
+  %t481 =w copy 16
+  %t482 =w sub %t481, %pbi
+  %t483 =w copy %t482
+  call $__fmtbuf_write_str(w %t476, w %t480, w %t483)
   ret
 }
 function v $__format_to_buf(w %fmtbuf, w %format, w %var_args) {
@@ -941,252 +941,272 @@ function v $__format_to_buf(w %fmtbuf, w %format, w %var_args) {
   %pp =w alloc 4
   %v =w alloc 4
   %l =w alloc 4
-  %t491 =w copy 0
-  %si =w copy %t491
-  %t493 =w copy 0
-  %pi =w copy %t493
+  %t485 =w copy 0
+  %si =w copy %t485
+  %t487 =w copy 0
+  %pi =w copy %t487
   @L_for_begin_42
-  %t494 =w copy 1
-  %t495 =w mul %si, %t494
-  %t496 =w add %format, %t495
-  %t497 =b loadb %t496
-  jnz %t497, @L_for_then_42, @L_34
+  %t488 =w copy 1
+  %t489 =w mul %si, %t488
+  %t490 =w add %format, %t489
+  %t491 =b loadb %t490
+  jnz %t491, @L_for_then_42, @L_34
   @L_for_then_42
   @L_if_begin_43
-  %t498 =w copy 1
-  %t499 =w mul %si, %t498
-  %t500 =w add %format, %t499
-  %t501 =b loadb %t500
-  %t502 =w copy 37
-  %t503 =w cne %t501, %t502
-  jnz %t503, @L_if_then_43, @L_if_else_43
+  %t492 =w copy 1
+  %t493 =w mul %si, %t492
+  %t494 =w add %format, %t493
+  %t495 =b loadb %t494
+  %t496 =w copy 37
+  %t497 =w cne %t495, %t496
+  jnz %t497, @L_if_then_43, @L_if_else_43
   @L_if_then_43
-  %t504 =w copy %fmtbuf
-  %t505 =w copy 1
-  %t506 =w mul %si, %t505
-  %t507 =w add %format, %t506
-  %t508 =b loadb %t507
-  %t509 =w copy %t508
-  call $__fmtbuf_write_char(w %t504, w %t509)
-  %t510 =w copy 1
-  %si =w add %si, %t510
-  %t511 =w copy -1
-  %t512 =w add %si, %t511
+  %t498 =w copy %fmtbuf
+  %t499 =w copy 1
+  %t500 =w mul %si, %t499
+  %t501 =w add %format, %t500
+  %t502 =b loadb %t501
+  %t503 =w copy %t502
+  call $__fmtbuf_write_char(w %t498, w %t503)
+  %t504 =w copy 1
+  %si =w add %si, %t504
+  %t505 =w copy -1
+  %t506 =w add %si, %t505
   jmp @L_if_end_43
   @L_if_else_43
-  %t514 =w copy 0
-  %w =w copy %t514
-  %t516 =w copy 0
-  %zp =w copy %t516
-  %t518 =w copy 0
-  %pp =w copy %t518
-  %t520 =w copy 4
-  %t521 =w mul %pi, %t520
-  %t522 =w add %var_args, %t521
-  %t523 =w loadw %t522
-  %v =w copy %t523
-  %t524 =w copy 1
-  %si =w add %si, %t524
-  %t525 =w copy -1
-  %t526 =w add %si, %t525
+  %t508 =w copy 0
+  %w =w copy %t508
+  %t510 =w copy 0
+  %zp =w copy %t510
+  %t512 =w copy 0
+  %pp =w copy %t512
+  %t514 =w copy 4
+  %t515 =w mul %pi, %t514
+  %t516 =w add %var_args, %t515
+  %t517 =w loadw %t516
+  %v =w copy %t517
+  %t518 =w copy 1
+  %si =w add %si, %t518
+  %t519 =w copy -1
+  %t520 =w add %si, %t519
   @L_if_begin_44
-  %t527 =w copy 1
-  %t528 =w mul %si, %t527
-  %t529 =w add %format, %t528
-  %t530 =b loadb %t529
-  %t531 =w copy 35
-  %t532 =w ceq %t530, %t531
-  jnz %t532, @L_if_then_44, @L_if_else_44
+  %t521 =w copy 1
+  %t522 =w mul %si, %t521
+  %t523 =w add %format, %t522
+  %t524 =b loadb %t523
+  %t525 =w copy 35
+  %t526 =w ceq %t524, %t525
+  jnz %t526, @L_if_then_44, @L_if_else_44
   @L_if_then_44
-  %t534 =w copy 1
-  %pp =w copy %t534
-  %t535 =w copy 1
-  %si =w add %si, %t535
-  %t536 =w copy -1
-  %t537 =w add %si, %t536
+  %t528 =w copy 1
+  %pp =w copy %t528
+  %t529 =w copy 1
+  %si =w add %si, %t529
+  %t530 =w copy -1
+  %t531 =w add %si, %t530
   jmp @L_if_end_44
   @L_if_else_44
   @L_if_end_44
   @L_if_begin_45
-  %t538 =w copy 1
-  %t539 =w mul %si, %t538
-  %t540 =w add %format, %t539
-  %t541 =b loadb %t540
-  %t542 =w copy 48
-  %t543 =w ceq %t541, %t542
-  jnz %t543, @L_if_then_45, @L_if_else_45
+  %t532 =w copy 1
+  %t533 =w mul %si, %t532
+  %t534 =w add %format, %t533
+  %t535 =b loadb %t534
+  %t536 =w copy 48
+  %t537 =w ceq %t535, %t536
+  jnz %t537, @L_if_then_45, @L_if_else_45
   @L_if_then_45
-  %t545 =w copy 1
-  %zp =w copy %t545
-  %t546 =w copy 1
-  %si =w add %si, %t546
-  %t547 =w copy -1
-  %t548 =w add %si, %t547
+  %t539 =w copy 1
+  %zp =w copy %t539
+  %t540 =w copy 1
+  %si =w add %si, %t540
+  %t541 =w copy -1
+  %t542 =w add %si, %t541
   jmp @L_if_end_45
   @L_if_else_45
   @L_if_end_45
   @L_if_begin_46
+  %t543 =w copy 1
+  %t544 =w mul %si, %t543
+  %t545 =w add %format, %t544
+  %t546 =b loadb %t545
+  %t547 =w copy 49
+  %t548 =w cge %t546, %t547
   %t549 =w copy 1
   %t550 =w mul %si, %t549
   %t551 =w add %format, %t550
   %t552 =b loadb %t551
-  %t553 =w copy 49
-  %t554 =w cge %t552, %t553
-  %t555 =w copy 1
-  %t556 =w mul %si, %t555
-  %t557 =w add %format, %t556
-  %t558 =b loadb %t557
-  %t559 =w copy 57
-  %t560 =w cle %t558, %t559
-  %t561 =w and %t554, %t560
-  jnz %t561, @L_if_then_46, @L_if_else_46
+  %t553 =w copy 57
+  %t554 =w cle %t552, %t553
+  %t555 =w and %t548, %t554
+  jnz %t555, @L_if_then_46, @L_if_else_46
   @L_if_then_46
+  %t557 =w copy 1
+  %t558 =w mul %si, %t557
+  %t559 =w add %format, %t558
+  %t560 =b loadb %t559
+  %t561 =w copy 48
+  %t562 =w sub %t560, %t561
+  %w =w copy %t562
   %t563 =w copy 1
-  %t564 =w mul %si, %t563
-  %t565 =w add %format, %t564
-  %t566 =b loadb %t565
-  %t567 =w copy 48
-  %t568 =w sub %t566, %t567
-  %w =w copy %t568
-  %t569 =w copy 1
-  %si =w add %si, %t569
-  %t570 =w copy -1
-  %t571 =w add %si, %t570
+  %si =w add %si, %t563
+  %t564 =w copy -1
+  %t565 =w add %si, %t564
   @L_for_begin_47
+  %t566 =w copy 1
+  %t567 =w mul %si, %t566
+  %t568 =w add %format, %t567
+  %t569 =b loadb %t568
+  %t570 =w copy 48
+  %t571 =w cge %t569, %t570
   %t572 =w copy 1
   %t573 =w mul %si, %t572
   %t574 =w add %format, %t573
   %t575 =b loadb %t574
-  %t576 =w copy 48
-  %t577 =w cge %t575, %t576
-  %t578 =w copy 1
-  %t579 =w mul %si, %t578
-  %t580 =w add %format, %t579
-  %t581 =b loadb %t580
-  %t582 =w copy 57
-  %t583 =w cle %t581, %t582
-  %t584 =w and %t577, %t583
-  jnz %t584, @L_for_then_47, @L_36
+  %t576 =w copy 57
+  %t577 =w cle %t575, %t576
+  %t578 =w and %t571, %t577
+  jnz %t578, @L_for_then_47, @L_36
   @L_for_then_47
-  %t585 =w copy 10
-  %w =w mul %w, %t585
+  %t579 =w copy 10
+  %w =w mul %w, %t579
+  %t580 =w copy 1
+  %t581 =w mul %si, %t580
+  %t582 =w add %format, %t581
+  %t583 =b loadb %t582
+  %t584 =w copy 48
+  %t585 =w sub %t583, %t584
+  %w =w add %w, %t585
   %t586 =w copy 1
-  %t587 =w mul %si, %t586
-  %t588 =w add %format, %t587
-  %t589 =b loadb %t588
-  %t590 =w copy 48
-  %t591 =w sub %t589, %t590
-  %w =w add %w, %t591
-  %t592 =w copy 1
-  %si =w add %si, %t592
-  %t593 =w copy -1
-  %t594 =w add %si, %t593
+  %si =w add %si, %t586
+  %t587 =w copy -1
+  %t588 =w add %si, %t587
   @L_37
   jmp @L_for_begin_47
   @L_36
   jmp @L_if_end_46
   @L_if_else_46
   @L_if_end_46
-  %t595 =w copy 1
-  %t596 =w mul %si, %t595
-  %t597 =w add %format, %t596
-  %t598 =b loadb %t597
-  %t599 =w ceq %t598, 37
-  jnz %t599, @L_44, @L_case_48
+  %t590 =w copy 1
+  %t591 =w mul %si, %t590
+  %t592 =w add %format, %t591
+  %t593 =b loadb %t592
+  %t589 =w ceq %t593, 37
+  jnz %t589, @L_44, @L_case_48
   @L_case_48
-  %t600 =w ceq %t598, 120
-  jnz %t600, @L_43, @L_case_49
+  %t594 =w copy 1
+  %t595 =w mul %si, %t594
+  %t596 =w add %format, %t595
+  %t597 =b loadb %t596
+  %t589 =w ceq %t597, 120
+  jnz %t589, @L_43, @L_case_49
   @L_case_49
-  %t601 =w ceq %t598, 100
-  jnz %t601, @L_42, @L_case_50
+  %t598 =w copy 1
+  %t599 =w mul %si, %t598
+  %t600 =w add %format, %t599
+  %t601 =b loadb %t600
+  %t589 =w ceq %t601, 100
+  jnz %t589, @L_42, @L_case_50
   @L_case_50
-  %t602 =w ceq %t598, 111
-  jnz %t602, @L_41, @L_case_51
+  %t602 =w copy 1
+  %t603 =w mul %si, %t602
+  %t604 =w add %format, %t603
+  %t605 =b loadb %t604
+  %t589 =w ceq %t605, 111
+  jnz %t589, @L_41, @L_case_51
   @L_case_51
-  %t603 =w ceq %t598, 99
-  jnz %t603, @L_40, @L_case_52
+  %t606 =w copy 1
+  %t607 =w mul %si, %t606
+  %t608 =w add %format, %t607
+  %t609 =b loadb %t608
+  %t589 =w ceq %t609, 99
+  jnz %t589, @L_40, @L_case_52
   @L_case_52
-  %t604 =w ceq %t598, 115
-  jnz %t604, @L_39, @L_38
+  %t610 =w copy 1
+  %t611 =w mul %si, %t610
+  %t612 =w add %format, %t611
+  %t613 =b loadb %t612
+  %t589 =w ceq %t613, 115
+  jnz %t589, @L_39, @L_38
   @L_39
-  %t607 =w copy %v
-  %t608 =w call $strlen(w %t607)
-  %l =w copy %t608
-  %t609 =w copy %fmtbuf
-  %t610 =w copy %v
-  %t611 =w copy %l
-  call $__fmtbuf_write_str(w %t609, w %t610, w %t611)
+  %t615 =w copy %v
+  %t616 =w call $strlen(w %t615)
+  %l =w copy %t616
+  %t617 =w copy %fmtbuf
+  %t618 =w copy %v
+  %t619 =w copy %l
+  call $__fmtbuf_write_str(w %t617, w %t618, w %t619)
   jmp @L_38
   @L_40
-  %t612 =w copy %fmtbuf
-  %t613 =w copy %v
-  call $__fmtbuf_write_char(w %t612, w %t613)
+  %t620 =w copy %fmtbuf
+  %t621 =w copy %v
+  call $__fmtbuf_write_char(w %t620, w %t621)
   jmp @L_38
   @L_41
-  %t614 =w copy %fmtbuf
-  %t615 =w copy %v
-  %t616 =w copy %w
-  %t617 =w copy %zp
-  %t618 =w copy 8
-  %t619 =w copy %t618
-  %t620 =w copy %pp
-  call $__format(w %t614, w %t615, w %t616, w %t617, w %t619, w %t620)
+  %t622 =w copy %fmtbuf
+  %t623 =w copy %v
+  %t624 =w copy %w
+  %t625 =w copy %zp
+  %t626 =w copy 8
+  %t627 =w copy %t626
+  %t628 =w copy %pp
+  call $__format(w %t622, w %t623, w %t624, w %t625, w %t627, w %t628)
   jmp @L_38
   @L_42
-  %t621 =w copy %fmtbuf
-  %t622 =w copy %v
-  %t623 =w copy %w
-  %t624 =w copy %zp
-  %t625 =w copy 10
-  %t626 =w copy %t625
-  %t627 =w copy 0
-  %t628 =w copy %t627
-  call $__format(w %t621, w %t622, w %t623, w %t624, w %t626, w %t628)
-  jmp @L_38
-  @L_43
   %t629 =w copy %fmtbuf
   %t630 =w copy %v
   %t631 =w copy %w
   %t632 =w copy %zp
-  %t633 =w copy 16
+  %t633 =w copy 10
   %t634 =w copy %t633
-  %t635 =w copy %pp
-  call $__format(w %t629, w %t630, w %t631, w %t632, w %t634, w %t635)
+  %t635 =w copy 0
+  %t636 =w copy %t635
+  call $__format(w %t629, w %t630, w %t631, w %t632, w %t634, w %t636)
+  jmp @L_38
+  @L_43
+  %t637 =w copy %fmtbuf
+  %t638 =w copy %v
+  %t639 =w copy %w
+  %t640 =w copy %zp
+  %t641 =w copy 16
+  %t642 =w copy %t641
+  %t643 =w copy %pp
+  call $__format(w %t637, w %t638, w %t639, w %t640, w %t642, w %t643)
   jmp @L_38
   @L_44
-  %t636 =w copy %fmtbuf
-  %t637 =w copy 37
-  %t638 =w copy %t637
-  call $__fmtbuf_write_char(w %t636, w %t638)
-  %t639 =w copy 1
-  %si =w add %si, %t639
-  %t640 =w copy -1
-  %t641 =w add %si, %t640
+  %t644 =w copy %fmtbuf
+  %t645 =w copy 37
+  %t646 =w copy %t645
+  call $__fmtbuf_write_char(w %t644, w %t646)
+  %t647 =w copy 1
+  %si =w add %si, %t647
+  %t648 =w copy -1
+  %t649 =w add %si, %t648
   jmp @L_35
   @L_38
-  %t642 =w copy 1
-  %pi =w add %pi, %t642
-  %t643 =w copy -1
-  %t644 =w add %pi, %t643
-  %t645 =w copy 1
-  %si =w add %si, %t645
-  %t646 =w copy -1
-  %t647 =w add %si, %t646
+  %t650 =w copy 1
+  %pi =w add %pi, %t650
+  %t651 =w copy -1
+  %t652 =w add %pi, %t651
+  %t653 =w copy 1
+  %si =w add %si, %t653
+  %t654 =w copy -1
+  %t655 =w add %si, %t654
   @L_if_end_43
   @L_35
   jmp @L_for_begin_42
   @L_34
   @L_if_begin_54
-  %t648 =w add %fmtbuf, 8
-  %t650 =w loadw %t648
-  jnz %t650, @L_if_then_54, @L_if_else_54
+  %t656 =w add %fmtbuf, 4
+  %t658 =w loadw %t656
+  jnz %t658, @L_if_then_54, @L_if_else_54
   @L_if_then_54
-  %t652 =w add %fmtbuf, 0
-  %t654 =w loadw %t652
-  %t655 =w copy 0
-  %t656 =w add %t654, %t655
-  %t657 =b copy 0
-  storeb %t656, %t657
+  %t660 =w add %fmtbuf, 0
+  %t662 =w loadw %t660
+  %t663 =w copy 0
+  %t664 =w add %t662, %t663
+  %t665 =b copy 0
+  storeb %t664, %t665
   jmp @L_if_end_54
   @L_if_else_54
   @L_if_end_54
@@ -1194,474 +1214,494 @@ function v $__format_to_buf(w %fmtbuf, w %format, w %var_args) {
 }
 function w $printf(w %str, ...) {
   %buffer =b alloc 200
-  %fmtbuf =w alloc 16
-  %t658 =w add %fmtbuf, 0
-  storew %t658, %buffer
-  %t660 =w add %fmtbuf, 8
-  %t662 =w copy 2147483647
-  storew %t660, %t662
-  %t663 =w add %fmtbuf, 12
-  %t665 =w copy 0
-  storew %t663, %t665
-  %t667 =w copy %fmtbuf
-  %t668 =w copy %str
-  %t670 =w copy 32
-  %t671 =w add %str, %t670
-  %t672 =w copy %t671
-  call $__format_to_buf(w %t667, w %t668, w %t672)
-  %t673 =w copy 4
-  %t674 =w copy %t673
-  %t675 =w copy 1
-  %t676 =w copy %t675
-  %t677 =w copy %buffer
-  %t678 =w add %fmtbuf, 12
-  %t680 =w loadw %t678
-  %t681 =w copy %t680
-  %t682 =w call $__syscall(w %t674, w %t676, w %t677, w %t681)
-  ret %t682
+  %fmtbuf =w alloc 12
+  %t667 =w addr %fmtbuf
+  %t666 =w add %t667, 0
+  storew %t666, %buffer
+  %t669 =w addr %fmtbuf
+  %t668 =w add %t669, 4
+  %t670 =w copy 2147483647
+  storew %t668, %t670
+  %t672 =w addr %fmtbuf
+  %t671 =w add %t672, 8
+  %t673 =w copy 0
+  storew %t671, %t673
+  %t674 =w addr %fmtbuf
+  %t675 =w copy %t674
+  %t676 =w copy %str
+  %t677 =w addr %str
+  %t678 =w copy 4
+  %t679 =w add %t677, %t678
+  %t680 =w copy %t679
+  call $__format_to_buf(w %t675, w %t676, w %t680)
+  %t681 =w copy 4
+  %t682 =w copy %t681
+  %t683 =w copy 1
+  %t684 =w copy %t683
+  %t685 =w copy %buffer
+  %t687 =w addr %fmtbuf
+  %t686 =w add %t687, 8
+  %t688 =w loadw %t686
+  %t689 =w copy %t688
+  %t690 =w call $__syscall(w %t682, w %t684, w %t685, w %t689)
+  ret %t690
 }
 function w $sprintf(w %buffer, w %str, ...) {
-  %fmtbuf =w alloc 16
-  %t683 =w add %fmtbuf, 0
-  storew %t683, %buffer
-  %t685 =w add %fmtbuf, 8
-  %t687 =w copy 2147483647
-  storew %t685, %t687
-  %t688 =w add %fmtbuf, 12
-  %t690 =w copy 0
-  storew %t688, %t690
-  %t692 =w copy %fmtbuf
-  %t693 =w copy %str
-  %t695 =w copy 32
-  %t696 =w add %str, %t695
-  %t697 =w copy %t696
-  call $__format_to_buf(w %t692, w %t693, w %t697)
-  %t698 =w add %fmtbuf, 12
-  %t700 =w loadw %t698
-  ret %t700
+  %fmtbuf =w alloc 12
+  %t692 =w addr %fmtbuf
+  %t691 =w add %t692, 0
+  storew %t691, %buffer
+  %t694 =w addr %fmtbuf
+  %t693 =w add %t694, 4
+  %t695 =w copy 2147483647
+  storew %t693, %t695
+  %t697 =w addr %fmtbuf
+  %t696 =w add %t697, 8
+  %t698 =w copy 0
+  storew %t696, %t698
+  %t699 =w addr %fmtbuf
+  %t700 =w copy %t699
+  %t701 =w copy %str
+  %t702 =w addr %str
+  %t703 =w copy 4
+  %t704 =w add %t702, %t703
+  %t705 =w copy %t704
+  call $__format_to_buf(w %t700, w %t701, w %t705)
+  %t707 =w addr %fmtbuf
+  %t706 =w add %t707, 8
+  %t708 =w loadw %t706
+  ret %t708
 }
 function w $snprintf(w %buffer, w %n, w %str, ...) {
-  %fmtbuf =w alloc 16
-  %t701 =w add %fmtbuf, 0
-  storew %t701, %buffer
-  %t703 =w add %fmtbuf, 8
-  storew %t703, %n
-  %t705 =w add %fmtbuf, 12
-  %t707 =w copy 0
-  storew %t705, %t707
-  %t709 =w copy %fmtbuf
-  %t710 =w copy %str
-  %t712 =w copy 32
-  %t713 =w add %str, %t712
-  %t714 =w copy %t713
-  call $__format_to_buf(w %t709, w %t710, w %t714)
-  %t715 =w add %fmtbuf, 12
-  %t717 =w loadw %t715
-  ret %t717
+  %fmtbuf =w alloc 12
+  %t710 =w addr %fmtbuf
+  %t709 =w add %t710, 0
+  storew %t709, %buffer
+  %t712 =w addr %fmtbuf
+  %t711 =w add %t712, 4
+  storew %t711, %n
+  %t714 =w addr %fmtbuf
+  %t713 =w add %t714, 8
+  %t715 =w copy 0
+  storew %t713, %t715
+  %t716 =w addr %fmtbuf
+  %t717 =w copy %t716
+  %t718 =w copy %str
+  %t719 =w addr %str
+  %t720 =w copy 4
+  %t721 =w add %t719, %t720
+  %t722 =w copy %t721
+  call $__format_to_buf(w %t717, w %t718, w %t722)
+  %t724 =w addr %fmtbuf
+  %t723 =w add %t724, 8
+  %t725 =w loadw %t723
+  ret %t725
 }
 function w $__free_all() {
-  %cur =w alloc 8
-  %rel =w alloc 8
+  %cur =w alloc 1
+  %rel =w alloc 1
   %size =w alloc 4
   @L_if_begin_55
-  %t718 =b ceq $__freelist_head, 0
-  %t719 =b ceq $__alloc_head, 0
-  %t720 =w and %t718, %t719
-  jnz %t720, @L_if_then_55, @L_if_else_55
+  %t726 =b ceq $__freelist_head, 0
+  %t727 =b ceq $__alloc_head, 0
+  %t728 =w and %t726, %t727
+  jnz %t728, @L_if_then_55, @L_if_else_55
   @L_if_then_55
-  %t721 =w copy 0
-  ret %t721
+  %t729 =w copy 0
+  ret %t729
   @L_if_else_55
   %cur =w copy $__freelist_head
   @L_for_begin_56
-  %t723 =w add %cur, 0
-  %t725 =w loadw %t723
-  jnz %t725, @L_for_then_56, @L_56
+  %t731 =w add %cur, 0
+  %t733 =w loadw %t731
+  jnz %t733, @L_for_then_56, @L_56
   @L_for_then_56
   %rel =w copy %cur
-  %t728 =w add %cur, 0
-  %t730 =w loadw %t728
-  %cur =w copy %t730
-  %t731 =w add %rel, 0
-  %t733 =w copy 0
-  storew %t731, %t733
-  %t734 =w add %rel, 8
-  %t736 =w copy 0
-  storew %t734, %t736
-  %t738 =w add %rel, 16
-  %t740 =w loadw %t738
-  %t741 =w copy -2
-  %t742 =w and %t740, %t741
-  %size =w copy %t742
-  %t743 =w copy %rel
-  %t744 =w copy %size
-  call $__rfree(w %t743, w %t744)
+  %t736 =w add %cur, 0
+  %t738 =w loadw %t736
+  %cur =w copy %t738
+  %t739 =w add %rel, 0
+  %t741 =w copy 0
+  storew %t739, %t741
+  %t742 =w add %rel, 4
+  %t744 =w copy 0
+  storew %t742, %t744
+  %t746 =w add %rel, 8
+  %t748 =w loadw %t746
+  %t749 =w copy -2
+  %t750 =w and %t748, %t749
+  %size =w copy %t750
+  %t751 =w copy %rel
+  %t752 =w copy %size
+  call $__rfree(w %t751, w %t752)
   @L_57
   jmp @L_for_begin_56
   @L_56
   @L_if_begin_57
-  %t745 =w add $__alloc_head, 0
-  %t747 =w loadw %t745
-  jnz %t747, @L_if_then_57, @L_if_else_57
+  %t753 =w add $__alloc_head, 0
+  %t755 =w loadw %t753
+  jnz %t755, @L_if_then_57, @L_if_else_57
   @L_if_then_57
-  %t749 =w add $__alloc_head, 0
-  %t751 =w loadw %t749
-  %cur =w copy %t751
+  %t757 =w add $__alloc_head, 0
+  %t759 =w loadw %t757
+  %cur =w copy %t759
   @L_for_begin_58
   jnz %cur, @L_for_then_58, @L_58
   @L_for_then_58
   %rel =w copy %cur
-  %t754 =w add %cur, 0
-  %t756 =w loadw %t754
-  %cur =w copy %t756
-  %t757 =w add %rel, 0
-  %t759 =w copy 0
-  storew %t757, %t759
-  %t760 =w add %rel, 8
-  %t762 =w copy 0
-  storew %t760, %t762
-  %t764 =w add %rel, 16
-  %t766 =w loadw %t764
-  %t767 =w copy -2
-  %t768 =w and %t766, %t767
-  %size =w copy %t768
-  %t769 =w copy %rel
-  %t770 =w copy %size
-  call $__rfree(w %t769, w %t770)
+  %t762 =w add %cur, 0
+  %t764 =w loadw %t762
+  %cur =w copy %t764
+  %t765 =w add %rel, 0
+  %t767 =w copy 0
+  storew %t765, %t767
+  %t768 =w add %rel, 4
+  %t770 =w copy 0
+  storew %t768, %t770
+  %t772 =w add %rel, 8
+  %t774 =w loadw %t772
+  %t775 =w copy -2
+  %t776 =w and %t774, %t775
+  %size =w copy %t776
+  %t777 =w copy %rel
+  %t778 =w copy %size
+  call $__rfree(w %t777, w %t778)
   @L_59
   jmp @L_for_begin_58
   @L_58
   jmp @L_if_end_57
   @L_if_else_57
   @L_if_end_57
-  %t771 =w copy 0
-  ret %t771
+  %t779 =w copy 0
+  ret %t779
 }
 function v $exit(w %exit_code) {
-  %t772 =w call $__free_all()
-  %t773 =w copy 1
-  %t774 =w copy %t773
-  %t775 =w copy %exit_code
-  %t776 =w call $__syscall(w %t774, w %t775)
+  %t780 =w call $__free_all()
+  %t781 =w copy 1
+  %t782 =w copy %t781
+  %t783 =w copy %exit_code
+  %t784 =w call $__syscall(w %t782, w %t783)
   ret
 }
 function w $fopen(w %filename, w %mode) {
   @L_if_begin_59
-  %t777 =w copy %mode
-  %t778 =w copy $L_46
-  %t779 =w call $strcmp(w %t777, w %t778)
-  %t780 =b ceq %t779, 0
-  jnz %t780, @L_if_then_59, @L_if_else_59
+  %t785 =w copy %mode
+  %t786 =w copy $L_46
+  %t787 =w call $strcmp(w %t785, w %t786)
+  %t788 =b ceq %t787, 0
+  jnz %t788, @L_if_then_59, @L_if_else_59
   @L_if_then_59
-  %t781 =w copy 5
-  %t782 =w copy %t781
-  %t783 =w copy %filename
-  %t784 =w copy 65
-  %t785 =w copy %t784
-  %t786 =w copy 509
-  %t787 =w copy %t786
-  %t788 =w call $__syscall(w %t782, w %t783, w %t785, w %t787)
-  ret %t788
+  %t789 =w copy 5
+  %t790 =w copy %t789
+  %t791 =w copy %filename
+  %t792 =w copy 65
+  %t793 =w copy %t792
+  %t794 =w copy 509
+  %t795 =w copy %t794
+  %t796 =w call $__syscall(w %t790, w %t791, w %t793, w %t795)
+  ret %t796
   @L_if_else_59
   @L_if_begin_60
-  %t789 =w copy %mode
-  %t790 =w copy $L_47
-  %t791 =w call $strcmp(w %t789, w %t790)
-  %t792 =b ceq %t791, 0
-  jnz %t792, @L_if_then_60, @L_if_else_60
+  %t797 =w copy %mode
+  %t798 =w copy $L_47
+  %t799 =w call $strcmp(w %t797, w %t798)
+  %t800 =b ceq %t799, 0
+  jnz %t800, @L_if_then_60, @L_if_else_60
   @L_if_then_60
-  %t793 =w copy 5
-  %t794 =w copy %t793
-  %t795 =w copy %filename
-  %t796 =w copy 0
-  %t797 =w copy %t796
-  %t798 =w copy 0
-  %t799 =w copy %t798
-  %t800 =w call $__syscall(w %t794, w %t795, w %t797, w %t799)
-  ret %t800
+  %t801 =w copy 5
+  %t802 =w copy %t801
+  %t803 =w copy %filename
+  %t804 =w copy 0
+  %t805 =w copy %t804
+  %t806 =w copy 0
+  %t807 =w copy %t806
+  %t808 =w call $__syscall(w %t802, w %t803, w %t805, w %t807)
+  ret %t808
   @L_if_else_60
-  %t801 =w copy 0
-  ret %t801
+  %t809 =w copy 0
+  ret %t809
 }
 function w $fclose(w %stream) {
-  %t802 =w copy 6
-  %t803 =w copy %t802
-  %t804 =w copy %stream
-  %t805 =w call $__syscall(w %t803, w %t804)
-  %t806 =w copy 0
-  ret %t806
+  %t810 =w copy 6
+  %t811 =w copy %t810
+  %t812 =w copy %stream
+  %t813 =w call $__syscall(w %t811, w %t812)
+  %t814 =w copy 0
+  ret %t814
 }
 function w $fgetc(w %stream) {
   %buf =w alloc 4
   %r =w alloc 4
-  %t808 =w copy 0
-  %buf =w copy %t808
-  %t810 =w copy 3
-  %t811 =w copy %t810
-  %t812 =w copy %stream
-  %t814 =w copy %buf
-  %t815 =w copy 1
-  %t816 =w copy %t815
-  %t817 =w call $__syscall(w %t811, w %t812, w %t814, w %t816)
-  %r =w copy %t817
+  %t816 =w copy 0
+  %buf =w copy %t816
+  %t818 =w copy 3
+  %t819 =w copy %t818
+  %t820 =w copy %stream
+  %t821 =w addr %buf
+  %t822 =w copy %t821
+  %t823 =w copy 1
+  %t824 =w copy %t823
+  %t825 =w call $__syscall(w %t819, w %t820, w %t822, w %t824)
+  %r =w copy %t825
   @L_if_begin_61
-  %t818 =w copy 1
-  %t819 =w clt %r, %t818
-  jnz %t819, @L_if_then_61, @L_if_else_61
+  %t826 =w copy 1
+  %t827 =w clt %r, %t826
+  jnz %t827, @L_if_then_61, @L_if_else_61
   @L_if_then_61
-  %t820 =w copy -1
-  ret %t820
+  %t828 =w copy -1
+  ret %t828
   @L_if_else_61
   ret %buf
 }
 function w $fgets(w %str, w %n, w %stream) {
   %i =w alloc 4
   %c =w alloc 4
-  %t822 =w copy 0
-  %i =w copy %t822
+  %t830 =w copy 0
+  %i =w copy %t830
   @L_for_begin_62
-  %t823 =w copy 1
-  %t824 =w sub %n, %t823
-  %t825 =w clt %i, %t824
-  jnz %t825, @L_for_then_62, @L_48
+  %t831 =w copy 1
+  %t832 =w sub %n, %t831
+  %t833 =w clt %i, %t832
+  jnz %t833, @L_for_then_62, @L_48
   @L_for_then_62
-  %t827 =w copy %stream
-  %t828 =w call $fgetc(w %t827)
-  %c =w copy %t828
+  %t835 =w copy %stream
+  %t836 =w call $fgetc(w %t835)
+  %c =w copy %t836
   @L_if_begin_63
-  %t829 =w copy -1
-  %t830 =w ceq %c, %t829
-  jnz %t830, @L_if_then_63, @L_if_else_63
+  %t837 =w copy -1
+  %t838 =w ceq %c, %t837
+  jnz %t838, @L_if_then_63, @L_if_else_63
   @L_if_then_63
   @L_if_begin_64
-  %t831 =w copy 0
-  %t832 =w ceq %i, %t831
-  jnz %t832, @L_if_then_64, @L_if_else_64
+  %t839 =w copy 0
+  %t840 =w ceq %i, %t839
+  jnz %t840, @L_if_then_64, @L_if_else_64
   @L_if_then_64
-  %t833 =w copy 0
-  ret %t833
+  %t841 =w copy 0
+  ret %t841
   @L_if_else_64
-  %t835 =w copy 1
-  %t836 =w mul %i, %t835
-  %t837 =w add %str, %t836
-  %t838 =b copy 0
-  storeb %t837, %t838
+  %t843 =w copy 1
+  %t844 =w mul %i, %t843
+  %t845 =w add %str, %t844
+  %t846 =b copy 0
+  storeb %t845, %t846
   ret %str
   @L_if_else_63
-  %t840 =w copy 1
-  %t841 =w mul %i, %t840
-  %t842 =w add %str, %t841
-  storeb %t842, %c
-  @L_if_begin_65
-  %t843 =w copy 10
-  %t844 =w ceq %c, %t843
-  jnz %t844, @L_if_then_65, @L_if_else_65
-  @L_if_then_65
-  %t846 =w copy 1
-  %t847 =w add %i, %t846
   %t848 =w copy 1
-  %t849 =w mul %t847, %t848
+  %t849 =w mul %i, %t848
   %t850 =w add %str, %t849
-  %t851 =b copy 0
-  storeb %t850, %t851
-  ret %str
-  @L_if_else_65
-  @L_49
-  %t852 =w copy 1
-  %i =w add %i, %t852
-  %t853 =w copy -1
-  %t854 =w add %i, %t853
-  jmp @L_for_begin_62
-  @L_48
+  storeb %t850, %c
+  @L_if_begin_65
+  %t851 =w copy 10
+  %t852 =w ceq %c, %t851
+  jnz %t852, @L_if_then_65, @L_if_else_65
+  @L_if_then_65
+  %t854 =w copy 1
+  %t855 =w add %i, %t854
   %t856 =w copy 1
-  %t857 =w mul %i, %t856
+  %t857 =w mul %t855, %t856
   %t858 =w add %str, %t857
   %t859 =b copy 0
   storeb %t858, %t859
   ret %str
+  @L_if_else_65
+  @L_49
+  %t860 =w copy 1
+  %i =w add %i, %t860
+  %t861 =w copy -1
+  %t862 =w add %i, %t861
+  jmp @L_for_begin_62
+  @L_48
+  %t864 =w copy 1
+  %t865 =w mul %i, %t864
+  %t866 =w add %str, %t865
+  %t867 =b copy 0
+  storeb %t866, %t867
+  ret %str
 }
 function w $fputc(w %c, w %stream) {
   @L_if_begin_66
-  %t860 =w copy 4
-  %t861 =w copy %t860
-  %t862 =w copy %stream
-  %t864 =w copy %c
-  %t865 =w copy 1
-  %t866 =w copy %t865
-  %t867 =w call $__syscall(w %t861, w %t862, w %t864, w %t866)
-  %t868 =w copy 0
-  %t869 =w clt %t867, %t868
-  jnz %t869, @L_if_then_66, @L_if_else_66
+  %t868 =w copy 4
+  %t869 =w copy %t868
+  %t870 =w copy %stream
+  %t871 =w addr %c
+  %t872 =w copy %t871
+  %t873 =w copy 1
+  %t874 =w copy %t873
+  %t875 =w call $__syscall(w %t869, w %t870, w %t872, w %t874)
+  %t876 =w copy 0
+  %t877 =w clt %t875, %t876
+  jnz %t877, @L_if_then_66, @L_if_else_66
   @L_if_then_66
-  %t870 =w copy -1
-  ret %t870
+  %t878 =w copy -1
+  ret %t878
   @L_if_else_66
   ret %c
 }
 function v $chunk_set_freed(w %chunk) {
-  %t871 =w add %chunk, 16
-  %t873 =w copy 1
-  %t874 =w loadw %t871
-  %t875 =w or %t874, %t873
-  storew %t871, %t875
+  %t879 =w add %chunk, 8
+  %t881 =w copy 1
+  %t882 =w loadw %t879
+  %t883 =w or %t882, %t881
+  storew %t879, %t883
   ret
 }
 function v $chunk_clear_freed(w %chunk) {
-  %t876 =w add %chunk, 16
-  %t878 =w copy -2
-  %t879 =w loadw %t876
-  %t880 =w and %t879, %t878
-  storew %t876, %t880
+  %t884 =w add %chunk, 8
+  %t886 =w copy -2
+  %t887 =w loadw %t884
+  %t888 =w and %t887, %t886
+  storew %t884, %t888
   ret
 }
 function w $__align_up(w %size) {
   %mask =w alloc 4
-  %t882 =w copy 4095
-  %mask =w copy %t882
-  %t883 =w copy 1
-  %t884 =w sub %size, %t883
-  %t885 =w or %t884, %mask
-  %t886 =w copy 1
-  %t887 =w add %t885, %t886
-  ret %t887
+  %t890 =w copy 4095
+  %mask =w copy %t890
+  %t891 =w copy 1
+  %t892 =w sub %size, %t891
+  %t893 =w or %t892, %mask
+  %t894 =w copy 1
+  %t895 =w add %t893, %t894
+  ret %t895
 }
 function w $malloc(w %size) {
   %flags =w alloc 4
   %prot =w alloc 4
-  %tmp =w alloc 8
-  %tmp =w alloc 8
-  %best_fit_chunk =w alloc 8
-  %allocated =w alloc 8
+  %tmp =w alloc 1
+  %tmp =w alloc 1
+  %best_fit_chunk =w alloc 1
+  %allocated =w alloc 1
   %bsize =w alloc 4
-  %fh =w alloc 8
+  %fh =w alloc 1
   %fh_size =w alloc 4
-  %tmp =w alloc 8
-  %tmp =w alloc 8
-  %ptr =w alloc 8
+  %tmp =w alloc 1
+  %tmp =w alloc 1
+  %ptr =w alloc 1
   @L_if_begin_67
-  %t888 =w copy 0
-  %t889 =w cle %size, %t888
-  jnz %t889, @L_if_then_67, @L_if_else_67
+  %t896 =w copy 0
+  %t897 =w cle %size, %t896
+  jnz %t897, @L_if_then_67, @L_if_else_67
   @L_if_then_67
-  %t890 =w copy 0
-  ret %t890
+  %t898 =w copy 0
+  ret %t898
   @L_if_else_67
-  %t892 =w copy 34
-  %flags =w copy %t892
-  %t894 =w copy 3
-  %prot =w copy %t894
+  %t900 =w copy 34
+  %flags =w copy %t900
+  %t902 =w copy 3
+  %prot =w copy %t902
   @L_if_begin_68
-  %t895 =b ceq $__alloc_head, 0
-  jnz %t895, @L_if_then_68, @L_if_else_68
+  %t903 =b ceq $__alloc_head, 0
+  jnz %t903, @L_if_then_68, @L_if_else_68
   @L_if_then_68
-  %t897 =w copy 192
-  %t898 =w copy %t897
-  %t899 =w copy 0
-  %t900 =w copy %t899
-  %t901 =w copy 24
-  %t902 =w copy %t901
-  %t903 =w call $__align_up(w %t902)
-  %t904 =w copy %t903
-  %t905 =w copy %prot
-  %t906 =w copy %flags
-  %t907 =w copy 1
-  %t907 =w neg %t907
+  %t905 =w copy 192
+  %t906 =w copy %t905
+  %t907 =w copy 0
   %t908 =w copy %t907
-  %t909 =w copy 0
+  %t909 =w copy 12
   %t910 =w copy %t909
-  %t911 =w call $__syscall(w %t898, w %t900, w %t904, w %t905, w %t906, w %t908, w %t910)
-  %tmp =w copy %t911
-  %t912 =w gaddr %__alloc_head
-  %t912 =w copy %tmp
-  %t913 =w gaddr %__alloc_tail
-  %t913 =w copy %tmp
-  %t914 =w add $__alloc_head, 0
-  %t916 =w copy 0
-  storew %t914, %t916
-  %t917 =w add $__alloc_head, 8
-  %t919 =w copy 0
-  storew %t917, %t919
-  %t920 =w add $__alloc_head, 16
-  %t922 =w copy 0
-  storew %t920, %t922
+  %t911 =w call $__align_up(w %t910)
+  %t912 =w copy %t911
+  %t913 =w copy %prot
+  %t914 =w copy %flags
+  %t915 =w copy 1
+  %t915 =w neg %t915
+  %t916 =w copy %t915
+  %t917 =w copy 0
+  %t918 =w copy %t917
+  %t919 =w call $__syscall(w %t906, w %t908, w %t912, w %t913, w %t914, w %t916, w %t918)
+  %tmp =w copy %t919
+  %t920 =w gaddr %__alloc_head
+  %t920 =w copy %tmp
+  %t921 =w gaddr %__alloc_tail
+  %t921 =w copy %tmp
+  %t922 =w add $__alloc_head, 0
+  %t924 =w copy 0
+  storew %t922, %t924
+  %t925 =w add $__alloc_head, 4
+  %t927 =w copy 0
+  storew %t925, %t927
+  %t928 =w add $__alloc_head, 8
+  %t930 =w copy 0
+  storew %t928, %t930
   jmp @L_if_end_68
   @L_if_else_68
   @L_if_end_68
   @L_if_begin_69
-  %t923 =b ceq $__freelist_head, 0
-  jnz %t923, @L_if_then_69, @L_if_else_69
+  %t931 =b ceq $__freelist_head, 0
+  jnz %t931, @L_if_then_69, @L_if_else_69
   @L_if_then_69
-  %t925 =w copy 192
-  %t926 =w copy %t925
-  %t927 =w copy 0
-  %t928 =w copy %t927
-  %t929 =w copy 24
-  %t930 =w copy %t929
-  %t931 =w call $__align_up(w %t930)
-  %t932 =w copy %t931
-  %t933 =w copy %prot
-  %t934 =w copy %flags
-  %t935 =w copy 1
-  %t935 =w neg %t935
+  %t933 =w copy 192
+  %t934 =w copy %t933
+  %t935 =w copy 0
   %t936 =w copy %t935
-  %t937 =w copy 0
+  %t937 =w copy 12
   %t938 =w copy %t937
-  %t939 =w call $__syscall(w %t926, w %t928, w %t932, w %t933, w %t934, w %t936, w %t938)
-  %tmp =w copy %t939
-  %t940 =w gaddr %__freelist_head
-  %t940 =w copy %tmp
-  %t941 =w add $__freelist_head, 0
-  %t943 =w copy 0
-  storew %t941, %t943
-  %t944 =w add $__freelist_head, 8
-  %t946 =w copy 0
-  storew %t944, %t946
-  %t947 =w add $__freelist_head, 16
-  %t949 =w copy -1
-  storew %t947, %t949
+  %t939 =w call $__align_up(w %t938)
+  %t940 =w copy %t939
+  %t941 =w copy %prot
+  %t942 =w copy %flags
+  %t943 =w copy 1
+  %t943 =w neg %t943
+  %t944 =w copy %t943
+  %t945 =w copy 0
+  %t946 =w copy %t945
+  %t947 =w call $__syscall(w %t934, w %t936, w %t940, w %t941, w %t942, w %t944, w %t946)
+  %tmp =w copy %t947
+  %t948 =w gaddr %__freelist_head
+  %t948 =w copy %tmp
+  %t949 =w add $__freelist_head, 0
+  %t951 =w copy 0
+  storew %t949, %t951
+  %t952 =w add $__freelist_head, 4
+  %t954 =w copy 0
+  storew %t952, %t954
+  %t955 =w add $__freelist_head, 8
+  %t957 =w copy -1
+  storew %t955, %t957
   jmp @L_if_end_69
   @L_if_else_69
   @L_if_end_69
-  %t951 =w copy 0
-  %best_fit_chunk =w copy %t951
+  %t959 =w copy 0
+  %best_fit_chunk =w copy %t959
   @L_if_begin_70
-  %t952 =w add $__freelist_head, 0
-  %t954 =w loadw %t952
-  %t955 =b ceq %t954, 0
-  jnz %t955, @L_if_then_70, @L_if_else_70
+  %t960 =w add $__freelist_head, 0
+  %t962 =w loadw %t960
+  %t963 =b ceq %t962, 0
+  jnz %t963, @L_if_then_70, @L_if_else_70
   @L_if_then_70
   %allocated =w copy %best_fit_chunk
   jmp @L_if_end_70
   @L_if_else_70
-  %t958 =w copy 0
-  %bsize =w copy %t958
+  %t966 =w copy 0
+  %bsize =w copy %t966
   %fh =w copy $__freelist_head
   @L_for_begin_71
-  %t960 =w add %fh, 0
-  %t962 =w loadw %t960
-  jnz %t962, @L_for_then_71, @L_50
+  %t968 =w add %fh, 0
+  %t970 =w loadw %t968
+  jnz %t970, @L_for_then_71, @L_50
   @L_for_then_71
-  %t964 =w add %fh, 16
-  %t966 =w loadw %t964
-  %t967 =w copy -2
-  %t968 =w and %t966, %t967
-  %fh_size =w copy %t968
+  %t972 =w add %fh, 8
+  %t974 =w loadw %t972
+  %t975 =w copy -2
+  %t976 =w and %t974, %t975
+  %fh_size =w copy %t976
   @L_if_begin_72
-  %t969 =w cge %fh_size, %size
-  %t970 =b ceq %best_fit_chunk, 0
-  %t971 =w and %t969, %t970
-  jnz %t971, @L_if_then_72, @L_if_else_72
+  %t977 =w cge %fh_size, %size
+  %t978 =b ceq %best_fit_chunk, 0
+  %t979 =w and %t977, %t978
+  jnz %t979, @L_if_then_72, @L_if_else_72
   @L_if_then_72
   %best_fit_chunk =w copy %fh
   %bsize =w copy %fh_size
   jmp @L_if_end_72
   @L_if_else_72
   @L_if_begin_73
-  %t974 =w cge %fh_size, %size
-  %t975 =w and %t974, %best_fit_chunk
-  %t976 =w clt %fh_size, %bsize
-  %t977 =w and %t975, %t976
-  jnz %t977, @L_if_then_73, @L_if_else_73
+  %t982 =w cge %fh_size, %size
+  %t983 =w and %t982, %best_fit_chunk
+  %t984 =w clt %fh_size, %bsize
+  %t985 =w and %t983, %t984
+  jnz %t985, @L_if_then_73, @L_if_else_73
   @L_if_then_73
   %best_fit_chunk =w copy %fh
   %bsize =w copy %fh_size
@@ -1670,45 +1710,45 @@ function w $malloc(w %size) {
   @L_if_end_73
   @L_if_end_72
   @L_51
-  %t981 =w add %fh, 0
-  %t983 =w loadw %t981
-  %fh =w copy %t983
+  %t989 =w add %fh, 0
+  %t991 =w loadw %t989
+  %fh =w copy %t991
   jmp @L_for_begin_71
   @L_50
   @L_if_begin_74
   jnz %best_fit_chunk, @L_if_then_74, @L_if_else_74
   @L_if_then_74
   @L_if_begin_75
-  %t984 =w add %best_fit_chunk, 8
-  %t986 =w loadw %t984
-  jnz %t986, @L_if_then_75, @L_if_else_75
+  %t992 =w add %best_fit_chunk, 4
+  %t994 =w loadw %t992
+  jnz %t994, @L_if_then_75, @L_if_else_75
   @L_if_then_75
-  %t988 =w add %best_fit_chunk, 8
-  %t990 =w loadw %t988
-  %tmp =w copy %t990
-  %t991 =w add %tmp, 0
-  %t993 =w add %best_fit_chunk, 0
-  %t995 =w loadw %t993
-  storew %t991, %t995
+  %t996 =w add %best_fit_chunk, 4
+  %t998 =w loadw %t996
+  %tmp =w copy %t998
+  %t999 =w add %tmp, 0
+  %t1001 =w add %best_fit_chunk, 0
+  %t1003 =w loadw %t1001
+  storew %t999, %t1003
   jmp @L_if_end_75
   @L_if_else_75
-  %t996 =w gaddr %__freelist_head
-  %t997 =w add %best_fit_chunk, 0
-  %t999 =w loadw %t997
-  %t996 =w copy %t999
+  %t1004 =w gaddr %__freelist_head
+  %t1005 =w add %best_fit_chunk, 0
+  %t1007 =w loadw %t1005
+  %t1004 =w copy %t1007
   @L_if_end_75
   @L_if_begin_76
-  %t1000 =w add %best_fit_chunk, 0
-  %t1002 =w loadw %t1000
-  jnz %t1002, @L_if_then_76, @L_if_else_76
+  %t1008 =w add %best_fit_chunk, 0
+  %t1010 =w loadw %t1008
+  jnz %t1010, @L_if_then_76, @L_if_else_76
   @L_if_then_76
-  %t1004 =w add %best_fit_chunk, 0
-  %t1006 =w loadw %t1004
-  %tmp =w copy %t1006
-  %t1007 =w add %tmp, 8
-  %t1009 =w add %best_fit_chunk, 8
-  %t1011 =w loadw %t1009
-  storew %t1007, %t1011
+  %t1012 =w add %best_fit_chunk, 0
+  %t1014 =w loadw %t1012
+  %tmp =w copy %t1014
+  %t1015 =w add %tmp, 4
+  %t1017 =w add %best_fit_chunk, 4
+  %t1019 =w loadw %t1017
+  storew %t1015, %t1019
   jmp @L_if_end_76
   @L_if_else_76
   @L_if_end_76
@@ -1718,113 +1758,113 @@ function w $malloc(w %size) {
   %allocated =w copy %best_fit_chunk
   @L_if_end_70
   @L_if_begin_77
-  %t1013 =b ceq %allocated, 0
-  jnz %t1013, @L_if_then_77, @L_if_else_77
+  %t1021 =b ceq %allocated, 0
+  jnz %t1021, @L_if_then_77, @L_if_else_77
   @L_if_then_77
-  %t1015 =w copy 192
-  %t1016 =w copy %t1015
-  %t1017 =w copy 0
-  %t1018 =w copy %t1017
-  %t1019 =w copy 24
-  %t1020 =w add %t1019, %size
-  %t1021 =w copy %t1020
-  %t1022 =w call $__align_up(w %t1021)
-  %t1023 =w copy %t1022
-  %t1024 =w copy %prot
-  %t1025 =w copy %flags
-  %t1026 =w copy 1
-  %t1026 =w neg %t1026
-  %t1027 =w copy %t1026
-  %t1028 =w copy 0
+  %t1023 =w copy 192
+  %t1024 =w copy %t1023
+  %t1025 =w copy 0
+  %t1026 =w copy %t1025
+  %t1027 =w copy 12
+  %t1028 =w add %t1027, %size
   %t1029 =w copy %t1028
-  %t1030 =w call $__syscall(w %t1016, w %t1018, w %t1023, w %t1024, w %t1025, w %t1027, w %t1029)
-  %allocated =w copy %t1030
-  %t1031 =w add %allocated, 16
-  %t1033 =w copy 24
-  %t1034 =w add %t1033, %size
+  %t1030 =w call $__align_up(w %t1029)
+  %t1031 =w copy %t1030
+  %t1032 =w copy %prot
+  %t1033 =w copy %flags
+  %t1034 =w copy 1
+  %t1034 =w neg %t1034
   %t1035 =w copy %t1034
-  %t1036 =w call $__align_up(w %t1035)
-  storew %t1031, %t1036
+  %t1036 =w copy 0
+  %t1037 =w copy %t1036
+  %t1038 =w call $__syscall(w %t1024, w %t1026, w %t1031, w %t1032, w %t1033, w %t1035, w %t1037)
+  %allocated =w copy %t1038
+  %t1039 =w add %allocated, 8
+  %t1041 =w copy 12
+  %t1042 =w add %t1041, %size
+  %t1043 =w copy %t1042
+  %t1044 =w call $__align_up(w %t1043)
+  storew %t1039, %t1044
   jmp @L_if_end_77
   @L_if_else_77
   @L_if_end_77
-  %t1037 =w add $__alloc_tail, 0
-  storew %t1037, %allocated
-  %t1039 =w add %allocated, 8
-  storew %t1039, $__alloc_tail
-  %t1041 =w gaddr %__alloc_tail
-  %t1041 =w copy %allocated
-  %t1042 =w add $__alloc_tail, 0
-  %t1044 =w copy 0
-  storew %t1042, %t1044
-  %t1045 =w add $__alloc_tail, 16
-  %t1047 =w add %allocated, 16
-  %t1049 =w loadw %t1047
-  storew %t1045, %t1049
-  %t1050 =w copy $__alloc_tail
-  call $chunk_clear_freed(w %t1050)
-  %t1052 =w copy 24
-  %t1053 =w add $__alloc_tail, %t1052
-  %ptr =w copy %t1053
+  %t1045 =w add $__alloc_tail, 0
+  storew %t1045, %allocated
+  %t1047 =w add %allocated, 4
+  storew %t1047, $__alloc_tail
+  %t1049 =w gaddr %__alloc_tail
+  %t1049 =w copy %allocated
+  %t1050 =w add $__alloc_tail, 0
+  %t1052 =w copy 0
+  storew %t1050, %t1052
+  %t1053 =w add $__alloc_tail, 8
+  %t1055 =w add %allocated, 8
+  %t1057 =w loadw %t1055
+  storew %t1053, %t1057
+  %t1058 =w copy $__alloc_tail
+  call $chunk_clear_freed(w %t1058)
+  %t1060 =w copy 12
+  %t1061 =w add $__alloc_tail, %t1060
+  %ptr =w copy %t1061
   ret %ptr
 }
 function w $calloc(w %n, w %size) {
   %total =w alloc 4
-  %p =w alloc 8
-  %pi =w alloc 8
+  %p =w alloc 1
+  %pi =w alloc 1
   %num_words =w alloc 4
   %offset =w alloc 4
   %i =w alloc 4
-  %t1055 =w mul %n, %size
-  %total =w copy %t1055
-  %t1057 =w copy %total
-  %t1058 =w call $malloc(w %t1057)
-  %p =w copy %t1058
+  %t1063 =w mul %n, %size
+  %total =w copy %t1063
+  %t1065 =w copy %total
+  %t1066 =w call $malloc(w %t1065)
+  %p =w copy %t1066
   @L_if_begin_78
-  %t1059 =b ceq %p, 0
-  jnz %t1059, @L_if_then_78, @L_if_else_78
+  %t1067 =b ceq %p, 0
+  jnz %t1067, @L_if_then_78, @L_if_else_78
   @L_if_then_78
-  %t1060 =w copy 0
-  ret %t1060
+  %t1068 =w copy 0
+  ret %t1068
   @L_if_else_78
   %pi =w copy %p
-  %t1063 =w copy 2
-  %t1064 =w sar %total, %t1063
-  %num_words =w copy %t1064
-  %t1066 =w copy 2
-  %t1067 =w shl %num_words, %t1066
-  %offset =w copy %t1067
-  %t1069 =w copy 0
-  %i =w copy %t1069
+  %t1071 =w copy 2
+  %t1072 =w sar %total, %t1071
+  %num_words =w copy %t1072
+  %t1074 =w copy 2
+  %t1075 =w shl %num_words, %t1074
+  %offset =w copy %t1075
+  %t1077 =w copy 0
+  %i =w copy %t1077
   @L_for_begin_79
-  %t1070 =w clt %i, %num_words
-  jnz %t1070, @L_for_then_79, @L_52
+  %t1078 =w clt %i, %num_words
+  jnz %t1078, @L_for_then_79, @L_52
   @L_for_then_79
-  %t1072 =w copy 4
-  %t1073 =w mul %i, %t1072
-  %t1074 =w add %pi, %t1073
-  %t1075 =w copy 0
-  storew %t1074, %t1075
+  %t1080 =w copy 4
+  %t1081 =w mul %i, %t1080
+  %t1082 =w add %pi, %t1081
+  %t1083 =w copy 0
+  storew %t1082, %t1083
   @L_53
-  %t1076 =w copy 1
-  %i =w add %i, %t1076
-  %t1077 =w copy -1
-  %t1078 =w add %i, %t1077
+  %t1084 =w copy 1
+  %i =w add %i, %t1084
+  %t1085 =w copy -1
+  %t1086 =w add %i, %t1085
   jmp @L_for_begin_79
   @L_52
   @L_for_begin_80
-  %t1079 =w clt %offset, %total
-  jnz %t1079, @L_for_then_80, @L_54
+  %t1087 =w clt %offset, %total
+  jnz %t1087, @L_for_then_80, @L_54
   @L_for_then_80
-  %t1081 =w copy 1
-  %offset =w add %offset, %t1081
-  %t1082 =w copy -1
-  %t1083 =w add %offset, %t1082
-  %t1084 =w copy 1
-  %t1085 =w mul %t1083, %t1084
-  %t1086 =w add %p, %t1085
-  %t1087 =b copy 0
-  storeb %t1086, %t1087
+  %t1089 =w copy 1
+  %offset =w add %offset, %t1089
+  %t1090 =w copy -1
+  %t1091 =w add %offset, %t1090
+  %t1092 =w copy 1
+  %t1093 =w mul %t1091, %t1092
+  %t1094 =w add %p, %t1093
+  %t1095 =b copy 0
+  storeb %t1094, %t1095
   @L_55
   jmp @L_for_begin_80
   @L_54
@@ -1832,96 +1872,96 @@ function w $calloc(w %n, w %size) {
 }
 function v $__rfree(w %ptr, w %size) {
   @L_if_begin_81
-  %t1088 =b ceq %ptr, 0
-  jnz %t1088, @L_if_then_81, @L_if_else_81
+  %t1096 =b ceq %ptr, 0
+  jnz %t1096, @L_if_then_81, @L_if_else_81
   @L_if_then_81
   ret
   @L_if_else_81
-  %t1089 =w copy 91
-  %t1090 =w copy %t1089
-  %t1091 =w copy %ptr
-  %t1092 =w copy %size
-  %t1093 =w call $__syscall(w %t1090, w %t1091, w %t1092)
+  %t1097 =w copy 91
+  %t1098 =w copy %t1097
+  %t1099 =w copy %ptr
+  %t1100 =w copy %size
+  %t1101 =w call $__syscall(w %t1098, w %t1099, w %t1100)
   ret
 }
 function v $free(w %ptr) {
-  %__ptr =w alloc 8
-  %cur =w alloc 8
-  %prev =w alloc 8
-  %next =w alloc 8
+  %__ptr =w alloc 1
+  %cur =w alloc 1
+  %prev =w alloc 1
+  %next =w alloc 1
   @L_if_begin_82
-  %t1094 =b ceq %ptr, 0
-  jnz %t1094, @L_if_then_82, @L_if_else_82
+  %t1102 =b ceq %ptr, 0
+  jnz %t1102, @L_if_then_82, @L_if_else_82
   @L_if_then_82
   ret
   @L_if_else_82
   %__ptr =w copy %ptr
-  %t1097 =w copy 24
-  %t1098 =w sub %__ptr, %t1097
-  %cur =w copy %t1098
+  %t1105 =w copy 12
+  %t1106 =w sub %__ptr, %t1105
+  %cur =w copy %t1106
   @L_if_begin_83
-  %t1099 =w add %cur, 16
-  %t1101 =w loadw %t1099
-  %t1102 =w copy 1
-  %t1103 =w and %t1101, %t1102
-  jnz %t1103, @L_if_then_83, @L_if_else_83
+  %t1107 =w add %cur, 8
+  %t1109 =w loadw %t1107
+  %t1110 =w copy 1
+  %t1111 =w and %t1109, %t1110
+  jnz %t1111, @L_if_then_83, @L_if_else_83
   @L_if_then_83
-  %t1104 =w copy $L_60
-  %t1105 =w call $printf(w %t1104)
+  %t1112 =w copy $L_60
+  %t1113 =w call $printf(w %t1112)
   call $abort()
   jmp @L_if_end_83
   @L_if_else_83
   @L_if_end_83
   @L_if_begin_84
-  %t1106 =w add %cur, 8
-  %t1108 =w loadw %t1106
-  jnz %t1108, @L_if_then_84, @L_if_else_84
+  %t1114 =w add %cur, 4
+  %t1116 =w loadw %t1114
+  jnz %t1116, @L_if_then_84, @L_if_else_84
   @L_if_then_84
-  %t1110 =w add %cur, 8
-  %t1112 =w loadw %t1110
-  %prev =w copy %t1112
-  %t1113 =w add %prev, 0
-  %t1115 =w add %cur, 0
-  %t1117 =w loadw %t1115
-  storew %t1113, %t1117
+  %t1118 =w add %cur, 4
+  %t1120 =w loadw %t1118
+  %prev =w copy %t1120
+  %t1121 =w add %prev, 0
+  %t1123 =w add %cur, 0
+  %t1125 =w loadw %t1123
+  storew %t1121, %t1125
   jmp @L_if_end_84
   @L_if_else_84
-  %t1118 =w gaddr %__alloc_head
-  %t1119 =w add %cur, 0
-  %t1121 =w loadw %t1119
-  %t1118 =w copy %t1121
+  %t1126 =w gaddr %__alloc_head
+  %t1127 =w add %cur, 0
+  %t1129 =w loadw %t1127
+  %t1126 =w copy %t1129
   @L_if_end_84
   @L_if_begin_85
-  %t1122 =w add %cur, 0
-  %t1124 =w loadw %t1122
-  jnz %t1124, @L_if_then_85, @L_if_else_85
+  %t1130 =w add %cur, 0
+  %t1132 =w loadw %t1130
+  jnz %t1132, @L_if_then_85, @L_if_else_85
   @L_if_then_85
-  %t1126 =w add %cur, 0
-  %t1128 =w loadw %t1126
-  %next =w copy %t1128
-  %t1129 =w add %next, 8
-  %t1131 =w add %cur, 8
-  %t1133 =w loadw %t1131
-  storew %t1129, %t1133
+  %t1134 =w add %cur, 0
+  %t1136 =w loadw %t1134
+  %next =w copy %t1136
+  %t1137 =w add %next, 4
+  %t1139 =w add %cur, 4
+  %t1141 =w loadw %t1139
+  storew %t1137, %t1141
   jmp @L_if_end_85
   @L_if_else_85
-  %t1134 =w add %prev, 0
-  %t1136 =w copy 0
-  storew %t1134, %t1136
-  %t1137 =w gaddr %__alloc_tail
-  %t1137 =w copy %prev
+  %t1142 =w add %prev, 0
+  %t1144 =w copy 0
+  storew %t1142, %t1144
+  %t1145 =w gaddr %__alloc_tail
+  %t1145 =w copy %prev
   @L_if_end_85
-  %t1138 =w add %cur, 0
-  storew %t1138, $__freelist_head
-  %t1140 =w add %cur, 8
-  %t1142 =w copy 0
-  storew %t1140, %t1142
-  %t1143 =w copy %cur
-  call $chunk_set_freed(w %t1143)
-  %t1144 =w add $__freelist_head, 8
-  storew %t1144, %cur
-  %t1146 =w gaddr %__freelist_head
-  %t1146 =w copy %cur
+  %t1146 =w add %cur, 0
+  storew %t1146, $__freelist_head
+  %t1148 =w add %cur, 4
+  %t1150 =w copy 0
+  storew %t1148, %t1150
+  %t1151 =w copy %cur
+  call $chunk_set_freed(w %t1151)
+  %t1152 =w add $__freelist_head, 4
+  storew %t1152, %cur
+  %t1154 =w gaddr %__freelist_head
+  %t1154 =w copy %cur
   ret
 }
 function w $insert_trie(w %trie, w %name, w %funcs_index) {
@@ -1929,109 +1969,109 @@ function w $insert_trie(w %trie, w %name, w %funcs_index) {
   %fc =w alloc 4
   %i =w alloc 4
   @L_for_begin_86
-  %t1147 =b copy 1
-  jnz %t1147, @L_for_then_86, @L_61
+  %t1155 =b copy 1
+  jnz %t1155, @L_for_then_86, @L_61
   @L_for_then_86
-  %t1149 =b loadb %name
-  %first_char =b copy %t1149
+  %t1157 =b loadb %name
+  %first_char =b copy %t1157
   %fc =w copy %first_char
   @L_if_begin_87
-  %t1151 =b ceq %fc, 0
-  jnz %t1151, @L_if_then_87, @L_if_else_87
+  %t1159 =b ceq %fc, 0
+  jnz %t1159, @L_if_then_87, @L_if_else_87
   @L_if_then_87
   @L_if_begin_88
-  %t1152 =w add %trie, 0
-  %t1154 =w loadw %t1152
-  %t1155 =b ceq %t1154, 0
-  jnz %t1155, @L_if_then_88, @L_if_else_88
+  %t1160 =w add %trie, 0
+  %t1162 =w loadw %t1160
+  %t1163 =b ceq %t1162, 0
+  jnz %t1163, @L_if_then_88, @L_if_else_88
   @L_if_then_88
-  %t1156 =w add %trie, 0
-  storew %t1156, %funcs_index
+  %t1164 =w add %trie, 0
+  storew %t1164, %funcs_index
   jmp @L_if_end_88
   @L_if_else_88
   @L_if_end_88
-  %t1158 =w add %trie, 0
-  %t1160 =w loadw %t1158
-  ret %t1160
+  %t1166 =w add %trie, 0
+  %t1168 =w loadw %t1166
+  ret %t1168
   @L_if_else_87
   @L_if_begin_89
-  %t1161 =w add %trie, 4
-  %t1163 =b loadb %t1161
-  %t1164 =w copy 4
-  %t1165 =w mul %fc, %t1164
-  %t1166 =w add %t1163, %t1165
-  %t1167 =w loadw %t1166
-  %t1168 =b ceq %t1167, 0
-  jnz %t1168, @L_if_then_89, @L_if_else_89
+  %t1169 =w add %trie, 4
+  %t1171 =b loadb %t1169
+  %t1172 =w copy 4
+  %t1173 =w mul %fc, %t1172
+  %t1174 =w add %t1171, %t1173
+  %t1175 =w loadw %t1174
+  %t1176 =b ceq %t1175, 0
+  jnz %t1176, @L_if_then_89, @L_if_else_89
   @L_if_then_89
-  %t1170 =w add %trie, 4
-  %t1172 =b loadb %t1170
-  %t1173 =w copy 4
-  %t1174 =w mul %fc, %t1173
-  %t1175 =w add %t1172, %t1174
-  %t1176 =w copy 1
-  $func_tries_idx =w add $func_tries_idx, %t1176
-  %t1177 =w copy -1
-  %t1178 =w add $func_tries_idx, %t1177
-  storew %t1175, %t1178
-  %t1180 =w copy 0
-  %i =w copy %t1180
+  %t1178 =w add %trie, 4
+  %t1180 =b loadb %t1178
+  %t1181 =w copy 4
+  %t1182 =w mul %fc, %t1181
+  %t1183 =w add %t1180, %t1182
+  %t1184 =w copy 1
+  $func_tries_idx =w add $func_tries_idx, %t1184
+  %t1185 =w copy -1
+  %t1186 =w add $func_tries_idx, %t1185
+  storew %t1183, %t1186
+  %t1188 =w copy 0
+  %i =w copy %t1188
   @L_for_begin_90
-  %t1181 =w copy 128
-  %t1182 =w clt %i, %t1181
-  jnz %t1182, @L_for_then_90, @L_63
+  %t1189 =w copy 128
+  %t1190 =w clt %i, %t1189
+  jnz %t1190, @L_for_then_90, @L_63
   @L_for_then_90
-  %t1186 =w add %trie, 4
-  %t1188 =b loadb %t1186
-  %t1189 =w copy 4
-  %t1190 =w mul %fc, %t1189
-  %t1191 =w add %t1188, %t1190
-  %t1192 =w loadw %t1191
-  %t1193 =w copy 516
-  %t1194 =w mul %t1192, %t1193
-  %t1195 =w add $FUNC_TRIES, %t1194
-  %t1184 =w add %t1195, 4
-  %t1196 =b loadb %t1184
+  %t1194 =w add %trie, 4
+  %t1196 =b loadb %t1194
   %t1197 =w copy 4
-  %t1198 =w mul %i, %t1197
+  %t1198 =w mul %fc, %t1197
   %t1199 =w add %t1196, %t1198
-  %t1200 =w copy 0
-  storew %t1199, %t1200
+  %t1200 =w loadw %t1199
+  %t1201 =w copy 516
+  %t1202 =w mul %t1200, %t1201
+  %t1203 =w add $FUNC_TRIES, %t1202
+  %t1192 =w add %t1203, 4
+  %t1204 =b loadb %t1192
+  %t1205 =w copy 4
+  %t1206 =w mul %i, %t1205
+  %t1207 =w add %t1204, %t1206
+  %t1208 =w copy 0
+  storew %t1207, %t1208
   @L_64
-  %t1201 =w copy 1
-  %i =w add %i, %t1201
-  %t1202 =w copy -1
-  %t1203 =w add %i, %t1202
+  %t1209 =w copy 1
+  %i =w add %i, %t1209
+  %t1210 =w copy -1
+  %t1211 =w add %i, %t1210
   jmp @L_for_begin_90
   @L_63
-  %t1206 =w add %trie, 4
-  %t1208 =b loadb %t1206
-  %t1209 =w copy 4
-  %t1210 =w mul %fc, %t1209
-  %t1211 =w add %t1208, %t1210
-  %t1212 =w loadw %t1211
-  %t1213 =w copy 516
-  %t1214 =w mul %t1212, %t1213
-  %t1215 =w add $FUNC_TRIES, %t1214
-  %t1204 =w add %t1215, 0
-  %t1216 =w copy 0
-  storew %t1204, %t1216
+  %t1214 =w add %trie, 4
+  %t1216 =b loadb %t1214
+  %t1217 =w copy 4
+  %t1218 =w mul %fc, %t1217
+  %t1219 =w add %t1216, %t1218
+  %t1220 =w loadw %t1219
+  %t1221 =w copy 516
+  %t1222 =w mul %t1220, %t1221
+  %t1223 =w add $FUNC_TRIES, %t1222
+  %t1212 =w add %t1223, 0
+  %t1224 =w copy 0
+  storew %t1212, %t1224
   jmp @L_if_end_89
   @L_if_else_89
   @L_if_end_89
-  %t1219 =w add %trie, 4
-  %t1221 =b loadb %t1219
-  %t1222 =w copy 4
-  %t1223 =w mul %fc, %t1222
-  %t1224 =w add %t1221, %t1223
-  %t1225 =w loadw %t1224
-  %t1226 =w copy 516
-  %t1227 =w mul %t1225, %t1226
-  %t1228 =w add $FUNC_TRIES, %t1227
-  %trie =w copy %t1228
-  %t1230 =w copy 1
-  %t1231 =w add %name, %t1230
-  %name =w copy %t1231
+  %t1227 =w add %trie, 4
+  %t1229 =b loadb %t1227
+  %t1230 =w copy 4
+  %t1231 =w mul %fc, %t1230
+  %t1232 =w add %t1229, %t1231
+  %t1233 =w loadw %t1232
+  %t1234 =w copy 516
+  %t1235 =w mul %t1233, %t1234
+  %t1236 =w add $FUNC_TRIES, %t1235
+  %trie =w copy %t1236
+  %t1238 =w copy 1
+  %t1239 =w add %name, %t1238
+  %name =w copy %t1239
   @L_62
   jmp @L_for_begin_86
   @L_61
@@ -2040,1021 +2080,1021 @@ function w $find_trie(w %trie, w %name) {
   %first_char =b alloc 1
   %fc =w alloc 4
   @L_for_begin_91
-  %t1232 =b copy 1
-  jnz %t1232, @L_for_then_91, @L_65
+  %t1240 =b copy 1
+  jnz %t1240, @L_for_then_91, @L_65
   @L_for_then_91
-  %t1234 =b loadb %name
-  %first_char =b copy %t1234
+  %t1242 =b loadb %name
+  %first_char =b copy %t1242
   %fc =w copy %first_char
   @L_if_begin_92
-  %t1236 =b ceq %fc, 0
-  jnz %t1236, @L_if_then_92, @L_if_else_92
+  %t1244 =b ceq %fc, 0
+  jnz %t1244, @L_if_then_92, @L_if_else_92
   @L_if_then_92
-  %t1237 =w add %trie, 0
-  %t1239 =w loadw %t1237
-  ret %t1239
+  %t1245 =w add %trie, 0
+  %t1247 =w loadw %t1245
+  ret %t1247
   @L_if_else_92
   @L_if_begin_93
-  %t1240 =w add %trie, 4
-  %t1242 =b loadb %t1240
-  %t1243 =w copy 4
-  %t1244 =w mul %fc, %t1243
-  %t1245 =w add %t1242, %t1244
-  %t1246 =w loadw %t1245
-  %t1247 =b ceq %t1246, 0
-  jnz %t1247, @L_if_then_93, @L_if_else_93
+  %t1248 =w add %trie, 4
+  %t1250 =b loadb %t1248
+  %t1251 =w copy 4
+  %t1252 =w mul %fc, %t1251
+  %t1253 =w add %t1250, %t1252
+  %t1254 =w loadw %t1253
+  %t1255 =b ceq %t1254, 0
+  jnz %t1255, @L_if_then_93, @L_if_else_93
   @L_if_then_93
-  %t1248 =w copy 0
-  ret %t1248
+  %t1256 =w copy 0
+  ret %t1256
   @L_if_else_93
-  %t1251 =w add %trie, 4
-  %t1253 =b loadb %t1251
-  %t1254 =w copy 4
-  %t1255 =w mul %fc, %t1254
-  %t1256 =w add %t1253, %t1255
-  %t1257 =w loadw %t1256
-  %t1258 =w copy 516
-  %t1259 =w mul %t1257, %t1258
-  %t1260 =w add $FUNC_TRIES, %t1259
-  %trie =w copy %t1260
-  %t1262 =w copy 1
-  %t1263 =w add %name, %t1262
-  %name =w copy %t1263
+  %t1259 =w add %trie, 4
+  %t1261 =b loadb %t1259
+  %t1262 =w copy 4
+  %t1263 =w mul %fc, %t1262
+  %t1264 =w add %t1261, %t1263
+  %t1265 =w loadw %t1264
+  %t1266 =w copy 516
+  %t1267 =w mul %t1265, %t1266
+  %t1268 =w add $FUNC_TRIES, %t1267
+  %trie =w copy %t1268
+  %t1270 =w copy 1
+  %t1271 =w add %name, %t1270
+  %name =w copy %t1271
   @L_66
   jmp @L_for_begin_91
   @L_65
 }
 function w $find_type(w %type_name, w %flag) {
   %i =w alloc 4
-  %t1265 =w copy 0
-  %i =w copy %t1265
+  %t1273 =w copy 0
+  %i =w copy %t1273
   @L_for_begin_94
-  %t1266 =w clt %i, $types_idx
-  jnz %t1266, @L_for_then_94, @L_67
+  %t1274 =w clt %i, $types_idx
+  jnz %t1274, @L_for_then_94, @L_67
   @L_for_then_94
   @L_if_begin_95
-  %t1269 =w copy 60480
-  %t1270 =w mul %i, %t1269
-  %t1271 =w add $TYPES, %t1270
-  %t1267 =w add %t1271, 32
-  %t1272 =w loadw %t1267
-  %t1273 =w copy 3
-  %t1274 =w ceq %t1272, %t1273
-  jnz %t1274, @L_if_then_95, @L_if_else_95
+  %t1277 =w copy 29488
+  %t1278 =w mul %i, %t1277
+  %t1279 =w add $TYPES, %t1278
+  %t1275 =w add %t1279, 32
+  %t1280 =w loadw %t1275
+  %t1281 =w copy 3
+  %t1282 =w ceq %t1280, %t1281
+  jnz %t1282, @L_if_then_95, @L_if_else_95
   @L_if_then_95
   @L_if_begin_96
-  %t1275 =w copy 1
-  %t1276 =w ceq %flag, %t1275
-  jnz %t1276, @L_if_then_96, @L_if_else_96
+  %t1283 =w copy 1
+  %t1284 =w ceq %flag, %t1283
+  jnz %t1284, @L_if_then_96, @L_if_else_96
   @L_if_then_96
   jmp @L_68
   @L_if_else_96
   @L_if_begin_97
-  %t1279 =w copy 60480
-  %t1280 =w mul %i, %t1279
-  %t1281 =w add $TYPES, %t1280
-  %t1277 =w add %t1281, 0
-  %t1282 =b loadb %t1277
-  %t1283 =w copy %t1282
-  %t1284 =w copy %type_name
-  %t1285 =w call $strcmp(w %t1283, w %t1284)
-  %t1286 =b ceq %t1285, 0
-  jnz %t1286, @L_if_then_97, @L_if_else_97
+  %t1287 =w copy 29488
+  %t1288 =w mul %i, %t1287
+  %t1289 =w add $TYPES, %t1288
+  %t1285 =w add %t1289, 0
+  %t1290 =b loadb %t1285
+  %t1291 =w copy %t1290
+  %t1292 =w copy %type_name
+  %t1293 =w call $strcmp(w %t1291, w %t1292)
+  %t1294 =b ceq %t1293, 0
+  jnz %t1294, @L_if_then_97, @L_if_else_97
   @L_if_then_97
-  %t1288 =w copy 60480
-  %t1289 =w mul %i, %t1288
-  %t1290 =w add $TYPES, %t1289
-  ret %t1290
+  %t1296 =w copy 29488
+  %t1297 =w mul %i, %t1296
+  %t1298 =w add $TYPES, %t1297
+  ret %t1298
   @L_if_else_97
   @L_if_else_95
   @L_if_begin_98
-  %t1291 =w copy 2
-  %t1292 =w ceq %flag, %t1291
-  jnz %t1292, @L_if_then_98, @L_if_else_98
+  %t1299 =w copy 2
+  %t1300 =w ceq %flag, %t1299
+  jnz %t1300, @L_if_then_98, @L_if_else_98
   @L_if_then_98
   jmp @L_68
   @L_if_else_98
   @L_if_begin_99
-  %t1295 =w copy 60480
-  %t1296 =w mul %i, %t1295
-  %t1297 =w add $TYPES, %t1296
-  %t1293 =w add %t1297, 0
-  %t1298 =b loadb %t1293
-  %t1299 =w copy %t1298
-  %t1300 =w copy %type_name
-  %t1301 =w call $strcmp(w %t1299, w %t1300)
-  %t1302 =b ceq %t1301, 0
-  jnz %t1302, @L_if_then_99, @L_if_else_99
+  %t1303 =w copy 29488
+  %t1304 =w mul %i, %t1303
+  %t1305 =w add $TYPES, %t1304
+  %t1301 =w add %t1305, 0
+  %t1306 =b loadb %t1301
+  %t1307 =w copy %t1306
+  %t1308 =w copy %type_name
+  %t1309 =w call $strcmp(w %t1307, w %t1308)
+  %t1310 =b ceq %t1309, 0
+  jnz %t1310, @L_if_then_99, @L_if_else_99
   @L_if_then_99
   @L_if_begin_100
-  %t1305 =w copy 60480
-  %t1306 =w mul %i, %t1305
-  %t1307 =w add $TYPES, %t1306
-  %t1303 =w add %t1307, 32
-  %t1308 =w loadw %t1303
-  %t1309 =w copy 4
-  %t1310 =w ceq %t1308, %t1309
-  %t1313 =w copy 60480
+  %t1313 =w copy 29488
   %t1314 =w mul %i, %t1313
   %t1315 =w add $TYPES, %t1314
-  %t1311 =w add %t1315, 48
+  %t1311 =w add %t1315, 32
   %t1316 =w loadw %t1311
-  %t1317 =w copy 0
+  %t1317 =w copy 4
   %t1318 =w ceq %t1316, %t1317
-  %t1319 =w and %t1310, %t1318
-  jnz %t1319, @L_if_then_100, @L_if_else_100
+  %t1321 =w copy 29488
+  %t1322 =w mul %i, %t1321
+  %t1323 =w add $TYPES, %t1322
+  %t1319 =w add %t1323, 40
+  %t1324 =w loadw %t1319
+  %t1325 =w copy 0
+  %t1326 =w ceq %t1324, %t1325
+  %t1327 =w and %t1318, %t1326
+  jnz %t1327, @L_if_then_100, @L_if_else_100
   @L_if_then_100
-  %t1322 =w copy 60480
-  %t1323 =w mul %i, %t1322
-  %t1324 =w add $TYPES, %t1323
-  %t1320 =w add %t1324, 40
-  %t1325 =w loadw %t1320
-  ret %t1325
+  %t1330 =w copy 29488
+  %t1331 =w mul %i, %t1330
+  %t1332 =w add $TYPES, %t1331
+  %t1328 =w add %t1332, 36
+  %t1333 =w loadw %t1328
+  ret %t1333
   @L_if_else_100
-  %t1327 =w copy 60480
-  %t1328 =w mul %i, %t1327
-  %t1329 =w add $TYPES, %t1328
-  ret %t1329
+  %t1335 =w copy 29488
+  %t1336 =w mul %i, %t1335
+  %t1337 =w add $TYPES, %t1336
+  ret %t1337
   @L_if_else_99
   @L_68
-  %t1330 =w copy 1
-  %i =w add %i, %t1330
-  %t1331 =w copy -1
-  %t1332 =w add %i, %t1331
+  %t1338 =w copy 1
+  %i =w add %i, %t1338
+  %t1339 =w copy -1
+  %t1340 =w add %i, %t1339
   jmp @L_for_begin_94
   @L_67
-  %t1333 =w copy 0
-  ret %t1333
+  %t1341 =w copy 0
+  ret %t1341
 }
 function w $add_global_ir(w %op) {
-  %ir =w alloc 8
-  %t1336 =w copy 1
-  $global_ir_idx =w add $global_ir_idx, %t1336
-  %t1337 =w copy -1
-  %t1338 =w add $global_ir_idx, %t1337
-  %t1339 =w copy 72
-  %t1340 =w mul %t1338, %t1339
-  %t1341 =w add $GLOBAL_IR, %t1340
-  %ir =w copy %t1341
-  %t1342 =w add %ir, 0
-  storew %t1342, %op
+  %ir =w alloc 1
+  %t1344 =w copy 1
+  $global_ir_idx =w add $global_ir_idx, %t1344
+  %t1345 =w copy -1
+  %t1346 =w add $global_ir_idx, %t1345
+  %t1347 =w copy 56
+  %t1348 =w mul %t1346, %t1347
+  %t1349 =w add $GLOBAL_IR, %t1348
+  %ir =w copy %t1349
+  %t1350 =w add %ir, 0
+  storew %t1350, %op
   ret %ir
 }
 function w $add_ph1_ir(w %op) {
-  %ph1_ir =w alloc 8
-  %t1346 =w copy 1
-  $ph1_ir_idx =w add $ph1_ir_idx, %t1346
-  %t1347 =w copy -1
-  %t1348 =w add $ph1_ir_idx, %t1347
-  %t1349 =w copy 72
-  %t1350 =w mul %t1348, %t1349
-  %t1351 =w add $PH1_IR, %t1350
-  %ph1_ir =w copy %t1351
-  %t1352 =w add %ph1_ir, 0
-  storew %t1352, %op
+  %ph1_ir =w alloc 1
+  %t1354 =w copy 1
+  $ph1_ir_idx =w add $ph1_ir_idx, %t1354
+  %t1355 =w copy -1
+  %t1356 =w add $ph1_ir_idx, %t1355
+  %t1357 =w copy 56
+  %t1358 =w mul %t1356, %t1357
+  %t1359 =w add $PH1_IR, %t1358
+  %ph1_ir =w copy %t1359
+  %t1360 =w add %ph1_ir, 0
+  storew %t1360, %op
   ret %ph1_ir
 }
 function w $add_ph2_ir(w %op) {
-  %ph2_ir =w alloc 8
-  %t1356 =w copy 1
-  $ph2_ir_idx =w add $ph2_ir_idx, %t1356
-  %t1357 =w copy -1
-  %t1358 =w add $ph2_ir_idx, %t1357
-  %t1359 =w copy 88
-  %t1360 =w mul %t1358, %t1359
-  %t1361 =w add $PH2_IR, %t1360
-  %ph2_ir =w copy %t1361
-  %t1362 =w add %ph2_ir, 0
-  storew %t1362, %op
+  %ph2_ir =w alloc 1
+  %t1364 =w copy 1
+  $ph2_ir_idx =w add $ph2_ir_idx, %t1364
+  %t1365 =w copy -1
+  %t1366 =w add $ph2_ir_idx, %t1365
+  %t1367 =w copy 64
+  %t1368 =w mul %t1366, %t1367
+  %t1369 =w add $PH2_IR, %t1368
+  %ph2_ir =w copy %t1369
+  %t1370 =w add %ph2_ir, 0
+  storew %t1370, %op
   ret %ph2_ir
 }
 function v $set_var_liveout(w %var, w %end) {
   @L_if_begin_101
-  %t1364 =w add %var, 84
-  %t1366 =w loadw %t1364
-  %t1367 =w cge %t1366, %end
-  jnz %t1367, @L_if_then_101, @L_if_else_101
+  %t1372 =w add %var, 84
+  %t1374 =w loadw %t1372
+  %t1375 =w cge %t1374, %end
+  jnz %t1375, @L_if_then_101, @L_if_else_101
   @L_if_then_101
   ret
   @L_if_else_101
-  %t1368 =w add %var, 84
-  storew %t1368, %end
+  %t1376 =w add %var, 84
+  storew %t1376, %end
   ret
 }
 function v $add_label(w %name, w %offset) {
-  %lut =w alloc 8
-  %t1372 =w copy 1
-  $label_lut_idx =w add $label_lut_idx, %t1372
-  %t1373 =w copy -1
-  %t1374 =w add $label_lut_idx, %t1373
-  %t1375 =w copy 36
-  %t1376 =w mul %t1374, %t1375
-  %t1377 =w add $LABEL_LUT, %t1376
-  %lut =w copy %t1377
-  %t1378 =w add %lut, 0
-  %t1380 =b loadb %t1378
-  %t1381 =w copy %t1380
-  %t1382 =w copy %name
-  %t1383 =w call $strcpy(w %t1381, w %t1382)
-  %t1384 =w add %lut, 32
-  storew %t1384, %offset
+  %lut =w alloc 1
+  %t1380 =w copy 1
+  $label_lut_idx =w add $label_lut_idx, %t1380
+  %t1381 =w copy -1
+  %t1382 =w add $label_lut_idx, %t1381
+  %t1383 =w copy 36
+  %t1384 =w mul %t1382, %t1383
+  %t1385 =w add $LABEL_LUT, %t1384
+  %lut =w copy %t1385
+  %t1386 =w add %lut, 0
+  %t1388 =b loadb %t1386
+  %t1389 =w copy %t1388
+  %t1390 =w copy %name
+  %t1391 =w call $strcpy(w %t1389, w %t1390)
+  %t1392 =w add %lut, 32
+  storew %t1392, %offset
   ret
 }
 function w $find_label_offset(w %name) {
   %i =w alloc 4
-  %t1387 =w copy 0
-  %i =w copy %t1387
+  %t1395 =w copy 0
+  %i =w copy %t1395
   @L_for_begin_102
-  %t1388 =w clt %i, $label_lut_idx
-  jnz %t1388, @L_for_then_102, @L_69
+  %t1396 =w clt %i, $label_lut_idx
+  jnz %t1396, @L_for_then_102, @L_69
   @L_for_then_102
   @L_if_begin_103
-  %t1391 =w copy 36
-  %t1392 =w mul %i, %t1391
-  %t1393 =w add $LABEL_LUT, %t1392
-  %t1389 =w add %t1393, 0
-  %t1394 =b loadb %t1389
-  %t1395 =w copy %t1394
-  %t1396 =w copy %name
-  %t1397 =w call $strcmp(w %t1395, w %t1396)
-  %t1398 =b ceq %t1397, 0
-  jnz %t1398, @L_if_then_103, @L_if_else_103
+  %t1399 =w copy 36
+  %t1400 =w mul %i, %t1399
+  %t1401 =w add $LABEL_LUT, %t1400
+  %t1397 =w add %t1401, 0
+  %t1402 =b loadb %t1397
+  %t1403 =w copy %t1402
+  %t1404 =w copy %name
+  %t1405 =w call $strcmp(w %t1403, w %t1404)
+  %t1406 =b ceq %t1405, 0
+  jnz %t1406, @L_if_then_103, @L_if_else_103
   @L_if_then_103
-  %t1401 =w copy 36
-  %t1402 =w mul %i, %t1401
-  %t1403 =w add $LABEL_LUT, %t1402
-  %t1399 =w add %t1403, 32
-  %t1404 =w loadw %t1399
-  ret %t1404
+  %t1409 =w copy 36
+  %t1410 =w mul %i, %t1409
+  %t1411 =w add $LABEL_LUT, %t1410
+  %t1407 =w add %t1411, 32
+  %t1412 =w loadw %t1407
+  ret %t1412
   @L_if_else_103
   @L_70
-  %t1405 =w copy 1
-  %i =w add %i, %t1405
-  %t1406 =w copy -1
-  %t1407 =w add %i, %t1406
+  %t1413 =w copy 1
+  %i =w add %i, %t1413
+  %t1414 =w copy -1
+  %t1415 =w add %i, %t1414
   jmp @L_for_begin_102
   @L_69
-  %t1408 =w copy -1
-  ret %t1408
+  %t1416 =w copy -1
+  ret %t1416
 }
 function w $add_block(w %parent, w %func, w %macro) {
-  %blk =w alloc 8
-  %t1411 =w copy 1416040
-  %t1412 =w mul $blocks_idx, %t1411
-  %t1413 =w add $BLOCKS, %t1412
-  %blk =w copy %t1413
-  %t1414 =w add %blk, 1416036
-  %t1416 =w copy 1
-  $blocks_idx =w add $blocks_idx, %t1416
-  %t1417 =w copy -1
-  %t1418 =w add $blocks_idx, %t1417
-  storew %t1414, %t1418
-  %t1419 =w add %blk, 1416008
-  storew %t1419, %parent
-  %t1421 =w add %blk, 1416016
-  storew %t1421, %func
-  %t1423 =w add %blk, 1416024
-  storew %t1423, %macro
-  %t1425 =w add %blk, 1416000
-  %t1427 =w copy 0
-  storew %t1425, %t1427
+  %blk =w alloc 1
+  %t1419 =w copy 690024
+  %t1420 =w mul $blocks_idx, %t1419
+  %t1421 =w add $BLOCKS, %t1420
+  %blk =w copy %t1421
+  %t1422 =w add %blk, 690020
+  %t1424 =w copy 1
+  $blocks_idx =w add $blocks_idx, %t1424
+  %t1425 =w copy -1
+  %t1426 =w add $blocks_idx, %t1425
+  storew %t1422, %t1426
+  %t1427 =w add %blk, 690004
+  storew %t1427, %parent
+  %t1429 =w add %blk, 690008
+  storew %t1429, %func
+  %t1431 =w add %blk, 690012
+  storew %t1431, %macro
+  %t1433 =w add %blk, 690000
+  %t1435 =w copy 0
+  storew %t1433, %t1435
   ret %blk
 }
 function v $add_alias(w %alias, w %value) {
-  %al =w alloc 8
-  %t1430 =w copy 1
-  $aliases_idx =w add $aliases_idx, %t1430
-  %t1431 =w copy -1
-  %t1432 =w add $aliases_idx, %t1431
-  %t1433 =w copy 65
-  %t1434 =w mul %t1432, %t1433
-  %t1435 =w add $ALIASES, %t1434
-  %al =w copy %t1435
-  %t1436 =w add %al, 0
-  %t1438 =b loadb %t1436
-  %t1439 =w copy %t1438
-  %t1440 =w copy %alias
-  %t1441 =w call $strcpy(w %t1439, w %t1440)
-  %t1442 =w add %al, 32
-  %t1444 =b loadb %t1442
-  %t1445 =w copy %t1444
-  %t1446 =w copy %value
-  %t1447 =w call $strcpy(w %t1445, w %t1446)
-  %t1448 =w add %al, 64
-  %t1450 =b copy 0
-  storeb %t1448, %t1450
+  %al =w alloc 1
+  %t1438 =w copy 1
+  $aliases_idx =w add $aliases_idx, %t1438
+  %t1439 =w copy -1
+  %t1440 =w add $aliases_idx, %t1439
+  %t1441 =w copy 65
+  %t1442 =w mul %t1440, %t1441
+  %t1443 =w add $ALIASES, %t1442
+  %al =w copy %t1443
+  %t1444 =w add %al, 0
+  %t1446 =b loadb %t1444
+  %t1447 =w copy %t1446
+  %t1448 =w copy %alias
+  %t1449 =w call $strcpy(w %t1447, w %t1448)
+  %t1450 =w add %al, 32
+  %t1452 =b loadb %t1450
+  %t1453 =w copy %t1452
+  %t1454 =w copy %value
+  %t1455 =w call $strcpy(w %t1453, w %t1454)
+  %t1456 =w add %al, 64
+  %t1458 =b copy 0
+  storeb %t1456, %t1458
   ret
 }
 function w $find_alias(w %alias) {
   %i =w alloc 4
-  %t1452 =w copy 0
-  %i =w copy %t1452
+  %t1460 =w copy 0
+  %i =w copy %t1460
   @L_for_begin_104
-  %t1453 =w clt %i, $aliases_idx
-  jnz %t1453, @L_for_then_104, @L_71
+  %t1461 =w clt %i, $aliases_idx
+  jnz %t1461, @L_for_then_104, @L_71
   @L_for_then_104
   @L_if_begin_105
-  %t1456 =w copy 65
-  %t1457 =w mul %i, %t1456
-  %t1458 =w add $ALIASES, %t1457
-  %t1454 =w add %t1458, 64
-  %t1459 =b loadb %t1454
-  %t1460 =b ceq %t1459, 0
-  %t1461 =w copy %alias
   %t1464 =w copy 65
   %t1465 =w mul %i, %t1464
   %t1466 =w add $ALIASES, %t1465
-  %t1462 =w add %t1466, 0
+  %t1462 =w add %t1466, 64
   %t1467 =b loadb %t1462
-  %t1468 =w copy %t1467
-  %t1469 =w call $strcmp(w %t1461, w %t1468)
-  %t1470 =b ceq %t1469, 0
-  %t1471 =w and %t1460, %t1470
-  jnz %t1471, @L_if_then_105, @L_if_else_105
+  %t1468 =b ceq %t1467, 0
+  %t1469 =w copy %alias
+  %t1472 =w copy 65
+  %t1473 =w mul %i, %t1472
+  %t1474 =w add $ALIASES, %t1473
+  %t1470 =w add %t1474, 0
+  %t1475 =b loadb %t1470
+  %t1476 =w copy %t1475
+  %t1477 =w call $strcmp(w %t1469, w %t1476)
+  %t1478 =b ceq %t1477, 0
+  %t1479 =w and %t1468, %t1478
+  jnz %t1479, @L_if_then_105, @L_if_else_105
   @L_if_then_105
-  %t1474 =w copy 65
-  %t1475 =w mul %i, %t1474
-  %t1476 =w add $ALIASES, %t1475
-  %t1472 =w add %t1476, 32
-  %t1477 =b loadb %t1472
-  ret %t1477
+  %t1482 =w copy 65
+  %t1483 =w mul %i, %t1482
+  %t1484 =w add $ALIASES, %t1483
+  %t1480 =w add %t1484, 32
+  %t1485 =b loadb %t1480
+  ret %t1485
   @L_if_else_105
   @L_72
-  %t1478 =w copy 1
-  %i =w add %i, %t1478
-  %t1479 =w copy -1
-  %t1480 =w add %i, %t1479
+  %t1486 =w copy 1
+  %i =w add %i, %t1486
+  %t1487 =w copy -1
+  %t1488 =w add %i, %t1487
   jmp @L_for_begin_104
   @L_71
-  %t1481 =w copy 0
-  ret %t1481
+  %t1489 =w copy 0
+  ret %t1489
 }
 function b $remove_alias(w %alias) {
   %i =w alloc 4
-  %t1483 =w copy 0
-  %i =w copy %t1483
+  %t1491 =w copy 0
+  %i =w copy %t1491
   @L_for_begin_106
-  %t1484 =w clt %i, $aliases_idx
-  jnz %t1484, @L_for_then_106, @L_73
+  %t1492 =w clt %i, $aliases_idx
+  jnz %t1492, @L_for_then_106, @L_73
   @L_for_then_106
   @L_if_begin_107
-  %t1487 =w copy 65
-  %t1488 =w mul %i, %t1487
-  %t1489 =w add $ALIASES, %t1488
-  %t1485 =w add %t1489, 64
-  %t1490 =b loadb %t1485
-  %t1491 =b ceq %t1490, 0
-  %t1492 =w copy %alias
   %t1495 =w copy 65
   %t1496 =w mul %i, %t1495
   %t1497 =w add $ALIASES, %t1496
-  %t1493 =w add %t1497, 0
+  %t1493 =w add %t1497, 64
   %t1498 =b loadb %t1493
-  %t1499 =w copy %t1498
-  %t1500 =w call $strcmp(w %t1492, w %t1499)
-  %t1501 =b ceq %t1500, 0
-  %t1502 =w and %t1491, %t1501
-  jnz %t1502, @L_if_then_107, @L_if_else_107
+  %t1499 =b ceq %t1498, 0
+  %t1500 =w copy %alias
+  %t1503 =w copy 65
+  %t1504 =w mul %i, %t1503
+  %t1505 =w add $ALIASES, %t1504
+  %t1501 =w add %t1505, 0
+  %t1506 =b loadb %t1501
+  %t1507 =w copy %t1506
+  %t1508 =w call $strcmp(w %t1500, w %t1507)
+  %t1509 =b ceq %t1508, 0
+  %t1510 =w and %t1499, %t1509
+  jnz %t1510, @L_if_then_107, @L_if_else_107
   @L_if_then_107
-  %t1505 =w copy 65
-  %t1506 =w mul %i, %t1505
-  %t1507 =w add $ALIASES, %t1506
-  %t1503 =w add %t1507, 64
-  %t1508 =b copy 1
-  storeb %t1503, %t1508
-  %t1509 =b copy 1
-  ret %t1509
+  %t1513 =w copy 65
+  %t1514 =w mul %i, %t1513
+  %t1515 =w add $ALIASES, %t1514
+  %t1511 =w add %t1515, 64
+  %t1516 =b copy 1
+  storeb %t1511, %t1516
+  %t1517 =b copy 1
+  ret %t1517
   @L_if_else_107
   @L_74
-  %t1510 =w copy 1
-  %i =w add %i, %t1510
-  %t1511 =w copy -1
-  %t1512 =w add %i, %t1511
+  %t1518 =w copy 1
+  %i =w add %i, %t1518
+  %t1519 =w copy -1
+  %t1520 =w add %i, %t1519
   jmp @L_for_begin_106
   @L_73
-  %t1513 =b copy 0
-  ret %t1513
+  %t1521 =b copy 0
+  ret %t1521
 }
 function w $add_macro(w %name) {
-  %ma =w alloc 8
-  %t1516 =w copy 1
-  $macros_idx =w add $macros_idx, %t1516
-  %t1517 =w copy -1
-  %t1518 =w add $macros_idx, %t1517
-  %t1519 =w copy 7640
-  %t1520 =w mul %t1518, %t1519
-  %t1521 =w add $MACROS, %t1520
-  %ma =w copy %t1521
-  %t1522 =w add %ma, 0
-  %t1524 =b loadb %t1522
-  %t1525 =w copy %t1524
-  %t1526 =w copy %name
-  %t1527 =w call $strcpy(w %t1525, w %t1526)
-  %t1528 =w add %ma, 7632
-  %t1530 =b copy 0
-  storeb %t1528, %t1530
+  %ma =w alloc 1
+  %t1524 =w copy 1
+  $macros_idx =w add $macros_idx, %t1524
+  %t1525 =w copy -1
+  %t1526 =w add $macros_idx, %t1525
+  %t1527 =w copy 3764
+  %t1528 =w mul %t1526, %t1527
+  %t1529 =w add $MACROS, %t1528
+  %ma =w copy %t1529
+  %t1530 =w add %ma, 0
+  %t1532 =b loadb %t1530
+  %t1533 =w copy %t1532
+  %t1534 =w copy %name
+  %t1535 =w call $strcpy(w %t1533, w %t1534)
+  %t1536 =w add %ma, 3760
+  %t1538 =b copy 0
+  storeb %t1536, %t1538
   ret %ma
 }
 function w $find_macro(w %name) {
   %i =w alloc 4
-  %t1532 =w copy 0
-  %i =w copy %t1532
+  %t1540 =w copy 0
+  %i =w copy %t1540
   @L_for_begin_108
-  %t1533 =w clt %i, $macros_idx
-  jnz %t1533, @L_for_then_108, @L_75
+  %t1541 =w clt %i, $macros_idx
+  jnz %t1541, @L_for_then_108, @L_75
   @L_for_then_108
   @L_if_begin_109
-  %t1536 =w copy 7640
-  %t1537 =w mul %i, %t1536
-  %t1538 =w add $MACROS, %t1537
-  %t1534 =w add %t1538, 7632
-  %t1539 =b loadb %t1534
-  %t1540 =b ceq %t1539, 0
-  %t1541 =w copy %name
-  %t1544 =w copy 7640
+  %t1544 =w copy 3764
   %t1545 =w mul %i, %t1544
   %t1546 =w add $MACROS, %t1545
-  %t1542 =w add %t1546, 0
+  %t1542 =w add %t1546, 3760
   %t1547 =b loadb %t1542
-  %t1548 =w copy %t1547
-  %t1549 =w call $strcmp(w %t1541, w %t1548)
-  %t1550 =b ceq %t1549, 0
-  %t1551 =w and %t1540, %t1550
-  jnz %t1551, @L_if_then_109, @L_if_else_109
+  %t1548 =b ceq %t1547, 0
+  %t1549 =w copy %name
+  %t1552 =w copy 3764
+  %t1553 =w mul %i, %t1552
+  %t1554 =w add $MACROS, %t1553
+  %t1550 =w add %t1554, 0
+  %t1555 =b loadb %t1550
+  %t1556 =w copy %t1555
+  %t1557 =w call $strcmp(w %t1549, w %t1556)
+  %t1558 =b ceq %t1557, 0
+  %t1559 =w and %t1548, %t1558
+  jnz %t1559, @L_if_then_109, @L_if_else_109
   @L_if_then_109
-  %t1553 =w copy 7640
-  %t1554 =w mul %i, %t1553
-  %t1555 =w add $MACROS, %t1554
-  ret %t1555
+  %t1561 =w copy 3764
+  %t1562 =w mul %i, %t1561
+  %t1563 =w add $MACROS, %t1562
+  ret %t1563
   @L_if_else_109
   @L_76
-  %t1556 =w copy 1
-  %i =w add %i, %t1556
-  %t1557 =w copy -1
-  %t1558 =w add %i, %t1557
+  %t1564 =w copy 1
+  %i =w add %i, %t1564
+  %t1565 =w copy -1
+  %t1566 =w add %i, %t1565
   jmp @L_for_begin_108
   @L_75
-  %t1559 =w copy 0
-  ret %t1559
+  %t1567 =w copy 0
+  ret %t1567
 }
 function b $remove_macro(w %name) {
   %i =w alloc 4
-  %t1561 =w copy 0
-  %i =w copy %t1561
+  %t1569 =w copy 0
+  %i =w copy %t1569
   @L_for_begin_110
-  %t1562 =w clt %i, $macros_idx
-  jnz %t1562, @L_for_then_110, @L_77
+  %t1570 =w clt %i, $macros_idx
+  jnz %t1570, @L_for_then_110, @L_77
   @L_for_then_110
   @L_if_begin_111
-  %t1565 =w copy 7640
-  %t1566 =w mul %i, %t1565
-  %t1567 =w add $MACROS, %t1566
-  %t1563 =w add %t1567, 7632
-  %t1568 =b loadb %t1563
-  %t1569 =b ceq %t1568, 0
-  %t1570 =w copy %name
-  %t1573 =w copy 7640
+  %t1573 =w copy 3764
   %t1574 =w mul %i, %t1573
   %t1575 =w add $MACROS, %t1574
-  %t1571 =w add %t1575, 0
+  %t1571 =w add %t1575, 3760
   %t1576 =b loadb %t1571
-  %t1577 =w copy %t1576
-  %t1578 =w call $strcmp(w %t1570, w %t1577)
-  %t1579 =b ceq %t1578, 0
-  %t1580 =w and %t1569, %t1579
-  jnz %t1580, @L_if_then_111, @L_if_else_111
+  %t1577 =b ceq %t1576, 0
+  %t1578 =w copy %name
+  %t1581 =w copy 3764
+  %t1582 =w mul %i, %t1581
+  %t1583 =w add $MACROS, %t1582
+  %t1579 =w add %t1583, 0
+  %t1584 =b loadb %t1579
+  %t1585 =w copy %t1584
+  %t1586 =w call $strcmp(w %t1578, w %t1585)
+  %t1587 =b ceq %t1586, 0
+  %t1588 =w and %t1577, %t1587
+  jnz %t1588, @L_if_then_111, @L_if_else_111
   @L_if_then_111
-  %t1583 =w copy 7640
-  %t1584 =w mul %i, %t1583
-  %t1585 =w add $MACROS, %t1584
-  %t1581 =w add %t1585, 7632
-  %t1586 =b copy 1
-  storeb %t1581, %t1586
-  %t1587 =b copy 1
-  ret %t1587
+  %t1591 =w copy 3764
+  %t1592 =w mul %i, %t1591
+  %t1593 =w add $MACROS, %t1592
+  %t1589 =w add %t1593, 3760
+  %t1594 =b copy 1
+  storeb %t1589, %t1594
+  %t1595 =b copy 1
+  ret %t1595
   @L_if_else_111
   @L_78
-  %t1588 =w copy 1
-  %i =w add %i, %t1588
-  %t1589 =w copy -1
-  %t1590 =w add %i, %t1589
+  %t1596 =w copy 1
+  %i =w add %i, %t1596
+  %t1597 =w copy -1
+  %t1598 =w add %i, %t1597
   jmp @L_for_begin_110
   @L_77
-  %t1591 =b copy 0
-  ret %t1591
+  %t1599 =b copy 0
+  ret %t1599
 }
 function v $error(w %msg) {
   %offset =w alloc 4
   %start_idx =w alloc 4
   %i =w alloc 4
   %diagnostic =b alloc 512
-  %t1593 =w copy 0
-  %i =w copy %t1593
+  %t1601 =w copy 0
+  %i =w copy %t1601
   %offset =w copy $source_idx
   @L_for_begin_112
-  %t1595 =w copy 0
-  %t1596 =w cge %offset, %t1595
-  %t1597 =w copy 1
-  %t1598 =w mul %offset, %t1597
-  %t1599 =w add $SOURCE, %t1598
-  %t1600 =b loadb %t1599
-  %t1601 =w copy 10
-  %t1602 =w cne %t1600, %t1601
-  %t1603 =w and %t1596, %t1602
-  jnz %t1603, @L_for_then_112, @L_114
+  %t1603 =w copy 0
+  %t1604 =w cge %offset, %t1603
+  %t1605 =w copy 1
+  %t1606 =w mul %offset, %t1605
+  %t1607 =w add $SOURCE, %t1606
+  %t1608 =b loadb %t1607
+  %t1609 =w copy 10
+  %t1610 =w cne %t1608, %t1609
+  %t1611 =w and %t1604, %t1610
+  jnz %t1611, @L_for_then_112, @L_114
   @L_for_then_112
   @L_115
-  %t1604 =w copy -1
-  %offset =w add %offset, %t1604
-  %t1605 =w copy 1
-  %t1606 =w add %offset, %t1605
+  %t1612 =w copy -1
+  %offset =w add %offset, %t1612
+  %t1613 =w copy 1
+  %t1614 =w add %offset, %t1613
   jmp @L_for_begin_112
   @L_114
-  %t1608 =w copy 1
-  %t1609 =w add %offset, %t1608
-  %start_idx =w copy %t1609
-  %t1611 =w copy 0
-  %offset =w copy %t1611
+  %t1616 =w copy 1
+  %t1617 =w add %offset, %t1616
+  %start_idx =w copy %t1617
+  %t1619 =w copy 0
+  %offset =w copy %t1619
   @L_for_begin_113
-  %t1612 =w copy 327680
-  %t1613 =w clt %offset, %t1612
-  %t1614 =w add %start_idx, %offset
-  %t1615 =w copy 1
-  %t1616 =w mul %t1614, %t1615
-  %t1617 =w add $SOURCE, %t1616
-  %t1618 =b loadb %t1617
-  %t1619 =w copy 10
-  %t1620 =w cne %t1618, %t1619
-  %t1621 =w and %t1613, %t1620
-  jnz %t1621, @L_for_then_113, @L_116
-  @L_for_then_113
+  %t1620 =w copy 327680
+  %t1621 =w clt %offset, %t1620
+  %t1622 =w add %start_idx, %offset
   %t1623 =w copy 1
-  %i =w add %i, %t1623
-  %t1624 =w copy -1
-  %t1625 =w add %i, %t1624
-  %t1626 =w copy 1
-  %t1627 =w mul %t1625, %t1626
-  %t1628 =w add %diagnostic, %t1627
-  %t1629 =w add %start_idx, %offset
-  %t1630 =w copy 1
-  %t1631 =w mul %t1629, %t1630
-  %t1632 =w add $SOURCE, %t1631
-  %t1633 =b loadb %t1632
-  storeb %t1628, %t1633
-  @L_117
+  %t1624 =w mul %t1622, %t1623
+  %t1625 =w add $SOURCE, %t1624
+  %t1626 =b loadb %t1625
+  %t1627 =w copy 10
+  %t1628 =w cne %t1626, %t1627
+  %t1629 =w and %t1621, %t1628
+  jnz %t1629, @L_for_then_113, @L_116
+  @L_for_then_113
+  %t1631 =w copy 1
+  %i =w add %i, %t1631
+  %t1632 =w copy -1
+  %t1633 =w add %i, %t1632
   %t1634 =w copy 1
-  %offset =w add %offset, %t1634
-  %t1635 =w copy -1
-  %t1636 =w add %offset, %t1635
+  %t1635 =w mul %t1633, %t1634
+  %t1636 =w add %diagnostic, %t1635
+  %t1637 =w add %start_idx, %offset
+  %t1638 =w copy 1
+  %t1639 =w mul %t1637, %t1638
+  %t1640 =w add $SOURCE, %t1639
+  %t1641 =b loadb %t1640
+  storeb %t1636, %t1641
+  @L_117
+  %t1642 =w copy 1
+  %offset =w add %offset, %t1642
+  %t1643 =w copy -1
+  %t1644 =w add %offset, %t1643
   jmp @L_for_begin_113
   @L_116
-  %t1638 =w copy 1
-  %i =w add %i, %t1638
-  %t1639 =w copy -1
-  %t1640 =w add %i, %t1639
-  %t1641 =w copy 1
-  %t1642 =w mul %t1640, %t1641
-  %t1643 =w add %diagnostic, %t1642
-  %t1644 =b copy 10
-  storeb %t1643, %t1644
+  %t1646 =w copy 1
+  %i =w add %i, %t1646
+  %t1647 =w copy -1
+  %t1648 =w add %i, %t1647
+  %t1649 =w copy 1
+  %t1650 =w mul %t1648, %t1649
+  %t1651 =w add %diagnostic, %t1650
+  %t1652 =b copy 10
+  storeb %t1651, %t1652
   %offset =w copy %start_idx
   @L_for_begin_114
-  %t1646 =w clt %offset, $source_idx
-  jnz %t1646, @L_for_then_114, @L_118
+  %t1654 =w clt %offset, $source_idx
+  jnz %t1654, @L_for_then_114, @L_118
   @L_for_then_114
-  %t1648 =w copy 1
-  %i =w add %i, %t1648
-  %t1649 =w copy -1
-  %t1650 =w add %i, %t1649
-  %t1651 =w copy 1
-  %t1652 =w mul %t1650, %t1651
-  %t1653 =w add %diagnostic, %t1652
-  %t1654 =b copy 32
-  storeb %t1653, %t1654
+  %t1656 =w copy 1
+  %i =w add %i, %t1656
+  %t1657 =w copy -1
+  %t1658 =w add %i, %t1657
+  %t1659 =w copy 1
+  %t1660 =w mul %t1658, %t1659
+  %t1661 =w add %diagnostic, %t1660
+  %t1662 =b copy 32
+  storeb %t1661, %t1662
   @L_119
-  %t1655 =w copy 1
-  %offset =w add %offset, %t1655
-  %t1656 =w copy -1
-  %t1657 =w add %offset, %t1656
+  %t1663 =w copy 1
+  %offset =w add %offset, %t1663
+  %t1664 =w copy -1
+  %t1665 =w add %offset, %t1664
   jmp @L_for_begin_114
   @L_118
-  %t1658 =w copy 1
-  %t1659 =w mul %i, %t1658
-  %t1660 =w add %diagnostic, %t1659
-  %t1661 =w copy %t1660
-  %t1662 =w copy $L_120
-  %t1663 =w call $strcpy(w %t1661, w %t1662)
-  %t1664 =w copy $L_121
-  %t1665 =w copy %msg
-  %t1666 =w copy $source_idx
-  %t1667 =w copy %diagnostic
-  %t1668 =w call $printf(w %t1664, w %t1665, w %t1666, w %t1667)
+  %t1666 =w copy 1
+  %t1667 =w mul %i, %t1666
+  %t1668 =w add %diagnostic, %t1667
+  %t1669 =w copy %t1668
+  %t1670 =w copy $L_120
+  %t1671 =w call $strcpy(w %t1669, w %t1670)
+  %t1672 =w copy $L_121
+  %t1673 =w copy %msg
+  %t1674 =w copy $source_idx
+  %t1675 =w copy %diagnostic
+  %t1676 =w call $printf(w %t1672, w %t1673, w %t1674, w %t1675)
   call $abort()
   ret
 }
 function w $find_macro_param_src_idx(w %name, w %parent) {
-  %macro =w alloc 8
+  %macro =w alloc 1
   %i =w alloc 4
-  %t1670 =w add %parent, 1416024
-  %t1672 =w loadw %t1670
-  %macro =w copy %t1672
+  %t1678 =w add %parent, 690012
+  %t1680 =w loadw %t1678
+  %macro =w copy %t1680
   @L_if_begin_115
-  %t1673 =b ceq %parent, 0
-  jnz %t1673, @L_if_then_115, @L_if_else_115
+  %t1681 =b ceq %parent, 0
+  jnz %t1681, @L_if_then_115, @L_if_else_115
   @L_if_then_115
-  %t1674 =w copy $L_79
-  call $error(w %t1674)
+  %t1682 =w copy $L_79
+  call $error(w %t1682)
   jmp @L_if_end_115
   @L_if_else_115
   @L_if_end_115
   @L_if_begin_116
-  %t1675 =w add %parent, 1416024
-  %t1677 =w loadw %t1675
-  %t1678 =b ceq %t1677, 0
-  jnz %t1678, @L_if_then_116, @L_if_else_116
+  %t1683 =w add %parent, 690012
+  %t1685 =w loadw %t1683
+  %t1686 =b ceq %t1685, 0
+  jnz %t1686, @L_if_then_116, @L_if_else_116
   @L_if_then_116
-  %t1679 =w copy 0
-  ret %t1679
+  %t1687 =w copy 0
+  ret %t1687
   @L_if_else_116
-  %t1681 =w copy 0
-  %i =w copy %t1681
+  %t1689 =w copy 0
+  %i =w copy %t1689
   @L_for_begin_117
-  %t1682 =w add %macro, 7592
-  %t1684 =w loadw %t1682
-  %t1685 =w clt %i, %t1684
-  jnz %t1685, @L_for_then_117, @L_80
+  %t1690 =w add %macro, 3720
+  %t1692 =w loadw %t1690
+  %t1693 =w clt %i, %t1692
+  jnz %t1693, @L_for_then_117, @L_80
   @L_for_then_117
   @L_if_begin_118
-  %t1688 =w add %macro, 40
-  %t1690 =b loadb %t1688
-  %t1691 =w copy 944
-  %t1692 =w mul %i, %t1691
-  %t1693 =w add %t1690, %t1692
-  %t1686 =w add %t1693, 32
-  %t1694 =b loadb %t1686
-  %t1695 =w copy %t1694
-  %t1696 =w copy %name
-  %t1697 =w call $strcmp(w %t1695, w %t1696)
-  %t1698 =b ceq %t1697, 0
-  jnz %t1698, @L_if_then_118, @L_if_else_118
+  %t1696 =w add %macro, 40
+  %t1698 =b loadb %t1696
+  %t1699 =w copy 460
+  %t1700 =w mul %i, %t1699
+  %t1701 =w add %t1698, %t1700
+  %t1694 =w add %t1701, 32
+  %t1702 =b loadb %t1694
+  %t1703 =w copy %t1702
+  %t1704 =w copy %name
+  %t1705 =w call $strcmp(w %t1703, w %t1704)
+  %t1706 =b ceq %t1705, 0
+  jnz %t1706, @L_if_then_118, @L_if_else_118
   @L_if_then_118
-  %t1699 =w add %macro, 7596
-  %t1701 =b loadb %t1699
-  %t1702 =w copy 4
-  %t1703 =w mul %i, %t1702
-  %t1704 =w add %t1701, %t1703
-  %t1705 =w loadw %t1704
-  ret %t1705
+  %t1707 =w add %macro, 3724
+  %t1709 =b loadb %t1707
+  %t1710 =w copy 4
+  %t1711 =w mul %i, %t1710
+  %t1712 =w add %t1709, %t1711
+  %t1713 =w loadw %t1712
+  ret %t1713
   @L_if_else_118
   @L_81
-  %t1706 =w copy 1
-  %i =w add %i, %t1706
-  %t1707 =w copy -1
-  %t1708 =w add %i, %t1707
+  %t1714 =w copy 1
+  %i =w add %i, %t1714
+  %t1715 =w copy -1
+  %t1716 =w add %i, %t1715
   jmp @L_for_begin_117
   @L_80
-  %t1709 =w copy 0
-  ret %t1709
+  %t1717 =w copy 0
+  ret %t1717
 }
 function w $add_func(w %name) {
-  %fn =w alloc 8
+  %fn =w alloc 1
   %index =w alloc 4
-  %t1711 =w copy $FUNC_TRIES
-  %t1712 =w copy %name
-  %t1713 =w copy $funcs_idx
-  %t1714 =w call $insert_trie(w %t1711, w %t1712, w %t1713)
-  %index =w copy %t1714
+  %t1719 =w copy $FUNC_TRIES
+  %t1720 =w copy %name
+  %t1721 =w copy $funcs_idx
+  %t1722 =w call $insert_trie(w %t1719, w %t1720, w %t1721)
+  %index =w copy %t1722
   @L_if_begin_119
-  %t1715 =w ceq %index, $funcs_idx
-  jnz %t1715, @L_if_then_119, @L_if_else_119
+  %t1723 =w ceq %index, $funcs_idx
+  jnz %t1723, @L_if_then_119, @L_if_else_119
   @L_if_then_119
-  %t1718 =w copy 1
-  $funcs_idx =w add $funcs_idx, %t1718
-  %t1719 =w copy -1
-  %t1720 =w add $funcs_idx, %t1719
-  %t1721 =w copy 8520
-  %t1722 =w mul %t1720, %t1721
-  %t1723 =w add $FUNCS, %t1722
-  %fn =w copy %t1723
-  %t1725 =w add %fn, 0
-  %t1724 =w add %t1725, 32
-  %t1727 =b loadb %t1724
-  %t1728 =w copy %t1727
-  %t1729 =w copy %name
-  %t1730 =w call $strcpy(w %t1728, w %t1729)
+  %t1726 =w copy 1
+  $funcs_idx =w add $funcs_idx, %t1726
+  %t1727 =w copy -1
+  %t1728 =w add $funcs_idx, %t1727
+  %t1729 =w copy 4156
+  %t1730 =w mul %t1728, %t1729
+  %t1731 =w add $FUNCS, %t1730
+  %fn =w copy %t1731
+  %t1733 =w add %fn, 0
+  %t1732 =w add %t1733, 32
+  %t1735 =b loadb %t1732
+  %t1736 =w copy %t1735
+  %t1737 =w copy %name
+  %t1738 =w call $strcpy(w %t1736, w %t1737)
   jmp @L_if_end_119
   @L_if_else_119
   @L_if_end_119
-  %t1733 =w copy 8520
-  %t1734 =w mul %index, %t1733
-  %t1735 =w add $FUNCS, %t1734
-  %fn =w copy %t1735
-  %t1736 =w add %fn, 8504
-  %t1738 =w copy 4
-  storew %t1736, %t1738
+  %t1741 =w copy 4156
+  %t1742 =w mul %index, %t1741
+  %t1743 =w add $FUNCS, %t1742
+  %fn =w copy %t1743
+  %t1744 =w add %fn, 4148
+  %t1746 =w copy 4
+  storew %t1744, %t1746
   ret %fn
 }
 function w $add_type() {
-  %t1740 =w copy 1
-  $types_idx =w add $types_idx, %t1740
-  %t1741 =w copy -1
-  %t1742 =w add $types_idx, %t1741
-  %t1743 =w copy 60480
-  %t1744 =w mul %t1742, %t1743
-  %t1745 =w add $TYPES, %t1744
-  ret %t1745
+  %t1748 =w copy 1
+  $types_idx =w add $types_idx, %t1748
+  %t1749 =w copy -1
+  %t1750 =w add $types_idx, %t1749
+  %t1751 =w copy 29488
+  %t1752 =w mul %t1750, %t1751
+  %t1753 =w add $TYPES, %t1752
+  ret %t1753
 }
 function w $add_named_type(w %name) {
-  %type =w alloc 8
-  %t1747 =w call $add_type()
-  %type =w copy %t1747
-  %t1748 =w add %type, 0
-  %t1750 =b loadb %t1748
-  %t1751 =w copy %t1750
-  %t1752 =w copy %name
-  %t1753 =w call $strcpy(w %t1751, w %t1752)
+  %type =w alloc 1
+  %t1755 =w call $add_type()
+  %type =w copy %t1755
+  %t1756 =w add %type, 0
+  %t1758 =b loadb %t1756
+  %t1759 =w copy %t1758
+  %t1760 =w copy %name
+  %t1761 =w call $strcpy(w %t1759, w %t1760)
   ret %type
 }
 function v $add_constant(w %alias, w %value) {
-  %constant =w alloc 8
-  %t1756 =w copy 1
-  $constants_idx =w add $constants_idx, %t1756
-  %t1757 =w copy -1
-  %t1758 =w add $constants_idx, %t1757
-  %t1759 =w copy 36
-  %t1760 =w mul %t1758, %t1759
-  %t1761 =w add $CONSTANTS, %t1760
-  %constant =w copy %t1761
-  %t1762 =w add %constant, 0
-  %t1764 =b loadb %t1762
-  %t1765 =w copy %t1764
-  %t1766 =w copy %alias
-  %t1767 =w call $strcpy(w %t1765, w %t1766)
-  %t1768 =w add %constant, 32
-  storew %t1768, %value
+  %constant =w alloc 1
+  %t1764 =w copy 1
+  $constants_idx =w add $constants_idx, %t1764
+  %t1765 =w copy -1
+  %t1766 =w add $constants_idx, %t1765
+  %t1767 =w copy 36
+  %t1768 =w mul %t1766, %t1767
+  %t1769 =w add $CONSTANTS, %t1768
+  %constant =w copy %t1769
+  %t1770 =w add %constant, 0
+  %t1772 =b loadb %t1770
+  %t1773 =w copy %t1772
+  %t1774 =w copy %alias
+  %t1775 =w call $strcpy(w %t1773, w %t1774)
+  %t1776 =w add %constant, 32
+  storew %t1776, %value
   ret
 }
 function w $find_constant(w %alias) {
   %i =w alloc 4
-  %t1771 =w copy 0
-  %i =w copy %t1771
+  %t1779 =w copy 0
+  %i =w copy %t1779
   @L_for_begin_120
-  %t1772 =w clt %i, $constants_idx
-  jnz %t1772, @L_for_then_120, @L_82
+  %t1780 =w clt %i, $constants_idx
+  jnz %t1780, @L_for_then_120, @L_82
   @L_for_then_120
   @L_if_begin_121
-  %t1775 =w copy 36
-  %t1776 =w mul %i, %t1775
-  %t1777 =w add $CONSTANTS, %t1776
-  %t1773 =w add %t1777, 0
-  %t1778 =b loadb %t1773
-  %t1779 =w copy %t1778
-  %t1780 =w copy %alias
-  %t1781 =w call $strcmp(w %t1779, w %t1780)
-  %t1782 =b ceq %t1781, 0
-  jnz %t1782, @L_if_then_121, @L_if_else_121
+  %t1783 =w copy 36
+  %t1784 =w mul %i, %t1783
+  %t1785 =w add $CONSTANTS, %t1784
+  %t1781 =w add %t1785, 0
+  %t1786 =b loadb %t1781
+  %t1787 =w copy %t1786
+  %t1788 =w copy %alias
+  %t1789 =w call $strcmp(w %t1787, w %t1788)
+  %t1790 =b ceq %t1789, 0
+  jnz %t1790, @L_if_then_121, @L_if_else_121
   @L_if_then_121
-  %t1784 =w copy 36
-  %t1785 =w mul %i, %t1784
-  %t1786 =w add $CONSTANTS, %t1785
-  ret %t1786
+  %t1792 =w copy 36
+  %t1793 =w mul %i, %t1792
+  %t1794 =w add $CONSTANTS, %t1793
+  ret %t1794
   @L_if_else_121
   @L_83
-  %t1787 =w copy 1
-  %i =w add %i, %t1787
-  %t1788 =w copy -1
-  %t1789 =w add %i, %t1788
+  %t1795 =w copy 1
+  %i =w add %i, %t1795
+  %t1796 =w copy -1
+  %t1797 =w add %i, %t1796
   jmp @L_for_begin_120
   @L_82
-  %t1790 =w copy 0
-  ret %t1790
+  %t1798 =w copy 0
+  ret %t1798
 }
 function w $find_func(w %func_name) {
   %index =w alloc 4
-  %t1792 =w copy $FUNC_TRIES
-  %t1793 =w copy %func_name
-  %t1794 =w call $find_trie(w %t1792, w %t1793)
-  %index =w copy %t1794
+  %t1800 =w copy $FUNC_TRIES
+  %t1801 =w copy %func_name
+  %t1802 =w call $find_trie(w %t1800, w %t1801)
+  %index =w copy %t1802
   @L_if_begin_122
   jnz %index, @L_if_then_122, @L_if_else_122
   @L_if_then_122
-  %t1796 =w copy 8520
-  %t1797 =w mul %index, %t1796
-  %t1798 =w add $FUNCS, %t1797
-  ret %t1798
+  %t1804 =w copy 4156
+  %t1805 =w mul %index, %t1804
+  %t1806 =w add $FUNCS, %t1805
+  ret %t1806
   @L_if_else_122
-  %t1799 =w copy 0
-  ret %t1799
+  %t1807 =w copy 0
+  ret %t1807
 }
 function w $find_member(w %token, w %type) {
   %i =w alloc 4
   @L_if_begin_123
-  %t1800 =w add %type, 48
-  %t1802 =w loadw %t1800
-  %t1803 =w copy 0
-  %t1804 =w ceq %t1802, %t1803
-  jnz %t1804, @L_if_then_123, @L_if_else_123
+  %t1808 =w add %type, 40
+  %t1810 =w loadw %t1808
+  %t1811 =w copy 0
+  %t1812 =w ceq %t1810, %t1811
+  jnz %t1812, @L_if_then_123, @L_if_else_123
   @L_if_then_123
-  %t1806 =w add %type, 40
-  %t1808 =w loadw %t1806
-  %type =w copy %t1808
+  %t1814 =w add %type, 36
+  %t1816 =w loadw %t1814
+  %type =w copy %t1816
   jmp @L_if_end_123
   @L_if_else_123
   @L_if_end_123
-  %t1810 =w copy 0
-  %i =w copy %t1810
+  %t1818 =w copy 0
+  %i =w copy %t1818
   @L_for_begin_124
-  %t1811 =w add %type, 60472
-  %t1813 =w loadw %t1811
-  %t1814 =w clt %i, %t1813
-  jnz %t1814, @L_for_then_124, @L_84
+  %t1819 =w add %type, 29484
+  %t1821 =w loadw %t1819
+  %t1822 =w clt %i, %t1821
+  jnz %t1822, @L_for_then_124, @L_84
   @L_for_then_124
   @L_if_begin_125
-  %t1817 =w add %type, 56
-  %t1819 =b loadb %t1817
-  %t1820 =w copy 944
-  %t1821 =w mul %i, %t1820
-  %t1822 =w add %t1819, %t1821
-  %t1815 =w add %t1822, 32
-  %t1823 =b loadb %t1815
-  %t1824 =w copy %t1823
-  %t1825 =w copy %token
-  %t1826 =w call $strcmp(w %t1824, w %t1825)
-  %t1827 =b ceq %t1826, 0
-  jnz %t1827, @L_if_then_125, @L_if_else_125
+  %t1825 =w add %type, 44
+  %t1827 =b loadb %t1825
+  %t1828 =w copy 460
+  %t1829 =w mul %i, %t1828
+  %t1830 =w add %t1827, %t1829
+  %t1823 =w add %t1830, 32
+  %t1831 =b loadb %t1823
+  %t1832 =w copy %t1831
+  %t1833 =w copy %token
+  %t1834 =w call $strcmp(w %t1832, w %t1833)
+  %t1835 =b ceq %t1834, 0
+  jnz %t1835, @L_if_then_125, @L_if_else_125
   @L_if_then_125
-  %t1829 =w add %type, 56
-  %t1831 =b loadb %t1829
-  %t1832 =w copy 944
-  %t1833 =w mul %i, %t1832
-  %t1834 =w add %t1831, %t1833
-  ret %t1834
+  %t1837 =w add %type, 44
+  %t1839 =b loadb %t1837
+  %t1840 =w copy 460
+  %t1841 =w mul %i, %t1840
+  %t1842 =w add %t1839, %t1841
+  ret %t1842
   @L_if_else_125
   @L_85
-  %t1835 =w copy 1
-  %i =w add %i, %t1835
-  %t1836 =w copy -1
-  %t1837 =w add %i, %t1836
+  %t1843 =w copy 1
+  %i =w add %i, %t1843
+  %t1844 =w copy -1
+  %t1845 =w add %i, %t1844
   jmp @L_for_begin_124
   @L_84
-  %t1838 =w copy 0
-  ret %t1838
+  %t1846 =w copy 0
+  ret %t1846
 }
 function w $find_local_var(w %token, w %block) {
-  %fn =w alloc 8
+  %fn =w alloc 1
   %i =w alloc 4
   %i =w alloc 4
-  %t1840 =w add %block, 1416016
-  %t1842 =w loadw %t1840
-  %fn =w copy %t1842
+  %t1848 =w add %block, 690008
+  %t1850 =w loadw %t1848
+  %fn =w copy %t1850
   @L_for_begin_126
   jnz %block, @L_for_then_126, @L_86
   @L_for_then_126
-  %t1844 =w copy 0
-  %i =w copy %t1844
+  %t1852 =w copy 0
+  %i =w copy %t1852
   @L_for_begin_127
-  %t1845 =w add %block, 1416000
-  %t1847 =w loadw %t1845
-  %t1848 =w clt %i, %t1847
-  jnz %t1848, @L_for_then_127, @L_88
+  %t1853 =w add %block, 690000
+  %t1855 =w loadw %t1853
+  %t1856 =w clt %i, %t1855
+  jnz %t1856, @L_for_then_127, @L_88
   @L_for_then_127
   @L_if_begin_128
-  %t1851 =w add %block, 0
-  %t1853 =b loadb %t1851
-  %t1854 =w copy 944
-  %t1855 =w mul %i, %t1854
-  %t1856 =w add %t1853, %t1855
-  %t1849 =w add %t1856, 32
-  %t1857 =b loadb %t1849
-  %t1858 =w copy %t1857
-  %t1859 =w copy %token
-  %t1860 =w call $strcmp(w %t1858, w %t1859)
-  %t1861 =b ceq %t1860, 0
-  jnz %t1861, @L_if_then_128, @L_if_else_128
+  %t1859 =w add %block, 0
+  %t1861 =b loadb %t1859
+  %t1862 =w copy 460
+  %t1863 =w mul %i, %t1862
+  %t1864 =w add %t1861, %t1863
+  %t1857 =w add %t1864, 32
+  %t1865 =b loadb %t1857
+  %t1866 =w copy %t1865
+  %t1867 =w copy %token
+  %t1868 =w call $strcmp(w %t1866, w %t1867)
+  %t1869 =b ceq %t1868, 0
+  jnz %t1869, @L_if_then_128, @L_if_else_128
   @L_if_then_128
-  %t1863 =w add %block, 0
-  %t1865 =b loadb %t1863
-  %t1866 =w copy 944
-  %t1867 =w mul %i, %t1866
-  %t1868 =w add %t1865, %t1867
-  ret %t1868
+  %t1871 =w add %block, 0
+  %t1873 =b loadb %t1871
+  %t1874 =w copy 460
+  %t1875 =w mul %i, %t1874
+  %t1876 =w add %t1873, %t1875
+  ret %t1876
   @L_if_else_128
   @L_89
-  %t1869 =w copy 1
-  %i =w add %i, %t1869
-  %t1870 =w copy -1
-  %t1871 =w add %i, %t1870
+  %t1877 =w copy 1
+  %i =w add %i, %t1877
+  %t1878 =w copy -1
+  %t1879 =w add %i, %t1878
   jmp @L_for_begin_127
   @L_88
   @L_87
-  %t1873 =w add %block, 1416008
-  %t1875 =w loadw %t1873
-  %block =w copy %t1875
+  %t1881 =w add %block, 690004
+  %t1883 =w loadw %t1881
+  %block =w copy %t1883
   jmp @L_for_begin_126
   @L_86
   @L_if_begin_129
   jnz %fn, @L_if_then_129, @L_if_else_129
   @L_if_then_129
-  %t1877 =w copy 0
-  %i =w copy %t1877
+  %t1885 =w copy 0
+  %i =w copy %t1885
   @L_for_begin_130
-  %t1878 =w add %fn, 8496
-  %t1880 =w loadw %t1878
-  %t1881 =w clt %i, %t1880
-  jnz %t1881, @L_for_then_130, @L_90
+  %t1886 =w add %fn, 4140
+  %t1888 =w loadw %t1886
+  %t1889 =w clt %i, %t1888
+  jnz %t1889, @L_for_then_130, @L_90
   @L_for_then_130
   @L_if_begin_131
-  %t1884 =w add %fn, 944
-  %t1886 =b loadb %t1884
-  %t1887 =w copy 944
-  %t1888 =w mul %i, %t1887
-  %t1889 =w add %t1886, %t1888
-  %t1882 =w add %t1889, 32
-  %t1890 =b loadb %t1882
-  %t1891 =w copy %t1890
-  %t1892 =w copy %token
-  %t1893 =w call $strcmp(w %t1891, w %t1892)
-  %t1894 =b ceq %t1893, 0
-  jnz %t1894, @L_if_then_131, @L_if_else_131
+  %t1892 =w add %fn, 460
+  %t1894 =b loadb %t1892
+  %t1895 =w copy 460
+  %t1896 =w mul %i, %t1895
+  %t1897 =w add %t1894, %t1896
+  %t1890 =w add %t1897, 32
+  %t1898 =b loadb %t1890
+  %t1899 =w copy %t1898
+  %t1900 =w copy %token
+  %t1901 =w call $strcmp(w %t1899, w %t1900)
+  %t1902 =b ceq %t1901, 0
+  jnz %t1902, @L_if_then_131, @L_if_else_131
   @L_if_then_131
-  %t1896 =w add %fn, 944
-  %t1898 =b loadb %t1896
-  %t1899 =w copy 944
-  %t1900 =w mul %i, %t1899
-  %t1901 =w add %t1898, %t1900
-  ret %t1901
+  %t1904 =w add %fn, 460
+  %t1906 =b loadb %t1904
+  %t1907 =w copy 460
+  %t1908 =w mul %i, %t1907
+  %t1909 =w add %t1906, %t1908
+  ret %t1909
   @L_if_else_131
   @L_91
-  %t1902 =w copy 1
-  %i =w add %i, %t1902
-  %t1903 =w copy -1
-  %t1904 =w add %i, %t1903
+  %t1910 =w copy 1
+  %i =w add %i, %t1910
+  %t1911 =w copy -1
+  %t1912 =w add %i, %t1911
   jmp @L_for_begin_130
   @L_90
   jmp @L_if_end_129
   @L_if_else_129
   @L_if_end_129
-  %t1905 =w copy 0
-  ret %t1905
+  %t1913 =w copy 0
+  ret %t1913
 }
 function w $find_global_var(w %token) {
-  %block =w alloc 8
+  %block =w alloc 1
   %i =w alloc 4
-  %t1908 =w copy 0
-  %t1909 =w add $BLOCKS, %t1908
-  %block =w copy %t1909
-  %t1911 =w copy 0
-  %i =w copy %t1911
+  %t1916 =w copy 0
+  %t1917 =w add $BLOCKS, %t1916
+  %block =w copy %t1917
+  %t1919 =w copy 0
+  %i =w copy %t1919
   @L_for_begin_132
-  %t1912 =w add %block, 1416000
-  %t1914 =w loadw %t1912
-  %t1915 =w clt %i, %t1914
-  jnz %t1915, @L_for_then_132, @L_92
+  %t1920 =w add %block, 690000
+  %t1922 =w loadw %t1920
+  %t1923 =w clt %i, %t1922
+  jnz %t1923, @L_for_then_132, @L_92
   @L_for_then_132
   @L_if_begin_133
-  %t1918 =w add %block, 0
-  %t1920 =b loadb %t1918
-  %t1921 =w copy 944
-  %t1922 =w mul %i, %t1921
-  %t1923 =w add %t1920, %t1922
-  %t1916 =w add %t1923, 32
-  %t1924 =b loadb %t1916
-  %t1925 =w copy %t1924
-  %t1926 =w copy %token
-  %t1927 =w call $strcmp(w %t1925, w %t1926)
-  %t1928 =b ceq %t1927, 0
-  jnz %t1928, @L_if_then_133, @L_if_else_133
+  %t1926 =w add %block, 0
+  %t1928 =b loadb %t1926
+  %t1929 =w copy 460
+  %t1930 =w mul %i, %t1929
+  %t1931 =w add %t1928, %t1930
+  %t1924 =w add %t1931, 32
+  %t1932 =b loadb %t1924
+  %t1933 =w copy %t1932
+  %t1934 =w copy %token
+  %t1935 =w call $strcmp(w %t1933, w %t1934)
+  %t1936 =b ceq %t1935, 0
+  jnz %t1936, @L_if_then_133, @L_if_else_133
   @L_if_then_133
-  %t1930 =w add %block, 0
-  %t1932 =b loadb %t1930
-  %t1933 =w copy 944
-  %t1934 =w mul %i, %t1933
-  %t1935 =w add %t1932, %t1934
-  ret %t1935
+  %t1938 =w add %block, 0
+  %t1940 =b loadb %t1938
+  %t1941 =w copy 460
+  %t1942 =w mul %i, %t1941
+  %t1943 =w add %t1940, %t1942
+  ret %t1943
   @L_if_else_133
   @L_93
-  %t1936 =w copy 1
-  %i =w add %i, %t1936
-  %t1937 =w copy -1
-  %t1938 =w add %i, %t1937
+  %t1944 =w copy 1
+  %i =w add %i, %t1944
+  %t1945 =w copy -1
+  %t1946 =w add %i, %t1945
   jmp @L_for_begin_132
   @L_92
-  %t1939 =w copy 0
-  ret %t1939
+  %t1947 =w copy 0
+  ret %t1947
 }
 function w $find_var(w %token, w %parent) {
-  %var =w alloc 8
-  %t1941 =w copy %token
-  %t1942 =w copy %parent
-  %t1943 =w call $find_local_var(w %t1941, w %t1942)
-  %var =w copy %t1943
+  %var =w alloc 1
+  %t1949 =w copy %token
+  %t1950 =w copy %parent
+  %t1951 =w call $find_local_var(w %t1949, w %t1950)
+  %var =w copy %t1951
   @L_if_begin_134
-  %t1944 =b ceq %var, 0
-  jnz %t1944, @L_if_then_134, @L_if_else_134
+  %t1952 =b ceq %var, 0
+  jnz %t1952, @L_if_then_134, @L_if_else_134
   @L_if_then_134
-  %t1946 =w copy %token
-  %t1947 =w call $find_global_var(w %t1946)
-  %var =w copy %t1947
+  %t1954 =w copy %token
+  %t1955 =w call $find_global_var(w %t1954)
+  %var =w copy %t1955
   jmp @L_if_end_134
   @L_if_else_134
   @L_if_end_134
@@ -3062,235 +3102,235 @@ function w $find_var(w %token, w %parent) {
 }
 function w $size_var(w %var) {
   %size =w alloc 4
-  %type =w alloc 8
+  %type =w alloc 1
   @L_if_begin_135
-  %t1948 =w add %var, 64
-  %t1950 =w loadw %t1948
-  %t1951 =w copy 0
-  %t1952 =w cgt %t1950, %t1951
-  %t1953 =w add %var, 68
-  %t1955 =b loadb %t1953
-  %t1956 =w or %t1952, %t1955
-  jnz %t1956, @L_if_then_135, @L_if_else_135
+  %t1956 =w add %var, 64
+  %t1958 =w loadw %t1956
+  %t1959 =w copy 0
+  %t1960 =w cgt %t1958, %t1959
+  %t1961 =w add %var, 68
+  %t1963 =b loadb %t1961
+  %t1964 =w or %t1960, %t1963
+  jnz %t1964, @L_if_then_135, @L_if_else_135
   @L_if_then_135
-  %t1958 =w copy 4
-  %size =w copy %t1958
+  %t1966 =w copy 4
+  %size =w copy %t1966
   jmp @L_if_end_135
   @L_if_else_135
-  %t1960 =w add %var, 0
-  %t1962 =b loadb %t1960
-  %t1963 =w copy %t1962
-  %t1964 =w copy 0
-  %t1965 =w copy %t1964
-  %t1966 =w call $find_type(w %t1963, w %t1965)
-  %type =w copy %t1966
+  %t1968 =w add %var, 0
+  %t1970 =b loadb %t1968
+  %t1971 =w copy %t1970
+  %t1972 =w copy 0
+  %t1973 =w copy %t1972
+  %t1974 =w call $find_type(w %t1971, w %t1973)
+  %type =w copy %t1974
   @L_if_begin_136
-  %t1967 =b ceq %type, 0
-  jnz %t1967, @L_if_then_136, @L_if_else_136
+  %t1975 =b ceq %type, 0
+  jnz %t1975, @L_if_then_136, @L_if_else_136
   @L_if_then_136
-  %t1968 =w copy $L_94
-  call $error(w %t1968)
+  %t1976 =w copy $L_94
+  call $error(w %t1976)
   jmp @L_if_end_136
   @L_if_else_136
   @L_if_end_136
   @L_if_begin_137
-  %t1969 =w add %type, 48
-  %t1971 =w loadw %t1969
-  %t1972 =w copy 0
-  %t1973 =w ceq %t1971, %t1972
-  jnz %t1973, @L_if_then_137, @L_if_else_137
-  @L_if_then_137
   %t1977 =w add %type, 40
   %t1979 =w loadw %t1977
-  %t1975 =w add %t1979, 48
-  %t1980 =w loadw %t1975
-  %size =w copy %t1980
+  %t1980 =w copy 0
+  %t1981 =w ceq %t1979, %t1980
+  jnz %t1981, @L_if_then_137, @L_if_else_137
+  @L_if_then_137
+  %t1985 =w add %type, 36
+  %t1987 =w loadw %t1985
+  %t1983 =w add %t1987, 40
+  %t1988 =w loadw %t1983
+  %size =w copy %t1988
   jmp @L_if_end_137
   @L_if_else_137
-  %t1982 =w add %type, 48
-  %t1984 =w loadw %t1982
-  %size =w copy %t1984
+  %t1990 =w add %type, 40
+  %t1992 =w loadw %t1990
+  %size =w copy %t1992
   @L_if_end_137
   @L_if_end_135
   @L_if_begin_138
-  %t1985 =w add %var, 72
-  %t1987 =w loadw %t1985
-  %t1988 =w copy 0
-  %t1989 =w cgt %t1987, %t1988
-  jnz %t1989, @L_if_then_138, @L_if_else_138
+  %t1993 =w add %var, 72
+  %t1995 =w loadw %t1993
+  %t1996 =w copy 0
+  %t1997 =w cgt %t1995, %t1996
+  jnz %t1997, @L_if_then_138, @L_if_else_138
   @L_if_then_138
-  %t1991 =w add %var, 72
-  %t1993 =w loadw %t1991
-  %t1994 =w mul %size, %t1993
-  %size =w copy %t1994
+  %t1999 =w add %var, 72
+  %t2001 =w loadw %t1999
+  %t2002 =w mul %size, %t2001
+  %size =w copy %t2002
   jmp @L_if_end_138
   @L_if_else_138
   @L_if_end_138
   ret %size
 }
 function w $add_fn() {
-  %n =w alloc 8
-  %t1996 =w copy 1
-  %t1997 =w copy %t1996
-  %t1998 =w copy 56
-  %t1999 =w copy %t1998
-  %t2000 =w call $calloc(w %t1997, w %t1999)
-  %n =w copy %t2000
+  %n =w alloc 1
+  %t2004 =w copy 1
+  %t2005 =w copy %t2004
+  %t2006 =w copy 32
+  %t2007 =w copy %t2006
+  %t2008 =w call $calloc(w %t2005, w %t2007)
+  %n =w copy %t2008
   @L_if_begin_139
-  %t2002 =w gaddr %FUNC_LIST
-  %t2001 =w add %t2002, 0
-  %t2003 =w loadw %t2001
-  %t2004 =b ceq %t2003, 0
-  jnz %t2004, @L_if_then_139, @L_if_else_139
+  %t2010 =w gaddr %FUNC_LIST
+  %t2009 =w add %t2010, 0
+  %t2011 =w loadw %t2009
+  %t2012 =b ceq %t2011, 0
+  jnz %t2012, @L_if_then_139, @L_if_else_139
   @L_if_then_139
-  %t2006 =w gaddr %FUNC_LIST
-  %t2005 =w add %t2006, 0
-  storew %t2005, %n
-  %t2008 =w gaddr %FUNC_LIST
-  %t2007 =w add %t2008, 8
-  storew %t2007, %n
+  %t2014 =w gaddr %FUNC_LIST
+  %t2013 =w add %t2014, 0
+  storew %t2013, %n
+  %t2016 =w gaddr %FUNC_LIST
+  %t2015 =w add %t2016, 4
+  storew %t2015, %n
   ret %n
   @L_if_else_139
-  %t2012 =w gaddr %FUNC_LIST
-  %t2011 =w add %t2012, 8
-  %t2013 =w loadw %t2011
-  %t2009 =w add %t2013, 48
-  storew %t2009, %n
-  %t2015 =w gaddr %FUNC_LIST
-  %t2014 =w add %t2015, 8
-  storew %t2014, %n
+  %t2020 =w gaddr %FUNC_LIST
+  %t2019 =w add %t2020, 4
+  %t2021 =w loadw %t2019
+  %t2017 =w add %t2021, 28
+  storew %t2017, %n
+  %t2023 =w gaddr %FUNC_LIST
+  %t2022 =w add %t2023, 4
+  storew %t2022, %n
   ret %n
 }
 function w $bb_create(w %parent) {
-  %bb =w alloc 8
+  %bb =w alloc 1
   %i =w alloc 4
-  %t2017 =w copy 1
-  %t2018 =w copy %t2017
-  %t2019 =w copy 29832
-  %t2020 =w copy %t2019
-  %t2021 =w call $calloc(w %t2018, w %t2020)
-  %bb =w copy %t2021
-  %t2023 =w copy 0
-  %i =w copy %t2023
+  %t2025 =w copy 1
+  %t2026 =w copy %t2025
+  %t2027 =w copy 4592
+  %t2028 =w copy %t2027
+  %t2029 =w call $calloc(w %t2026, w %t2028)
+  %bb =w copy %t2029
+  %t2031 =w copy 0
+  %i =w copy %t2031
   @L_for_begin_140
-  %t2024 =w copy 128
-  %t2025 =w clt %i, %t2024
-  jnz %t2025, @L_for_then_140, @L_95
+  %t2032 =w copy 128
+  %t2033 =w clt %i, %t2032
+  jnz %t2033, @L_for_then_140, @L_95
   @L_for_then_140
-  %t2028 =w add %bb, 32
-  %t2030 =b loadb %t2028
-  %t2031 =w copy 16
-  %t2032 =w mul %i, %t2031
-  %t2033 =w add %t2030, %t2032
-  %t2026 =w add %t2033, 0
-  %t2034 =w copy 0
-  storew %t2026, %t2034
-  %t2037 =w add %bb, 32
-  %t2039 =b loadb %t2037
-  %t2040 =w copy 16
-  %t2041 =w mul %i, %t2040
-  %t2042 =w add %t2039, %t2041
-  %t2035 =w add %t2042, 8
-  %t2043 =w copy 0
-  storew %t2035, %t2043
+  %t2036 =w add %bb, 16
+  %t2038 =b loadb %t2036
+  %t2039 =w copy 8
+  %t2040 =w mul %i, %t2039
+  %t2041 =w add %t2038, %t2040
+  %t2034 =w add %t2041, 0
+  %t2042 =w copy 0
+  storew %t2034, %t2042
+  %t2045 =w add %bb, 16
+  %t2047 =b loadb %t2045
+  %t2048 =w copy 8
+  %t2049 =w mul %i, %t2048
+  %t2050 =w add %t2047, %t2049
+  %t2043 =w add %t2050, 4
+  %t2051 =w copy 0
+  storew %t2043, %t2051
   @L_96
-  %t2044 =w copy 1
-  %i =w add %i, %t2044
-  %t2045 =w copy -1
-  %t2046 =w add %i, %t2045
+  %t2052 =w copy 1
+  %i =w add %i, %t2052
+  %t2053 =w copy -1
+  %t2054 =w add %i, %t2053
   jmp @L_for_begin_140
   @L_95
-  %t2047 =w add %bb, 29800
-  storew %t2047, %parent
-  %t2049 =w add %bb, 29792
-  %t2053 =w add %parent, 1416016
-  %t2055 =w loadw %t2053
-  %t2051 =w add %t2055, 8512
-  %t2056 =w loadw %t2051
-  storew %t2049, %t2056
+  %t2055 =w add %bb, 4576
+  storew %t2055, %parent
+  %t2057 =w add %bb, 4572
+  %t2061 =w add %parent, 690008
+  %t2063 =w loadw %t2061
+  %t2059 =w add %t2063, 4152
+  %t2064 =w loadw %t2059
+  storew %t2057, %t2064
   ret %bb
 }
 function v $bb_connect(w %pred, w %succ, w %type) {
   %i =w alloc 4
   @L_if_begin_141
-  %t2057 =b ceq %pred, 0
-  jnz %t2057, @L_if_then_141, @L_if_else_141
+  %t2065 =b ceq %pred, 0
+  jnz %t2065, @L_if_then_141, @L_if_else_141
   @L_if_then_141
   call $abort()
   jmp @L_if_end_141
   @L_if_else_141
   @L_if_end_141
   @L_if_begin_142
-  %t2058 =b ceq %succ, 0
-  jnz %t2058, @L_if_then_142, @L_if_else_142
+  %t2066 =b ceq %succ, 0
+  jnz %t2066, @L_if_then_142, @L_if_else_142
   @L_if_then_142
   call $abort()
   jmp @L_if_end_142
   @L_if_else_142
   @L_if_end_142
-  %t2060 =w copy 0
-  %i =w copy %t2060
+  %t2068 =w copy 0
+  %i =w copy %t2068
   @L_for_begin_143
-  %t2063 =w add %succ, 32
-  %t2065 =b loadb %t2063
-  %t2066 =w copy 16
-  %t2067 =w mul %i, %t2066
-  %t2068 =w add %t2065, %t2067
-  %t2061 =w add %t2068, 0
-  %t2069 =w loadw %t2061
-  jnz %t2069, @L_for_then_143, @L_97
+  %t2071 =w add %succ, 16
+  %t2073 =b loadb %t2071
+  %t2074 =w copy 8
+  %t2075 =w mul %i, %t2074
+  %t2076 =w add %t2073, %t2075
+  %t2069 =w add %t2076, 0
+  %t2077 =w loadw %t2069
+  jnz %t2077, @L_for_then_143, @L_97
   @L_for_then_143
-  %t2070 =w copy 1
-  %i =w add %i, %t2070
-  %t2071 =w copy -1
-  %t2072 =w add %i, %t2071
+  %t2078 =w copy 1
+  %i =w add %i, %t2078
+  %t2079 =w copy -1
+  %t2080 =w add %i, %t2079
   @L_98
   jmp @L_for_begin_143
   @L_97
   @L_if_begin_144
-  %t2073 =w copy 127
-  %t2074 =w cgt %i, %t2073
-  jnz %t2074, @L_if_then_144, @L_if_else_144
+  %t2081 =w copy 127
+  %t2082 =w cgt %i, %t2081
+  jnz %t2082, @L_if_then_144, @L_if_else_144
   @L_if_then_144
-  %t2075 =w copy $L_99
-  %t2076 =w call $printf(w %t2075)
+  %t2083 =w copy $L_99
+  %t2084 =w call $printf(w %t2083)
   call $abort()
   jmp @L_if_end_144
   @L_if_else_144
   @L_if_end_144
-  %t2079 =w add %succ, 32
-  %t2081 =b loadb %t2079
-  %t2082 =w copy 16
-  %t2083 =w mul %i, %t2082
-  %t2084 =w add %t2081, %t2083
-  %t2077 =w add %t2084, 0
-  storew %t2077, %pred
-  %t2087 =w add %succ, 32
+  %t2087 =w add %succ, 16
   %t2089 =b loadb %t2087
-  %t2090 =w copy 16
+  %t2090 =w copy 8
   %t2091 =w mul %i, %t2090
   %t2092 =w add %t2089, %t2091
-  %t2085 =w add %t2092, 8
-  storew %t2085, %type
-  %t2093 =w ceq %type, 1
-  jnz %t2093, @L_103, @L_case_145
+  %t2085 =w add %t2092, 0
+  storew %t2085, %pred
+  %t2095 =w add %succ, 16
+  %t2097 =b loadb %t2095
+  %t2098 =w copy 8
+  %t2099 =w mul %i, %t2098
+  %t2100 =w add %t2097, %t2099
+  %t2093 =w add %t2100, 4
+  storew %t2093, %type
+  %t2101 =w ceq %type, 1
+  jnz %t2101, @L_103, @L_case_145
   @L_case_145
-  %t2094 =w ceq %type, 2
-  jnz %t2094, @L_102, @L_case_146
+  %t2101 =w ceq %type, 2
+  jnz %t2101, @L_102, @L_case_146
   @L_case_146
-  %t2095 =w ceq %type, 0
-  jnz %t2095, @L_101, @L_104
+  %t2101 =w ceq %type, 0
+  jnz %t2101, @L_101, @L_104
   @L_101
-  %t2097 =w add %pred, 2080
-  storew %t2097, %succ
+  %t2102 =w add %pred, 1040
+  storew %t2102, %succ
   jmp @L_100
   @L_102
-  %t2099 =w add %pred, 2088
-  storew %t2099, %succ
+  %t2104 =w add %pred, 1044
+  storew %t2104, %succ
   jmp @L_100
   @L_103
-  %t2101 =w add %pred, 2096
-  storew %t2101, %succ
+  %t2106 =w add %pred, 1048
+  storew %t2106, %succ
   jmp @L_100
   @L_104
   call $abort()
@@ -3299,382 +3339,396 @@ function v $bb_connect(w %pred, w %succ, w %type) {
 }
 function v $bb_disconnect(w %pred, w %succ) {
   %i =w alloc 4
-  %t2104 =w copy 0
-  %i =w copy %t2104
+  %t2109 =w copy 0
+  %i =w copy %t2109
   @L_for_begin_148
-  %t2105 =w copy 128
-  %t2106 =w clt %i, %t2105
-  jnz %t2106, @L_for_then_148, @L_105
+  %t2110 =w copy 128
+  %t2111 =w clt %i, %t2110
+  jnz %t2111, @L_for_then_148, @L_105
   @L_for_then_148
   @L_if_begin_149
-  %t2109 =w add %succ, 32
-  %t2111 =b loadb %t2109
-  %t2112 =w copy 16
-  %t2113 =w mul %i, %t2112
-  %t2114 =w add %t2111, %t2113
-  %t2107 =w add %t2114, 0
-  %t2115 =w loadw %t2107
-  %t2116 =w ceq %t2115, %pred
-  jnz %t2116, @L_if_then_149, @L_if_else_149
+  %t2114 =w add %succ, 16
+  %t2116 =b loadb %t2114
+  %t2117 =w copy 8
+  %t2118 =w mul %i, %t2117
+  %t2119 =w add %t2116, %t2118
+  %t2112 =w add %t2119, 0
+  %t2120 =w loadw %t2112
+  %t2121 =w ceq %t2120, %pred
+  jnz %t2121, @L_if_then_149, @L_if_else_149
   @L_if_then_149
-  %t2119 =w add %succ, 32
-  %t2121 =b loadb %t2119
-  %t2122 =w copy 16
-  %t2123 =w mul %i, %t2122
-  %t2124 =w add %t2121, %t2123
-  %t2117 =w add %t2124, 8
-  %t2125 =w loadw %t2117
-  %t2126 =w ceq %t2125, 1
-  jnz %t2126, @L_110, @L_case_150
+  %t2125 =w add %succ, 16
+  %t2127 =b loadb %t2125
+  %t2128 =w copy 8
+  %t2129 =w mul %i, %t2128
+  %t2130 =w add %t2127, %t2129
+  %t2123 =w add %t2130, 4
+  %t2131 =w loadw %t2123
+  %t2122 =w ceq %t2131, 1
+  jnz %t2122, @L_110, @L_case_150
   @L_case_150
-  %t2127 =w ceq %t2125, 2
-  jnz %t2127, @L_109, @L_case_151
+  %t2134 =w add %succ, 16
+  %t2136 =b loadb %t2134
+  %t2137 =w copy 8
+  %t2138 =w mul %i, %t2137
+  %t2139 =w add %t2136, %t2138
+  %t2132 =w add %t2139, 4
+  %t2140 =w loadw %t2132
+  %t2122 =w ceq %t2140, 2
+  jnz %t2122, @L_109, @L_case_151
   @L_case_151
-  %t2128 =w ceq %t2125, 0
-  jnz %t2128, @L_108, @L_111
+  %t2143 =w add %succ, 16
+  %t2145 =b loadb %t2143
+  %t2146 =w copy 8
+  %t2147 =w mul %i, %t2146
+  %t2148 =w add %t2145, %t2147
+  %t2141 =w add %t2148, 4
+  %t2149 =w loadw %t2141
+  %t2122 =w ceq %t2149, 0
+  jnz %t2122, @L_108, @L_111
   @L_108
-  %t2130 =w add %pred, 2080
-  %t2132 =w copy 0
-  storew %t2130, %t2132
+  %t2150 =w add %pred, 1040
+  %t2152 =w copy 0
+  storew %t2150, %t2152
   jmp @L_107
   @L_109
-  %t2133 =w add %pred, 2088
-  %t2135 =w copy 0
-  storew %t2133, %t2135
+  %t2153 =w add %pred, 1044
+  %t2155 =w copy 0
+  storew %t2153, %t2155
   jmp @L_107
   @L_110
-  %t2136 =w add %pred, 2096
-  %t2138 =w copy 0
-  storew %t2136, %t2138
+  %t2156 =w add %pred, 1048
+  %t2158 =w copy 0
+  storew %t2156, %t2158
   jmp @L_107
   @L_111
   call $abort()
   @L_107
-  %t2141 =w add %succ, 32
-  %t2143 =b loadb %t2141
-  %t2144 =w copy 16
-  %t2145 =w mul %i, %t2144
-  %t2146 =w add %t2143, %t2145
-  %t2139 =w add %t2146, 0
-  %t2147 =w copy 0
-  storew %t2139, %t2147
+  %t2161 =w add %succ, 16
+  %t2163 =b loadb %t2161
+  %t2164 =w copy 8
+  %t2165 =w mul %i, %t2164
+  %t2166 =w add %t2163, %t2165
+  %t2159 =w add %t2166, 0
+  %t2167 =w copy 0
+  storew %t2159, %t2167
   jmp @L_105
   @L_if_else_149
   @L_106
-  %t2148 =w copy 1
-  %i =w add %i, %t2148
-  %t2149 =w copy -1
-  %t2150 =w add %i, %t2149
+  %t2168 =w copy 1
+  %i =w add %i, %t2168
+  %t2169 =w copy -1
+  %t2170 =w add %i, %t2169
   jmp @L_for_begin_148
   @L_105
   ret
 }
 function v $add_symbol(w %bb, w %var) {
-  %sym =w alloc 8
+  %sym =w alloc 1
   @L_if_begin_153
-  %t2151 =b ceq %bb, 0
-  jnz %t2151, @L_if_then_153, @L_if_else_153
+  %t2171 =b ceq %bb, 0
+  jnz %t2171, @L_if_then_153, @L_if_else_153
   @L_if_then_153
   ret
   @L_if_else_153
-  %t2154 =w add %bb, 29808
-  %t2153 =w add %t2154, 0
-  %t2156 =w loadw %t2153
-  %sym =w copy %t2156
+  %t2174 =w add %bb, 4580
+  %t2173 =w add %t2174, 0
+  %t2176 =w loadw %t2173
+  %sym =w copy %t2176
   @L_for_begin_154
   jnz %sym, @L_for_then_154, @L_112
   @L_for_then_154
   @L_if_begin_155
-  %t2157 =w add %sym, 0
-  %t2159 =w loadw %t2157
-  %t2160 =w ceq %t2159, %var
-  jnz %t2160, @L_if_then_155, @L_if_else_155
+  %t2177 =w add %sym, 0
+  %t2179 =w loadw %t2177
+  %t2180 =w ceq %t2179, %var
+  jnz %t2180, @L_if_then_155, @L_if_else_155
   @L_if_then_155
   ret
   @L_if_else_155
   @L_113
-  %t2162 =w add %sym, 16
-  %t2164 =w loadw %t2162
-  %sym =w copy %t2164
+  %t2182 =w add %sym, 8
+  %t2184 =w loadw %t2182
+  %sym =w copy %t2184
   jmp @L_for_begin_154
   @L_112
-  %t2166 =w copy 1
-  %t2167 =w copy %t2166
-  %t2168 =w copy 24
-  %t2169 =w copy %t2168
-  %t2170 =w call $calloc(w %t2167, w %t2169)
-  %sym =w copy %t2170
-  %t2171 =w add %sym, 0
-  storew %t2171, %var
+  %t2186 =w copy 1
+  %t2187 =w copy %t2186
+  %t2188 =w copy 12
+  %t2189 =w copy %t2188
+  %t2190 =w call $calloc(w %t2187, w %t2189)
+  %sym =w copy %t2190
+  %t2191 =w add %sym, 0
+  storew %t2191, %var
   @L_if_begin_156
-  %t2174 =w add %bb, 29808
-  %t2173 =w add %t2174, 0
-  %t2176 =w loadw %t2173
-  %t2177 =b ceq %t2176, 0
-  jnz %t2177, @L_if_then_156, @L_if_else_156
+  %t2194 =w add %bb, 4580
+  %t2193 =w add %t2194, 0
+  %t2196 =w loadw %t2193
+  %t2197 =b ceq %t2196, 0
+  jnz %t2197, @L_if_then_156, @L_if_else_156
   @L_if_then_156
-  %t2178 =w add %sym, 8
-  %t2180 =w copy 0
-  storew %t2178, %t2180
-  %t2182 =w add %bb, 29808
-  %t2181 =w add %t2182, 0
-  storew %t2181, %sym
-  %t2185 =w add %bb, 29808
-  %t2184 =w add %t2185, 8
-  storew %t2184, %sym
+  %t2198 =w add %sym, 4
+  %t2200 =w copy 0
+  storew %t2198, %t2200
+  %t2202 =w add %bb, 4580
+  %t2201 =w add %t2202, 0
+  storew %t2201, %sym
+  %t2205 =w add %bb, 4580
+  %t2204 =w add %t2205, 4
+  storew %t2204, %sym
   jmp @L_if_end_156
   @L_if_else_156
-  %t2187 =w add %sym, 8
-  %t2192 =w add %bb, 29808
-  %t2191 =w add %t2192, 8
-  %t2194 =w loadw %t2191
-  %t2189 =w add %t2194, 8
-  %t2195 =w loadw %t2189
-  %t2196 =w copy 1
-  %t2197 =w add %t2195, %t2196
-  storew %t2187, %t2197
-  %t2201 =w add %bb, 29808
-  %t2200 =w add %t2201, 8
-  %t2203 =w loadw %t2200
-  %t2198 =w add %t2203, 16
-  storew %t2198, %sym
-  %t2205 =w add %bb, 29808
-  %t2204 =w add %t2205, 8
-  storew %t2204, %sym
+  %t2207 =w add %sym, 4
+  %t2212 =w add %bb, 4580
+  %t2211 =w add %t2212, 4
+  %t2214 =w loadw %t2211
+  %t2209 =w add %t2214, 4
+  %t2215 =w loadw %t2209
+  %t2216 =w copy 1
+  %t2217 =w add %t2215, %t2216
+  storew %t2207, %t2217
+  %t2221 =w add %bb, 4580
+  %t2220 =w add %t2221, 4
+  %t2223 =w loadw %t2220
+  %t2218 =w add %t2223, 8
+  storew %t2218, %sym
+  %t2225 =w add %bb, 4580
+  %t2224 =w add %t2225, 4
+  storew %t2224, %sym
   @L_if_end_156
   ret
 }
 function v $add_insn(w %block, w %bb, w %op, w %rd, w %rs1, w %rs2, w %sz, w %str) {
-  %n =w alloc 8
+  %n =w alloc 1
   @L_if_begin_157
-  %t2207 =b ceq %bb, 0
-  jnz %t2207, @L_if_then_157, @L_if_else_157
+  %t2227 =b ceq %bb, 0
+  jnz %t2227, @L_if_then_157, @L_if_else_157
   @L_if_then_157
   ret
   @L_if_else_157
-  %t2208 =w add %bb, 29800
-  storew %t2208, %block
-  %t2211 =w copy 1
-  %t2212 =w copy %t2211
-  %t2213 =w copy 136
-  %t2214 =w copy %t2213
-  %t2215 =w call $calloc(w %t2212, w %t2214)
-  %n =w copy %t2215
-  %t2216 =w add %n, 20
-  storew %t2216, %op
-  %t2218 =w add %n, 24
-  storew %t2218, %rd
-  %t2220 =w add %n, 32
-  storew %t2220, %rs1
-  %t2222 =w add %n, 40
-  storew %t2222, %rs2
-  %t2224 =w add %n, 48
-  storew %t2224, %sz
-  %t2226 =w add %n, 56
-  storew %t2226, %bb
+  %t2228 =w add %bb, 4576
+  storew %t2228, %block
+  %t2231 =w copy 1
+  %t2232 =w copy %t2231
+  %t2233 =w copy 108
+  %t2234 =w copy %t2233
+  %t2235 =w call $calloc(w %t2232, w %t2234)
+  %n =w copy %t2235
+  %t2236 =w add %n, 12
+  storew %t2236, %op
+  %t2238 =w add %n, 16
+  storew %t2238, %rd
+  %t2240 =w add %n, 20
+  storew %t2240, %rs1
+  %t2242 =w add %n, 24
+  storew %t2242, %rs2
+  %t2244 =w add %n, 28
+  storew %t2244, %sz
+  %t2246 =w add %n, 36
+  storew %t2246, %bb
   @L_if_begin_158
   jnz %str, @L_if_then_158, @L_if_else_158
   @L_if_then_158
-  %t2228 =w add %n, 72
-  %t2230 =b loadb %t2228
-  %t2231 =w copy %t2230
-  %t2232 =w copy %str
-  %t2233 =w call $strcpy(w %t2231, w %t2232)
+  %t2248 =w add %n, 41
+  %t2250 =b loadb %t2248
+  %t2251 =w copy %t2250
+  %t2252 =w copy %str
+  %t2253 =w call $strcpy(w %t2251, w %t2252)
   jmp @L_if_end_158
   @L_if_else_158
   @L_if_end_158
   @L_if_begin_159
-  %t2235 =w add %bb, 0
-  %t2234 =w add %t2235, 0
-  %t2237 =w loadw %t2234
-  %t2238 =b ceq %t2237, 0
-  jnz %t2238, @L_if_then_159, @L_if_else_159
+  %t2255 =w add %bb, 0
+  %t2254 =w add %t2255, 0
+  %t2257 =w loadw %t2254
+  %t2258 =b ceq %t2257, 0
+  jnz %t2258, @L_if_then_159, @L_if_else_159
   @L_if_then_159
-  %t2240 =w add %bb, 0
-  %t2239 =w add %t2240, 0
-  storew %t2239, %n
+  %t2260 =w add %bb, 0
+  %t2259 =w add %t2260, 0
+  storew %t2259, %n
   jmp @L_if_end_159
   @L_if_else_159
-  %t2245 =w add %bb, 0
-  %t2244 =w add %t2245, 8
-  %t2247 =w loadw %t2244
-  %t2242 =w add %t2247, 0
-  storew %t2242, %n
+  %t2265 =w add %bb, 0
+  %t2264 =w add %t2265, 4
+  %t2267 =w loadw %t2264
+  %t2262 =w add %t2267, 0
+  storew %t2262, %n
   @L_if_end_159
-  %t2248 =w add %n, 8
-  %t2251 =w add %bb, 0
-  %t2250 =w add %t2251, 8
-  %t2253 =w loadw %t2250
-  storew %t2248, %t2253
-  %t2255 =w add %bb, 0
-  %t2254 =w add %t2255, 8
-  storew %t2254, %n
+  %t2268 =w add %n, 4
+  %t2271 =w add %bb, 0
+  %t2270 =w add %t2271, 4
+  %t2273 =w loadw %t2270
+  storew %t2268, %t2273
+  %t2275 =w add %bb, 0
+  %t2274 =w add %t2275, 4
+  storew %t2274, %n
   ret
 }
 function v $global_init() {
-  %t2257 =w gaddr %elf_code_start
-  %t2258 =w copy 65536
-  %t2259 =w add %t2258, $elf_header_len
-  %t2257 =w copy %t2259
-  %t2260 =w gaddr %BLOCKS
-  %t2261 =w copy -1394917376
-  %t2262 =w copy %t2261
-  %t2263 =w call $malloc(w %t2262)
-  %t2260 =w copy %t2263
-  %t2264 =w gaddr %MACROS
-  %t2265 =w copy 7823360
-  %t2266 =w copy %t2265
-  %t2267 =w call $malloc(w %t2266)
-  %t2264 =w copy %t2267
-  %t2268 =w gaddr %FUNCS
-  %t2269 =w copy 4362240
-  %t2270 =w copy %t2269
-  %t2271 =w call $malloc(w %t2270)
-  %t2268 =w copy %t2271
-  %t2272 =w gaddr %FUNC_TRIES
-  %t2273 =w copy 1114560
-  %t2274 =w copy %t2273
-  %t2275 =w call $malloc(w %t2274)
-  %t2272 =w copy %t2275
-  %t2276 =w gaddr %TYPES
-  %t2277 =w copy 3870720
-  %t2278 =w copy %t2277
-  %t2279 =w call $malloc(w %t2278)
-  %t2276 =w copy %t2279
-  %t2280 =w gaddr %GLOBAL_IR
-  %t2281 =w copy 18432
+  %t2277 =w gaddr %elf_code_start
+  %t2278 =w copy 65536
+  %t2279 =w add %t2278, $elf_header_len
+  %t2277 =w copy %t2279
+  %t2280 =w gaddr %BLOCKS
+  %t2281 =w copy 1413169152
   %t2282 =w copy %t2281
   %t2283 =w call $malloc(w %t2282)
   %t2280 =w copy %t2283
-  %t2284 =w gaddr %PH1_IR
-  %t2285 =w copy 3600000
+  %t2284 =w gaddr %MACROS
+  %t2285 =w copy 3854336
   %t2286 =w copy %t2285
   %t2287 =w call $malloc(w %t2286)
   %t2284 =w copy %t2287
-  %t2288 =w gaddr %PH2_IR
-  %t2289 =w copy 4400000
+  %t2288 =w gaddr %FUNCS
+  %t2289 =w copy 2127872
   %t2290 =w copy %t2289
   %t2291 =w call $malloc(w %t2290)
   %t2288 =w copy %t2291
-  %t2292 =w gaddr %LABEL_LUT
-  %t2293 =w copy 147456
+  %t2292 =w gaddr %FUNC_TRIES
+  %t2293 =w copy 1114560
   %t2294 =w copy %t2293
   %t2295 =w call $malloc(w %t2294)
   %t2292 =w copy %t2295
-  %t2296 =w gaddr %SOURCE
-  %t2297 =w copy 327680
+  %t2296 =w gaddr %TYPES
+  %t2297 =w copy 1887232
   %t2298 =w copy %t2297
   %t2299 =w call $malloc(w %t2298)
   %t2296 =w copy %t2299
-  %t2300 =w gaddr %ALIASES
-  %t2301 =w copy 66560
+  %t2300 =w gaddr %GLOBAL_IR
+  %t2301 =w copy 14336
   %t2302 =w copy %t2301
   %t2303 =w call $malloc(w %t2302)
   %t2300 =w copy %t2303
-  %t2304 =w gaddr %CONSTANTS
-  %t2305 =w copy 36864
+  %t2304 =w gaddr %PH1_IR
+  %t2305 =w copy 2800000
   %t2306 =w copy %t2305
   %t2307 =w call $malloc(w %t2306)
   %t2304 =w copy %t2307
-  %t2308 =w gaddr %elf_code
-  %t2309 =w copy 262144
+  %t2308 =w gaddr %PH2_IR
+  %t2309 =w copy 3200000
   %t2310 =w copy %t2309
   %t2311 =w call $malloc(w %t2310)
   %t2308 =w copy %t2311
-  %t2312 =w gaddr %elf_data
-  %t2313 =w copy 262144
+  %t2312 =w gaddr %LABEL_LUT
+  %t2313 =w copy 147456
   %t2314 =w copy %t2313
   %t2315 =w call $malloc(w %t2314)
   %t2312 =w copy %t2315
-  %t2316 =w gaddr %elf_header
-  %t2317 =w copy 1024
+  %t2316 =w gaddr %SOURCE
+  %t2317 =w copy 327680
   %t2318 =w copy %t2317
   %t2319 =w call $malloc(w %t2318)
   %t2316 =w copy %t2319
-  %t2320 =w gaddr %elf_symtab
-  %t2321 =w copy 65536
+  %t2320 =w gaddr %ALIASES
+  %t2321 =w copy 66560
   %t2322 =w copy %t2321
   %t2323 =w call $malloc(w %t2322)
   %t2320 =w copy %t2323
-  %t2324 =w gaddr %elf_strtab
-  %t2325 =w copy 65536
+  %t2324 =w gaddr %CONSTANTS
+  %t2325 =w copy 36864
   %t2326 =w copy %t2325
   %t2327 =w call $malloc(w %t2326)
   %t2324 =w copy %t2327
-  %t2328 =w gaddr %elf_section
-  %t2329 =w copy 1024
+  %t2328 =w gaddr %elf_code
+  %t2329 =w copy 262144
   %t2330 =w copy %t2329
   %t2331 =w call $malloc(w %t2330)
   %t2328 =w copy %t2331
-  %t2334 =w copy 0
-  %t2335 =w add $FUNCS, %t2334
-  %t2332 =w add %t2335, 8504
-  %t2336 =w copy 4
-  storew %t2332, %t2336
+  %t2332 =w gaddr %elf_data
+  %t2333 =w copy 262144
+  %t2334 =w copy %t2333
+  %t2335 =w call $malloc(w %t2334)
+  %t2332 =w copy %t2335
+  %t2336 =w gaddr %elf_header
+  %t2337 =w copy 1024
+  %t2338 =w copy %t2337
+  %t2339 =w call $malloc(w %t2338)
+  %t2336 =w copy %t2339
+  %t2340 =w gaddr %elf_symtab
+  %t2341 =w copy 65536
+  %t2342 =w copy %t2341
+  %t2343 =w call $malloc(w %t2342)
+  %t2340 =w copy %t2343
+  %t2344 =w gaddr %elf_strtab
+  %t2345 =w copy 65536
+  %t2346 =w copy %t2345
+  %t2347 =w call $malloc(w %t2346)
+  %t2344 =w copy %t2347
+  %t2348 =w gaddr %elf_section
+  %t2349 =w copy 1024
+  %t2350 =w copy %t2349
+  %t2351 =w call $malloc(w %t2350)
+  %t2348 =w copy %t2351
+  %t2354 =w copy 0
+  %t2355 =w add $FUNCS, %t2354
+  %t2352 =w add %t2355, 4148
+  %t2356 =w copy 4
+  storew %t2352, %t2356
   ret
 }
 function v $global_release() {
-  %t2337 =w copy $BLOCKS
-  call $free(w %t2337)
-  %t2338 =w copy $MACROS
-  call $free(w %t2338)
-  %t2339 =w copy $FUNCS
-  call $free(w %t2339)
-  %t2340 =w copy $FUNC_TRIES
-  call $free(w %t2340)
-  %t2341 =w copy $TYPES
-  call $free(w %t2341)
-  %t2342 =w copy $GLOBAL_IR
-  call $free(w %t2342)
-  %t2343 =w copy $PH1_IR
-  call $free(w %t2343)
-  %t2344 =w copy $PH2_IR
-  call $free(w %t2344)
-  %t2345 =w copy $LABEL_LUT
-  call $free(w %t2345)
-  %t2346 =w copy $SOURCE
-  call $free(w %t2346)
-  %t2347 =w copy $ALIASES
-  call $free(w %t2347)
-  %t2348 =w copy $CONSTANTS
-  call $free(w %t2348)
-  %t2349 =w copy $elf_code
-  call $free(w %t2349)
-  %t2350 =w copy $elf_data
-  call $free(w %t2350)
-  %t2351 =w copy $elf_header
-  call $free(w %t2351)
-  %t2352 =w copy $elf_symtab
-  call $free(w %t2352)
-  %t2353 =w copy $elf_strtab
-  call $free(w %t2353)
-  %t2354 =w copy $elf_section
-  call $free(w %t2354)
+  %t2357 =w copy $BLOCKS
+  call $free(w %t2357)
+  %t2358 =w copy $MACROS
+  call $free(w %t2358)
+  %t2359 =w copy $FUNCS
+  call $free(w %t2359)
+  %t2360 =w copy $FUNC_TRIES
+  call $free(w %t2360)
+  %t2361 =w copy $TYPES
+  call $free(w %t2361)
+  %t2362 =w copy $GLOBAL_IR
+  call $free(w %t2362)
+  %t2363 =w copy $PH1_IR
+  call $free(w %t2363)
+  %t2364 =w copy $PH2_IR
+  call $free(w %t2364)
+  %t2365 =w copy $LABEL_LUT
+  call $free(w %t2365)
+  %t2366 =w copy $SOURCE
+  call $free(w %t2366)
+  %t2367 =w copy $ALIASES
+  call $free(w %t2367)
+  %t2368 =w copy $CONSTANTS
+  call $free(w %t2368)
+  %t2369 =w copy $elf_code
+  call $free(w %t2369)
+  %t2370 =w copy $elf_data
+  call $free(w %t2370)
+  %t2371 =w copy $elf_header
+  call $free(w %t2371)
+  %t2372 =w copy $elf_symtab
+  call $free(w %t2372)
+  %t2373 =w copy $elf_strtab
+  call $free(w %t2373)
+  %t2374 =w copy $elf_section
+  call $free(w %t2374)
   ret
 }
 function v $print_indent(w %indent) {
   %i =w alloc 4
-  %t2356 =w copy 0
-  %i =w copy %t2356
+  %t2376 =w copy 0
+  %i =w copy %t2376
   @L_for_begin_160
-  %t2357 =w clt %i, %indent
-  jnz %t2357, @L_for_then_160, @L_122
+  %t2377 =w clt %i, %indent
+  jnz %t2377, @L_for_then_160, @L_122
   @L_for_then_160
-  %t2358 =w copy $L_124
-  %t2359 =w call $printf(w %t2358)
+  %t2378 =w copy $L_124
+  %t2379 =w call $printf(w %t2378)
   @L_123
-  %t2360 =w copy 1
-  %i =w add %i, %t2360
-  %t2361 =w copy -1
-  %t2362 =w add %i, %t2361
+  %t2380 =w copy 1
+  %i =w add %i, %t2380
+  %t2381 =w copy -1
+  %t2382 =w add %i, %t2381
   jmp @L_for_begin_160
   @L_122
   ret
 }
 function v $dump_ph1_ir() {
   %indent =w alloc 4
-  %ph1_ir =w alloc 8
-  %fn =w alloc 8
+  %ph1_ir =w alloc 1
+  %fn =w alloc 1
   %rd =b alloc 32
   %op1 =b alloc 32
   %op2 =b alloc 32
@@ -3683,707 +3737,783 @@ function v $dump_ph1_ir() {
   %j =w alloc 4
   %k =w alloc 4
   %j =w alloc 4
-  %t2364 =w copy 0
-  %indent =w copy %t2364
-  %t2366 =w copy 0
-  %i =w copy %t2366
+  %t2384 =w copy 0
+  %indent =w copy %t2384
+  %t2386 =w copy 0
+  %i =w copy %t2386
   @L_for_begin_161
-  %t2367 =w clt %i, $ph1_ir_idx
-  jnz %t2367, @L_for_then_161, @L_125
+  %t2387 =w clt %i, $ph1_ir_idx
+  jnz %t2387, @L_for_then_161, @L_125
   @L_for_then_161
-  %t2370 =w copy 72
-  %t2371 =w mul %i, %t2370
-  %t2372 =w add $PH1_IR, %t2371
-  %ph1_ir =w copy %t2372
+  %t2390 =w copy 56
+  %t2391 =w mul %i, %t2390
+  %t2392 =w add $PH1_IR, %t2391
+  %ph1_ir =w copy %t2392
   @L_if_begin_162
-  %t2373 =w add %ph1_ir, 48
-  %t2375 =w loadw %t2373
-  jnz %t2375, @L_if_then_162, @L_if_else_162
+  %t2393 =w add %ph1_ir, 44
+  %t2395 =w loadw %t2393
+  jnz %t2395, @L_if_then_162, @L_if_else_162
   @L_if_then_162
-  %t2376 =w copy %rd
-  %t2379 =w add %ph1_ir, 48
-  %t2381 =w loadw %t2379
-  %t2377 =w add %t2381, 32
-  %t2382 =b loadb %t2377
-  %t2383 =w copy %t2382
-  %t2384 =w call $strcpy(w %t2376, w %t2383)
+  %t2396 =w copy %rd
+  %t2399 =w add %ph1_ir, 44
+  %t2401 =w loadw %t2399
+  %t2397 =w add %t2401, 32
+  %t2402 =b loadb %t2397
+  %t2403 =w copy %t2402
+  %t2404 =w call $strcpy(w %t2396, w %t2403)
   jmp @L_if_end_162
   @L_if_else_162
   @L_if_end_162
   @L_if_begin_163
-  %t2385 =w add %ph1_ir, 56
-  %t2387 =w loadw %t2385
-  jnz %t2387, @L_if_then_163, @L_if_else_163
+  %t2405 =w add %ph1_ir, 48
+  %t2407 =w loadw %t2405
+  jnz %t2407, @L_if_then_163, @L_if_else_163
   @L_if_then_163
-  %t2388 =w copy %op1
-  %t2391 =w add %ph1_ir, 56
-  %t2393 =w loadw %t2391
-  %t2389 =w add %t2393, 32
-  %t2394 =b loadb %t2389
-  %t2395 =w copy %t2394
-  %t2396 =w call $strcpy(w %t2388, w %t2395)
+  %t2408 =w copy %op1
+  %t2411 =w add %ph1_ir, 48
+  %t2413 =w loadw %t2411
+  %t2409 =w add %t2413, 32
+  %t2414 =b loadb %t2409
+  %t2415 =w copy %t2414
+  %t2416 =w call $strcpy(w %t2408, w %t2415)
   jmp @L_if_end_163
   @L_if_else_163
   @L_if_end_163
   @L_if_begin_164
-  %t2397 =w add %ph1_ir, 64
-  %t2399 =w loadw %t2397
-  jnz %t2399, @L_if_then_164, @L_if_else_164
+  %t2417 =w add %ph1_ir, 52
+  %t2419 =w loadw %t2417
+  jnz %t2419, @L_if_then_164, @L_if_else_164
   @L_if_then_164
-  %t2400 =w copy %op2
-  %t2403 =w add %ph1_ir, 64
-  %t2405 =w loadw %t2403
-  %t2401 =w add %t2405, 32
-  %t2406 =b loadb %t2401
-  %t2407 =w copy %t2406
-  %t2408 =w call $strcpy(w %t2400, w %t2407)
+  %t2420 =w copy %op2
+  %t2423 =w add %ph1_ir, 52
+  %t2425 =w loadw %t2423
+  %t2421 =w add %t2425, 32
+  %t2426 =b loadb %t2421
+  %t2427 =w copy %t2426
+  %t2428 =w call $strcpy(w %t2420, w %t2427)
   jmp @L_if_end_164
   @L_if_else_164
   @L_if_end_164
-  %t2409 =w add %ph1_ir, 0
-  %t2411 =w loadw %t2409
-  %t2412 =w ceq %t2411, 35
-  jnz %t2412, @L_224, @L_case_165
+  %t2430 =w add %ph1_ir, 0
+  %t2432 =w loadw %t2430
+  %t2429 =w ceq %t2432, 35
+  jnz %t2429, @L_224, @L_case_165
   @L_case_165
-  %t2413 =w ceq %t2411, 36
-  jnz %t2413, @L_222, @L_case_166
+  %t2433 =w add %ph1_ir, 0
+  %t2435 =w loadw %t2433
+  %t2429 =w ceq %t2435, 36
+  jnz %t2429, @L_222, @L_case_166
   @L_case_166
-  %t2414 =w ceq %t2411, 39
-  jnz %t2414, @L_220, @L_case_167
+  %t2436 =w add %ph1_ir, 0
+  %t2438 =w loadw %t2436
+  %t2429 =w ceq %t2438, 39
+  jnz %t2429, @L_220, @L_case_167
   @L_case_167
-  %t2415 =w ceq %t2411, 38
-  jnz %t2415, @L_218, @L_case_168
+  %t2439 =w add %ph1_ir, 0
+  %t2441 =w loadw %t2439
+  %t2429 =w ceq %t2441, 38
+  jnz %t2429, @L_218, @L_case_168
   @L_case_168
-  %t2416 =w ceq %t2411, 37
-  jnz %t2416, @L_216, @L_case_169
+  %t2442 =w add %ph1_ir, 0
+  %t2444 =w loadw %t2442
+  %t2429 =w ceq %t2444, 37
+  jnz %t2429, @L_216, @L_case_169
   @L_case_169
-  %t2417 =w ceq %t2411, 48
-  jnz %t2417, @L_214, @L_case_170
+  %t2445 =w add %ph1_ir, 0
+  %t2447 =w loadw %t2445
+  %t2429 =w ceq %t2447, 48
+  jnz %t2429, @L_214, @L_case_170
   @L_case_170
-  %t2418 =w ceq %t2411, 49
-  jnz %t2418, @L_212, @L_case_171
+  %t2448 =w add %ph1_ir, 0
+  %t2450 =w loadw %t2448
+  %t2429 =w ceq %t2450, 49
+  jnz %t2429, @L_212, @L_case_171
   @L_case_171
-  %t2419 =w ceq %t2411, 46
-  jnz %t2419, @L_210, @L_case_172
+  %t2451 =w add %ph1_ir, 0
+  %t2453 =w loadw %t2451
+  %t2429 =w ceq %t2453, 46
+  jnz %t2429, @L_210, @L_case_172
   @L_case_172
-  %t2420 =w ceq %t2411, 47
-  jnz %t2420, @L_208, @L_case_173
+  %t2454 =w add %ph1_ir, 0
+  %t2456 =w loadw %t2454
+  %t2429 =w ceq %t2456, 47
+  jnz %t2429, @L_208, @L_case_173
   @L_case_173
-  %t2421 =w ceq %t2411, 43
-  jnz %t2421, @L_206, @L_case_174
+  %t2457 =w add %ph1_ir, 0
+  %t2459 =w loadw %t2457
+  %t2429 =w ceq %t2459, 43
+  jnz %t2429, @L_206, @L_case_174
   @L_case_174
-  %t2422 =w ceq %t2411, 45
-  jnz %t2422, @L_204, @L_case_175
+  %t2460 =w add %ph1_ir, 0
+  %t2462 =w loadw %t2460
+  %t2429 =w ceq %t2462, 45
+  jnz %t2429, @L_204, @L_case_175
   @L_case_175
-  %t2423 =w ceq %t2411, 42
-  jnz %t2423, @L_202, @L_case_176
+  %t2463 =w add %ph1_ir, 0
+  %t2465 =w loadw %t2463
+  %t2429 =w ceq %t2465, 42
+  jnz %t2429, @L_202, @L_case_176
   @L_case_176
-  %t2424 =w ceq %t2411, 44
-  jnz %t2424, @L_200, @L_case_177
+  %t2466 =w add %ph1_ir, 0
+  %t2468 =w loadw %t2466
+  %t2429 =w ceq %t2468, 44
+  jnz %t2429, @L_200, @L_case_177
   @L_case_177
-  %t2425 =w ceq %t2411, 41
-  jnz %t2425, @L_198, @L_case_178
+  %t2469 =w add %ph1_ir, 0
+  %t2471 =w loadw %t2469
+  %t2429 =w ceq %t2471, 41
+  jnz %t2429, @L_198, @L_case_178
   @L_case_178
-  %t2426 =w ceq %t2411, 40
-  jnz %t2426, @L_196, @L_case_179
+  %t2472 =w add %ph1_ir, 0
+  %t2474 =w loadw %t2472
+  %t2429 =w ceq %t2474, 40
+  jnz %t2429, @L_196, @L_case_179
   @L_case_179
-  %t2427 =w ceq %t2411, 33
-  jnz %t2427, @L_194, @L_case_180
+  %t2475 =w add %ph1_ir, 0
+  %t2477 =w loadw %t2475
+  %t2429 =w ceq %t2477, 33
+  jnz %t2429, @L_194, @L_case_180
   @L_case_180
-  %t2428 =w ceq %t2411, 32
-  jnz %t2428, @L_192, @L_case_181
+  %t2478 =w add %ph1_ir, 0
+  %t2480 =w loadw %t2478
+  %t2429 =w ceq %t2480, 32
+  jnz %t2429, @L_192, @L_case_181
   @L_case_181
-  %t2429 =w ceq %t2411, 31
+  %t2481 =w add %ph1_ir, 0
+  %t2483 =w loadw %t2481
+  %t2429 =w ceq %t2483, 31
   jnz %t2429, @L_190, @L_case_182
   @L_case_182
-  %t2430 =w ceq %t2411, 30
-  jnz %t2430, @L_188, @L_case_183
+  %t2484 =w add %ph1_ir, 0
+  %t2486 =w loadw %t2484
+  %t2429 =w ceq %t2486, 30
+  jnz %t2429, @L_188, @L_case_183
   @L_case_183
-  %t2431 =w ceq %t2411, 29
-  jnz %t2431, @L_186, @L_case_184
+  %t2487 =w add %ph1_ir, 0
+  %t2489 =w loadw %t2487
+  %t2429 =w ceq %t2489, 29
+  jnz %t2429, @L_186, @L_case_184
   @L_case_184
-  %t2432 =w ceq %t2411, 50
-  jnz %t2432, @L_184, @L_case_185
+  %t2490 =w add %ph1_ir, 0
+  %t2492 =w loadw %t2490
+  %t2429 =w ceq %t2492, 50
+  jnz %t2429, @L_184, @L_case_185
   @L_case_185
-  %t2433 =w ceq %t2411, 6
-  jnz %t2433, @L_182, @L_case_186
+  %t2493 =w add %ph1_ir, 0
+  %t2495 =w loadw %t2493
+  %t2429 =w ceq %t2495, 6
+  jnz %t2429, @L_182, @L_case_186
   @L_case_186
-  %t2434 =w ceq %t2411, 28
-  jnz %t2434, @L_179, @L_case_187
+  %t2496 =w add %ph1_ir, 0
+  %t2498 =w loadw %t2496
+  %t2429 =w ceq %t2498, 28
+  jnz %t2429, @L_179, @L_case_187
   @L_case_187
-  %t2435 =w ceq %t2411, 27
-  jnz %t2435, @L_177, @L_case_188
+  %t2499 =w add %ph1_ir, 0
+  %t2501 =w loadw %t2499
+  %t2429 =w ceq %t2501, 27
+  jnz %t2429, @L_177, @L_case_188
   @L_case_188
-  %t2436 =w ceq %t2411, 7
-  jnz %t2436, @L_174, @L_case_189
+  %t2502 =w add %ph1_ir, 0
+  %t2504 =w loadw %t2502
+  %t2429 =w ceq %t2504, 7
+  jnz %t2429, @L_174, @L_case_189
   @L_case_189
-  %t2437 =w ceq %t2411, 15
-  jnz %t2437, @L_172, @L_case_190
+  %t2505 =w add %ph1_ir, 0
+  %t2507 =w loadw %t2505
+  %t2429 =w ceq %t2507, 15
+  jnz %t2429, @L_172, @L_case_190
   @L_case_190
-  %t2438 =w ceq %t2411, 5
-  jnz %t2438, @L_170, @L_case_191
+  %t2508 =w add %ph1_ir, 0
+  %t2510 =w loadw %t2508
+  %t2429 =w ceq %t2510, 5
+  jnz %t2429, @L_170, @L_case_191
   @L_case_191
-  %t2439 =w ceq %t2411, 4
-  jnz %t2439, @L_168, @L_case_192
+  %t2511 =w add %ph1_ir, 0
+  %t2513 =w loadw %t2511
+  %t2429 =w ceq %t2513, 4
+  jnz %t2429, @L_168, @L_case_192
   @L_case_192
-  %t2440 =w ceq %t2411, 14
-  jnz %t2440, @L_166, @L_case_193
+  %t2514 =w add %ph1_ir, 0
+  %t2516 =w loadw %t2514
+  %t2429 =w ceq %t2516, 14
+  jnz %t2429, @L_166, @L_case_193
   @L_case_193
-  %t2441 =w ceq %t2411, 13
-  jnz %t2441, @L_164, @L_case_194
+  %t2517 =w add %ph1_ir, 0
+  %t2519 =w loadw %t2517
+  %t2429 =w ceq %t2519, 13
+  jnz %t2429, @L_164, @L_case_194
   @L_case_194
-  %t2442 =w ceq %t2411, 12
-  jnz %t2442, @L_162, @L_case_195
+  %t2520 =w add %ph1_ir, 0
+  %t2522 =w loadw %t2520
+  %t2429 =w ceq %t2522, 12
+  jnz %t2429, @L_162, @L_case_195
   @L_case_195
-  %t2443 =w ceq %t2411, 9
-  jnz %t2443, @L_160, @L_case_196
+  %t2523 =w add %ph1_ir, 0
+  %t2525 =w loadw %t2523
+  %t2429 =w ceq %t2525, 9
+  jnz %t2429, @L_160, @L_case_196
   @L_case_196
-  %t2444 =w ceq %t2411, 21
-  jnz %t2444, @L_158, @L_case_197
+  %t2526 =w add %ph1_ir, 0
+  %t2528 =w loadw %t2526
+  %t2429 =w ceq %t2528, 21
+  jnz %t2429, @L_158, @L_case_197
   @L_case_197
-  %t2445 =w ceq %t2411, 11
-  jnz %t2445, @L_156, @L_case_198
+  %t2529 =w add %ph1_ir, 0
+  %t2531 =w loadw %t2529
+  %t2429 =w ceq %t2531, 11
+  jnz %t2429, @L_156, @L_case_198
   @L_case_198
-  %t2446 =w ceq %t2411, 10
-  jnz %t2446, @L_154, @L_case_199
+  %t2532 =w add %ph1_ir, 0
+  %t2534 =w loadw %t2532
+  %t2429 =w ceq %t2534, 10
+  jnz %t2429, @L_154, @L_case_199
   @L_case_199
-  %t2447 =w ceq %t2411, 8
-  jnz %t2447, @L_147, @L_case_200
+  %t2535 =w add %ph1_ir, 0
+  %t2537 =w loadw %t2535
+  %t2429 =w ceq %t2537, 8
+  jnz %t2429, @L_147, @L_case_200
   @L_case_200
-  %t2448 =w ceq %t2411, 17
-  jnz %t2448, @L_145, @L_case_201
+  %t2538 =w add %ph1_ir, 0
+  %t2540 =w loadw %t2538
+  %t2429 =w ceq %t2540, 17
+  jnz %t2429, @L_145, @L_case_201
   @L_case_201
-  %t2449 =w ceq %t2411, 16
-  jnz %t2449, @L_143, @L_case_202
+  %t2541 =w add %ph1_ir, 0
+  %t2543 =w loadw %t2541
+  %t2429 =w ceq %t2543, 16
+  jnz %t2429, @L_143, @L_case_202
   @L_case_202
-  %t2450 =w ceq %t2411, 3
-  jnz %t2450, @L_128, @L_226
+  %t2544 =w add %ph1_ir, 0
+  %t2546 =w loadw %t2544
+  %t2429 =w ceq %t2546, 3
+  jnz %t2429, @L_128, @L_226
   @L_128
-  %t2453 =w add %ph1_ir, 4
-  %t2455 =b loadb %t2453
-  %t2456 =w copy %t2455
-  %t2457 =w call $find_func(w %t2456)
-  %fn =w copy %t2457
-  %t2458 =w copy $L_129
-  %t2460 =w add %fn, 0
-  %t2459 =w add %t2460, 0
-  %t2462 =b loadb %t2459
-  %t2463 =w copy %t2462
-  %t2464 =w call $printf(w %t2458, w %t2463)
-  %t2466 =w copy 0
-  %j =w copy %t2466
+  %t2548 =w add %ph1_ir, 4
+  %t2550 =b loadb %t2548
+  %t2551 =w copy %t2550
+  %t2552 =w call $find_func(w %t2551)
+  %fn =w copy %t2552
+  %t2553 =w copy $L_129
+  %t2555 =w add %fn, 0
+  %t2554 =w add %t2555, 0
+  %t2557 =b loadb %t2554
+  %t2558 =w copy %t2557
+  %t2559 =w call $printf(w %t2553, w %t2558)
+  %t2561 =w copy 0
+  %j =w copy %t2561
   @L_for_begin_204
-  %t2468 =w add %fn, 0
-  %t2467 =w add %t2468, 64
-  %t2470 =w loadw %t2467
-  %t2471 =w clt %j, %t2470
-  jnz %t2471, @L_for_then_204, @L_130
+  %t2563 =w add %fn, 0
+  %t2562 =w add %t2563, 64
+  %t2565 =w loadw %t2562
+  %t2566 =w clt %j, %t2565
+  jnz %t2566, @L_for_then_204, @L_130
   @L_for_then_204
-  %t2472 =w copy $L_132
-  %t2473 =w call $printf(w %t2472)
+  %t2567 =w copy $L_132
+  %t2568 =w call $printf(w %t2567)
   @L_131
-  %t2474 =w copy 1
-  %j =w add %j, %t2474
-  %t2475 =w copy -1
-  %t2476 =w add %j, %t2475
+  %t2569 =w copy 1
+  %j =w add %j, %t2569
+  %t2570 =w copy -1
+  %t2571 =w add %j, %t2570
   jmp @L_for_begin_204
   @L_130
-  %t2477 =w copy $L_133
-  %t2478 =w add %ph1_ir, 4
-  %t2480 =b loadb %t2478
-  %t2481 =w copy %t2480
-  %t2482 =w call $printf(w %t2477, w %t2481)
-  %t2484 =w copy 0
-  %j =w copy %t2484
+  %t2572 =w copy $L_133
+  %t2573 =w add %ph1_ir, 4
+  %t2575 =b loadb %t2573
+  %t2576 =w copy %t2575
+  %t2577 =w call $printf(w %t2572, w %t2576)
+  %t2579 =w copy 0
+  %j =w copy %t2579
   @L_for_begin_205
-  %t2485 =w add %fn, 8496
-  %t2487 =w loadw %t2485
-  %t2488 =w clt %j, %t2487
-  jnz %t2488, @L_for_then_205, @L_134
+  %t2580 =w add %fn, 4140
+  %t2582 =w loadw %t2580
+  %t2583 =w clt %j, %t2582
+  jnz %t2583, @L_for_then_205, @L_134
   @L_for_then_205
   @L_if_begin_206
-  %t2489 =w copy 0
-  %t2490 =w cne %j, %t2489
-  jnz %t2490, @L_if_then_206, @L_if_else_206
+  %t2584 =w copy 0
+  %t2585 =w cne %j, %t2584
+  jnz %t2585, @L_if_then_206, @L_if_else_206
   @L_if_then_206
-  %t2491 =w copy $L_136
-  %t2492 =w call $printf(w %t2491)
+  %t2586 =w copy $L_136
+  %t2587 =w call $printf(w %t2586)
   jmp @L_if_end_206
   @L_if_else_206
   @L_if_end_206
-  %t2493 =w copy $L_137
-  %t2496 =w add %fn, 944
-  %t2498 =b loadb %t2496
-  %t2499 =w copy 944
-  %t2500 =w mul %j, %t2499
-  %t2501 =w add %t2498, %t2500
-  %t2494 =w add %t2501, 0
-  %t2502 =b loadb %t2494
-  %t2503 =w copy %t2502
-  %t2504 =w call $printf(w %t2493, w %t2503)
-  %t2506 =w copy 0
-  %k =w copy %t2506
+  %t2588 =w copy $L_137
+  %t2591 =w add %fn, 460
+  %t2593 =b loadb %t2591
+  %t2594 =w copy 460
+  %t2595 =w mul %j, %t2594
+  %t2596 =w add %t2593, %t2595
+  %t2589 =w add %t2596, 0
+  %t2597 =b loadb %t2589
+  %t2598 =w copy %t2597
+  %t2599 =w call $printf(w %t2588, w %t2598)
+  %t2601 =w copy 0
+  %k =w copy %t2601
   @L_for_begin_207
-  %t2509 =w add %fn, 944
-  %t2511 =b loadb %t2509
-  %t2512 =w copy 944
-  %t2513 =w mul %j, %t2512
-  %t2514 =w add %t2511, %t2513
-  %t2507 =w add %t2514, 64
-  %t2515 =w loadw %t2507
-  %t2516 =w clt %k, %t2515
-  jnz %t2516, @L_for_then_207, @L_138
+  %t2604 =w add %fn, 460
+  %t2606 =b loadb %t2604
+  %t2607 =w copy 460
+  %t2608 =w mul %j, %t2607
+  %t2609 =w add %t2606, %t2608
+  %t2602 =w add %t2609, 64
+  %t2610 =w loadw %t2602
+  %t2611 =w clt %k, %t2610
+  jnz %t2611, @L_for_then_207, @L_138
   @L_for_then_207
-  %t2517 =w copy $L_140
-  %t2518 =w call $printf(w %t2517)
+  %t2612 =w copy $L_140
+  %t2613 =w call $printf(w %t2612)
   @L_139
-  %t2519 =w copy 1
-  %k =w add %k, %t2519
-  %t2520 =w copy -1
-  %t2521 =w add %k, %t2520
+  %t2614 =w copy 1
+  %k =w add %k, %t2614
+  %t2615 =w copy -1
+  %t2616 =w add %k, %t2615
   jmp @L_for_begin_207
   @L_138
-  %t2522 =w copy $L_141
-  %t2525 =w add %fn, 944
-  %t2527 =b loadb %t2525
-  %t2528 =w copy 944
-  %t2529 =w mul %j, %t2528
-  %t2530 =w add %t2527, %t2529
-  %t2523 =w add %t2530, 32
-  %t2531 =b loadb %t2523
-  %t2532 =w copy %t2531
-  %t2533 =w call $printf(w %t2522, w %t2532)
+  %t2617 =w copy $L_141
+  %t2620 =w add %fn, 460
+  %t2622 =b loadb %t2620
+  %t2623 =w copy 460
+  %t2624 =w mul %j, %t2623
+  %t2625 =w add %t2622, %t2624
+  %t2618 =w add %t2625, 32
+  %t2626 =b loadb %t2618
+  %t2627 =w copy %t2626
+  %t2628 =w call $printf(w %t2617, w %t2627)
   @L_135
-  %t2534 =w copy 1
-  %j =w add %j, %t2534
-  %t2535 =w copy -1
-  %t2536 =w add %j, %t2535
+  %t2629 =w copy 1
+  %j =w add %j, %t2629
+  %t2630 =w copy -1
+  %t2631 =w add %j, %t2630
   jmp @L_for_begin_205
   @L_134
-  %t2537 =w copy $L_142
-  %t2538 =w call $printf(w %t2537)
+  %t2632 =w copy $L_142
+  %t2633 =w call $printf(w %t2632)
   jmp @L_127
   @L_143
-  %t2539 =w copy %indent
-  call $print_indent(w %t2539)
-  %t2540 =w copy $L_144
-  %t2541 =w call $printf(w %t2540)
-  %t2542 =w copy 1
-  %indent =w add %indent, %t2542
-  %t2543 =w copy -1
-  %t2544 =w add %indent, %t2543
+  %t2634 =w copy %indent
+  call $print_indent(w %t2634)
+  %t2635 =w copy $L_144
+  %t2636 =w call $printf(w %t2635)
+  %t2637 =w copy 1
+  %indent =w add %indent, %t2637
+  %t2638 =w copy -1
+  %t2639 =w add %indent, %t2638
   jmp @L_127
   @L_145
-  %t2545 =w copy -1
-  %indent =w add %indent, %t2545
-  %t2546 =w copy 1
-  %t2547 =w add %indent, %t2546
-  %t2548 =w copy %indent
-  call $print_indent(w %t2548)
-  %t2549 =w copy $L_146
-  %t2550 =w call $printf(w %t2549)
+  %t2640 =w copy -1
+  %indent =w add %indent, %t2640
+  %t2641 =w copy 1
+  %t2642 =w add %indent, %t2641
+  %t2643 =w copy %indent
+  call $print_indent(w %t2643)
+  %t2644 =w copy $L_146
+  %t2645 =w call $printf(w %t2644)
   jmp @L_127
   @L_147
-  %t2551 =w copy %indent
-  call $print_indent(w %t2551)
-  %t2552 =w copy $L_148
-  %t2555 =w add %ph1_ir, 56
-  %t2557 =w loadw %t2555
-  %t2553 =w add %t2557, 0
-  %t2558 =b loadb %t2553
-  %t2559 =w copy %t2558
-  %t2560 =w call $printf(w %t2552, w %t2559)
-  %t2562 =w copy 0
-  %j =w copy %t2562
+  %t2646 =w copy %indent
+  call $print_indent(w %t2646)
+  %t2647 =w copy $L_148
+  %t2650 =w add %ph1_ir, 48
+  %t2652 =w loadw %t2650
+  %t2648 =w add %t2652, 0
+  %t2653 =b loadb %t2648
+  %t2654 =w copy %t2653
+  %t2655 =w call $printf(w %t2647, w %t2654)
+  %t2657 =w copy 0
+  %j =w copy %t2657
   @L_for_begin_208
-  %t2565 =w add %ph1_ir, 56
-  %t2567 =w loadw %t2565
-  %t2563 =w add %t2567, 64
-  %t2568 =w loadw %t2563
-  %t2569 =w clt %j, %t2568
-  jnz %t2569, @L_for_then_208, @L_149
+  %t2660 =w add %ph1_ir, 48
+  %t2662 =w loadw %t2660
+  %t2658 =w add %t2662, 64
+  %t2663 =w loadw %t2658
+  %t2664 =w clt %j, %t2663
+  jnz %t2664, @L_for_then_208, @L_149
   @L_for_then_208
-  %t2570 =w copy $L_151
-  %t2571 =w call $printf(w %t2570)
+  %t2665 =w copy $L_151
+  %t2666 =w call $printf(w %t2665)
   @L_150
-  %t2572 =w copy 1
-  %j =w add %j, %t2572
-  %t2573 =w copy -1
-  %t2574 =w add %j, %t2573
+  %t2667 =w copy 1
+  %j =w add %j, %t2667
+  %t2668 =w copy -1
+  %t2669 =w add %j, %t2668
   jmp @L_for_begin_208
   @L_149
-  %t2575 =w copy $L_152
-  %t2576 =w copy %op1
-  %t2577 =w call $printf(w %t2575, w %t2576)
+  %t2670 =w copy $L_152
+  %t2671 =w copy %op1
+  %t2672 =w call $printf(w %t2670, w %t2671)
   @L_if_begin_209
-  %t2580 =w add %ph1_ir, 56
-  %t2582 =w loadw %t2580
-  %t2578 =w add %t2582, 72
-  %t2583 =w loadw %t2578
-  %t2584 =w copy 0
-  %t2585 =w cgt %t2583, %t2584
-  jnz %t2585, @L_if_then_209, @L_if_else_209
+  %t2675 =w add %ph1_ir, 48
+  %t2677 =w loadw %t2675
+  %t2673 =w add %t2677, 72
+  %t2678 =w loadw %t2673
+  %t2679 =w copy 0
+  %t2680 =w cgt %t2678, %t2679
+  jnz %t2680, @L_if_then_209, @L_if_else_209
   @L_if_then_209
-  %t2586 =w copy $L_153
-  %t2589 =w add %ph1_ir, 56
-  %t2591 =w loadw %t2589
-  %t2587 =w add %t2591, 72
-  %t2592 =w loadw %t2587
-  %t2593 =w copy %t2592
-  %t2594 =w call $printf(w %t2586, w %t2593)
+  %t2681 =w copy $L_153
+  %t2684 =w add %ph1_ir, 48
+  %t2686 =w loadw %t2684
+  %t2682 =w add %t2686, 72
+  %t2687 =w loadw %t2682
+  %t2688 =w copy %t2687
+  %t2689 =w call $printf(w %t2681, w %t2688)
   jmp @L_if_end_209
   @L_if_else_209
   @L_if_end_209
   jmp @L_127
   @L_154
-  %t2595 =w copy %indent
-  call $print_indent(w %t2595)
-  %t2596 =w copy $L_155
-  %t2597 =w copy %rd
-  %t2600 =w add %ph1_ir, 48
-  %t2602 =w loadw %t2600
-  %t2598 =w add %t2602, 80
-  %t2603 =w loadw %t2598
-  %t2604 =w copy %t2603
-  %t2605 =w call $printf(w %t2596, w %t2597, w %t2604)
+  %t2690 =w copy %indent
+  call $print_indent(w %t2690)
+  %t2691 =w copy $L_155
+  %t2692 =w copy %rd
+  %t2695 =w add %ph1_ir, 44
+  %t2697 =w loadw %t2695
+  %t2693 =w add %t2697, 80
+  %t2698 =w loadw %t2693
+  %t2699 =w copy %t2698
+  %t2700 =w call $printf(w %t2691, w %t2692, w %t2699)
   jmp @L_127
   @L_156
-  %t2606 =w copy %indent
-  call $print_indent(w %t2606)
-  %t2607 =w copy $L_157
-  %t2608 =w copy %rd
-  %t2611 =w add %ph1_ir, 48
-  %t2613 =w loadw %t2611
-  %t2609 =w add %t2613, 80
-  %t2614 =w loadw %t2609
-  %t2615 =w copy %t2614
-  %t2616 =w call $printf(w %t2607, w %t2608, w %t2615)
+  %t2701 =w copy %indent
+  call $print_indent(w %t2701)
+  %t2702 =w copy $L_157
+  %t2703 =w copy %rd
+  %t2706 =w add %ph1_ir, 44
+  %t2708 =w loadw %t2706
+  %t2704 =w add %t2708, 80
+  %t2709 =w loadw %t2704
+  %t2710 =w copy %t2709
+  %t2711 =w call $printf(w %t2702, w %t2703, w %t2710)
   jmp @L_127
   @L_158
-  %t2617 =w copy %indent
-  call $print_indent(w %t2617)
-  %t2618 =w copy $L_159
-  %t2619 =w copy %rd
-  %t2620 =w copy %op1
-  %t2621 =w call $printf(w %t2618, w %t2619, w %t2620)
+  %t2712 =w copy %indent
+  call $print_indent(w %t2712)
+  %t2713 =w copy $L_159
+  %t2714 =w copy %rd
+  %t2715 =w copy %op1
+  %t2716 =w call $printf(w %t2713, w %t2714, w %t2715)
   jmp @L_127
   @L_160
-  %t2622 =w copy %indent
-  call $print_indent(w %t2622)
-  %t2623 =w copy $L_161
-  %t2624 =w copy %rd
-  %t2625 =w copy %op1
-  %t2626 =w call $printf(w %t2623, w %t2624, w %t2625)
+  %t2717 =w copy %indent
+  call $print_indent(w %t2717)
+  %t2718 =w copy $L_161
+  %t2719 =w copy %rd
+  %t2720 =w copy %op1
+  %t2721 =w call $printf(w %t2718, w %t2719, w %t2720)
   jmp @L_127
   @L_162
-  %t2627 =w copy 0
-  %t2628 =w copy %t2627
-  call $print_indent(w %t2628)
-  %t2629 =w copy $L_163
-  %t2630 =w copy %op1
-  %t2631 =w call $printf(w %t2629, w %t2630)
+  %t2722 =w copy 0
+  %t2723 =w copy %t2722
+  call $print_indent(w %t2723)
+  %t2724 =w copy $L_163
+  %t2725 =w copy %op1
+  %t2726 =w call $printf(w %t2724, w %t2725)
   jmp @L_127
   @L_164
-  %t2632 =w copy %indent
-  call $print_indent(w %t2632)
-  %t2633 =w copy $L_165
-  %t2634 =w copy %rd
-  %t2635 =w copy %op1
-  %t2636 =w copy %op2
-  %t2637 =w call $printf(w %t2633, w %t2634, w %t2635, w %t2636)
+  %t2727 =w copy %indent
+  call $print_indent(w %t2727)
+  %t2728 =w copy $L_165
+  %t2729 =w copy %rd
+  %t2730 =w copy %op1
+  %t2731 =w copy %op2
+  %t2732 =w call $printf(w %t2728, w %t2729, w %t2730, w %t2731)
   jmp @L_127
   @L_166
-  %t2638 =w copy %indent
-  call $print_indent(w %t2638)
-  %t2639 =w copy $L_167
-  %t2640 =w copy %rd
-  %t2641 =w call $printf(w %t2639, w %t2640)
+  %t2733 =w copy %indent
+  call $print_indent(w %t2733)
+  %t2734 =w copy $L_167
+  %t2735 =w copy %rd
+  %t2736 =w call $printf(w %t2734, w %t2735)
   jmp @L_127
   @L_168
-  %t2642 =w copy %indent
-  call $print_indent(w %t2642)
-  %t2643 =w copy $L_169
-  %t2644 =w copy %op1
-  %t2645 =w call $printf(w %t2643, w %t2644)
+  %t2737 =w copy %indent
+  call $print_indent(w %t2737)
+  %t2738 =w copy $L_169
+  %t2739 =w copy %op1
+  %t2740 =w call $printf(w %t2738, w %t2739)
   jmp @L_127
   @L_170
-  %t2646 =w copy %indent
-  call $print_indent(w %t2646)
-  %t2647 =w copy $L_171
-  %t2648 =w add %ph1_ir, 4
-  %t2650 =b loadb %t2648
-  %t2651 =w copy %t2650
-  %t2652 =w add %ph1_ir, 36
-  %t2654 =w loadw %t2652
-  %t2655 =w copy %t2654
-  %t2656 =w call $printf(w %t2647, w %t2651, w %t2655)
+  %t2741 =w copy %indent
+  call $print_indent(w %t2741)
+  %t2742 =w copy $L_171
+  %t2743 =w add %ph1_ir, 4
+  %t2745 =b loadb %t2743
+  %t2746 =w copy %t2745
+  %t2747 =w add %ph1_ir, 36
+  %t2749 =w loadw %t2747
+  %t2750 =w copy %t2749
+  %t2751 =w call $printf(w %t2742, w %t2746, w %t2750)
   jmp @L_127
   @L_172
-  %t2657 =w copy %indent
-  call $print_indent(w %t2657)
-  %t2658 =w copy $L_173
-  %t2659 =w copy %rd
-  %t2660 =w call $printf(w %t2658, w %t2659)
+  %t2752 =w copy %indent
+  call $print_indent(w %t2752)
+  %t2753 =w copy $L_173
+  %t2754 =w copy %rd
+  %t2755 =w call $printf(w %t2753, w %t2754)
   jmp @L_127
   @L_174
-  %t2661 =w copy %indent
-  call $print_indent(w %t2661)
+  %t2756 =w copy %indent
+  call $print_indent(w %t2756)
   @L_if_begin_210
-  %t2662 =w add %ph1_ir, 56
-  %t2664 =w loadw %t2662
-  jnz %t2664, @L_if_then_210, @L_if_else_210
+  %t2757 =w add %ph1_ir, 48
+  %t2759 =w loadw %t2757
+  jnz %t2759, @L_if_then_210, @L_if_else_210
   @L_if_then_210
-  %t2665 =w copy $L_175
-  %t2666 =w copy %op1
-  %t2667 =w call $printf(w %t2665, w %t2666)
+  %t2760 =w copy $L_175
+  %t2761 =w copy %op1
+  %t2762 =w call $printf(w %t2760, w %t2761)
   jmp @L_if_end_210
   @L_if_else_210
-  %t2668 =w copy $L_176
-  %t2669 =w call $printf(w %t2668)
+  %t2763 =w copy $L_176
+  %t2764 =w call $printf(w %t2763)
   @L_if_end_210
   jmp @L_127
   @L_177
-  %t2670 =w copy %indent
-  call $print_indent(w %t2670)
-  %t2671 =w copy $L_178
-  %t2672 =w copy %rd
-  %t2673 =w copy %op1
-  %t2674 =w add %ph1_ir, 40
-  %t2676 =w loadw %t2674
-  %t2677 =w copy %t2676
-  %t2678 =w call $printf(w %t2671, w %t2672, w %t2673, w %t2677)
+  %t2765 =w copy %indent
+  call $print_indent(w %t2765)
+  %t2766 =w copy $L_178
+  %t2767 =w copy %rd
+  %t2768 =w copy %op1
+  %t2769 =w add %ph1_ir, 40
+  %t2771 =w loadw %t2769
+  %t2772 =w copy %t2771
+  %t2773 =w call $printf(w %t2766, w %t2767, w %t2768, w %t2772)
   jmp @L_127
   @L_179
-  %t2679 =w copy %indent
-  call $print_indent(w %t2679)
+  %t2774 =w copy %indent
+  call $print_indent(w %t2774)
   @L_if_begin_211
-  %t2682 =w add %ph1_ir, 56
-  %t2684 =w loadw %t2682
-  %t2680 =w add %t2684, 68
-  %t2685 =b loadb %t2680
-  jnz %t2685, @L_if_then_211, @L_if_else_211
+  %t2777 =w add %ph1_ir, 48
+  %t2779 =w loadw %t2777
+  %t2775 =w add %t2779, 68
+  %t2780 =b loadb %t2775
+  jnz %t2780, @L_if_then_211, @L_if_else_211
   @L_if_then_211
-  %t2686 =w copy $L_180
-  %t2687 =w copy %rd
-  %t2688 =w copy %op1
-  %t2689 =w call $printf(w %t2686, w %t2687, w %t2688)
+  %t2781 =w copy $L_180
+  %t2782 =w copy %rd
+  %t2783 =w copy %op1
+  %t2784 =w call $printf(w %t2781, w %t2782, w %t2783)
   jmp @L_if_end_211
   @L_if_else_211
-  %t2690 =w copy $L_181
-  %t2691 =w copy %rd
-  %t2692 =w copy %op1
-  %t2693 =w add %ph1_ir, 40
-  %t2695 =w loadw %t2693
-  %t2696 =w copy %t2695
-  %t2697 =w call $printf(w %t2690, w %t2691, w %t2692, w %t2696)
+  %t2785 =w copy $L_181
+  %t2786 =w copy %rd
+  %t2787 =w copy %op1
+  %t2788 =w add %ph1_ir, 40
+  %t2790 =w loadw %t2788
+  %t2791 =w copy %t2790
+  %t2792 =w call $printf(w %t2785, w %t2786, w %t2787, w %t2791)
   @L_if_end_211
   jmp @L_127
   @L_182
-  %t2698 =w copy %indent
-  call $print_indent(w %t2698)
-  %t2699 =w copy $L_183
-  %t2700 =w copy %op1
-  %t2701 =w call $printf(w %t2699, w %t2700)
+  %t2793 =w copy %indent
+  call $print_indent(w %t2793)
+  %t2794 =w copy $L_183
+  %t2795 =w copy %op1
+  %t2796 =w call $printf(w %t2794, w %t2795)
   jmp @L_127
   @L_184
-  %t2702 =w copy %indent
-  call $print_indent(w %t2702)
-  %t2703 =w copy $L_185
-  %t2704 =w copy %rd
-  %t2705 =w copy %op1
-  %t2706 =w call $printf(w %t2703, w %t2704, w %t2705)
+  %t2797 =w copy %indent
+  call $print_indent(w %t2797)
+  %t2798 =w copy $L_185
+  %t2799 =w copy %rd
+  %t2800 =w copy %op1
+  %t2801 =w call $printf(w %t2798, w %t2799, w %t2800)
   jmp @L_127
   @L_186
-  %t2707 =w copy %indent
-  call $print_indent(w %t2707)
-  %t2708 =w copy $L_187
-  %t2709 =w copy %rd
-  %t2710 =w copy %op1
-  %t2711 =w copy %op2
-  %t2712 =w call $printf(w %t2708, w %t2709, w %t2710, w %t2711)
-  jmp @L_127
-  @L_188
-  %t2713 =w copy %indent
-  call $print_indent(w %t2713)
-  %t2714 =w copy $L_189
-  %t2715 =w copy %rd
-  %t2716 =w copy %op1
-  %t2717 =w copy %op2
-  %t2718 =w call $printf(w %t2714, w %t2715, w %t2716, w %t2717)
-  jmp @L_127
-  @L_190
-  %t2719 =w copy %indent
-  call $print_indent(w %t2719)
-  %t2720 =w copy $L_191
-  %t2721 =w copy %rd
-  %t2722 =w copy %op1
-  %t2723 =w copy %op2
-  %t2724 =w call $printf(w %t2720, w %t2721, w %t2722, w %t2723)
-  jmp @L_127
-  @L_192
-  %t2725 =w copy %indent
-  call $print_indent(w %t2725)
-  %t2726 =w copy $L_193
-  %t2727 =w copy %rd
-  %t2728 =w copy %op1
-  %t2729 =w copy %op2
-  %t2730 =w call $printf(w %t2726, w %t2727, w %t2728, w %t2729)
-  jmp @L_127
-  @L_194
-  %t2731 =w copy %indent
-  call $print_indent(w %t2731)
-  %t2732 =w copy $L_195
-  %t2733 =w copy %rd
-  %t2734 =w copy %op1
-  %t2735 =w copy %op2
-  %t2736 =w call $printf(w %t2732, w %t2733, w %t2734, w %t2735)
-  jmp @L_127
-  @L_196
-  %t2737 =w copy %indent
-  call $print_indent(w %t2737)
-  %t2738 =w copy $L_197
-  %t2739 =w copy %rd
-  %t2740 =w copy %op1
-  %t2741 =w copy %op2
-  %t2742 =w call $printf(w %t2738, w %t2739, w %t2740, w %t2741)
-  jmp @L_127
-  @L_198
-  %t2743 =w copy %indent
-  call $print_indent(w %t2743)
-  %t2744 =w copy $L_199
-  %t2745 =w copy %rd
-  %t2746 =w copy %op1
-  %t2747 =w copy %op2
-  %t2748 =w call $printf(w %t2744, w %t2745, w %t2746, w %t2747)
-  jmp @L_127
-  @L_200
-  %t2749 =w copy %indent
-  call $print_indent(w %t2749)
-  %t2750 =w copy $L_201
-  %t2751 =w copy %rd
-  %t2752 =w copy %op1
-  %t2753 =w copy %op2
-  %t2754 =w call $printf(w %t2750, w %t2751, w %t2752, w %t2753)
-  jmp @L_127
-  @L_202
-  %t2755 =w copy %indent
-  call $print_indent(w %t2755)
-  %t2756 =w copy $L_203
-  %t2757 =w copy %rd
-  %t2758 =w copy %op1
-  %t2759 =w copy %op2
-  %t2760 =w call $printf(w %t2756, w %t2757, w %t2758, w %t2759)
-  jmp @L_127
-  @L_204
-  %t2761 =w copy %indent
-  call $print_indent(w %t2761)
-  %t2762 =w copy $L_205
-  %t2763 =w copy %rd
-  %t2764 =w copy %op1
-  %t2765 =w copy %op2
-  %t2766 =w call $printf(w %t2762, w %t2763, w %t2764, w %t2765)
-  jmp @L_127
-  @L_206
-  %t2767 =w copy %indent
-  call $print_indent(w %t2767)
-  %t2768 =w copy $L_207
-  %t2769 =w copy %rd
-  %t2770 =w copy %op1
-  %t2771 =w copy %op2
-  %t2772 =w call $printf(w %t2768, w %t2769, w %t2770, w %t2771)
-  jmp @L_127
-  @L_208
-  %t2773 =w copy %indent
-  call $print_indent(w %t2773)
-  %t2774 =w copy $L_209
-  %t2775 =w copy %rd
-  %t2776 =w copy %op1
-  %t2777 =w copy %op2
-  %t2778 =w call $printf(w %t2774, w %t2775, w %t2776, w %t2777)
-  jmp @L_127
-  @L_210
-  %t2779 =w copy %indent
-  call $print_indent(w %t2779)
-  %t2780 =w copy $L_211
-  %t2781 =w copy %rd
-  %t2782 =w copy %op1
-  %t2783 =w copy %op2
-  %t2784 =w call $printf(w %t2780, w %t2781, w %t2782, w %t2783)
-  jmp @L_127
-  @L_212
-  %t2785 =w copy %indent
-  call $print_indent(w %t2785)
-  %t2786 =w copy $L_213
-  %t2787 =w copy %rd
-  %t2788 =w copy %op1
-  %t2789 =w call $printf(w %t2786, w %t2787, w %t2788)
-  jmp @L_127
-  @L_214
-  %t2790 =w copy %indent
-  call $print_indent(w %t2790)
-  %t2791 =w copy $L_215
-  %t2792 =w copy %rd
-  %t2793 =w copy %op1
-  %t2794 =w copy %op2
-  %t2795 =w call $printf(w %t2791, w %t2792, w %t2793, w %t2794)
-  jmp @L_127
-  @L_216
-  %t2796 =w copy %indent
-  call $print_indent(w %t2796)
-  %t2797 =w copy $L_217
-  %t2798 =w copy %rd
-  %t2799 =w copy %op1
-  %t2800 =w copy %op2
-  %t2801 =w call $printf(w %t2797, w %t2798, w %t2799, w %t2800)
-  jmp @L_127
-  @L_218
   %t2802 =w copy %indent
   call $print_indent(w %t2802)
-  %t2803 =w copy $L_219
+  %t2803 =w copy $L_187
   %t2804 =w copy %rd
   %t2805 =w copy %op1
   %t2806 =w copy %op2
   %t2807 =w call $printf(w %t2803, w %t2804, w %t2805, w %t2806)
   jmp @L_127
-  @L_220
+  @L_188
   %t2808 =w copy %indent
   call $print_indent(w %t2808)
-  %t2809 =w copy $L_221
+  %t2809 =w copy $L_189
   %t2810 =w copy %rd
   %t2811 =w copy %op1
-  %t2812 =w call $printf(w %t2809, w %t2810, w %t2811)
+  %t2812 =w copy %op2
+  %t2813 =w call $printf(w %t2809, w %t2810, w %t2811, w %t2812)
+  jmp @L_127
+  @L_190
+  %t2814 =w copy %indent
+  call $print_indent(w %t2814)
+  %t2815 =w copy $L_191
+  %t2816 =w copy %rd
+  %t2817 =w copy %op1
+  %t2818 =w copy %op2
+  %t2819 =w call $printf(w %t2815, w %t2816, w %t2817, w %t2818)
+  jmp @L_127
+  @L_192
+  %t2820 =w copy %indent
+  call $print_indent(w %t2820)
+  %t2821 =w copy $L_193
+  %t2822 =w copy %rd
+  %t2823 =w copy %op1
+  %t2824 =w copy %op2
+  %t2825 =w call $printf(w %t2821, w %t2822, w %t2823, w %t2824)
+  jmp @L_127
+  @L_194
+  %t2826 =w copy %indent
+  call $print_indent(w %t2826)
+  %t2827 =w copy $L_195
+  %t2828 =w copy %rd
+  %t2829 =w copy %op1
+  %t2830 =w copy %op2
+  %t2831 =w call $printf(w %t2827, w %t2828, w %t2829, w %t2830)
+  jmp @L_127
+  @L_196
+  %t2832 =w copy %indent
+  call $print_indent(w %t2832)
+  %t2833 =w copy $L_197
+  %t2834 =w copy %rd
+  %t2835 =w copy %op1
+  %t2836 =w copy %op2
+  %t2837 =w call $printf(w %t2833, w %t2834, w %t2835, w %t2836)
+  jmp @L_127
+  @L_198
+  %t2838 =w copy %indent
+  call $print_indent(w %t2838)
+  %t2839 =w copy $L_199
+  %t2840 =w copy %rd
+  %t2841 =w copy %op1
+  %t2842 =w copy %op2
+  %t2843 =w call $printf(w %t2839, w %t2840, w %t2841, w %t2842)
+  jmp @L_127
+  @L_200
+  %t2844 =w copy %indent
+  call $print_indent(w %t2844)
+  %t2845 =w copy $L_201
+  %t2846 =w copy %rd
+  %t2847 =w copy %op1
+  %t2848 =w copy %op2
+  %t2849 =w call $printf(w %t2845, w %t2846, w %t2847, w %t2848)
+  jmp @L_127
+  @L_202
+  %t2850 =w copy %indent
+  call $print_indent(w %t2850)
+  %t2851 =w copy $L_203
+  %t2852 =w copy %rd
+  %t2853 =w copy %op1
+  %t2854 =w copy %op2
+  %t2855 =w call $printf(w %t2851, w %t2852, w %t2853, w %t2854)
+  jmp @L_127
+  @L_204
+  %t2856 =w copy %indent
+  call $print_indent(w %t2856)
+  %t2857 =w copy $L_205
+  %t2858 =w copy %rd
+  %t2859 =w copy %op1
+  %t2860 =w copy %op2
+  %t2861 =w call $printf(w %t2857, w %t2858, w %t2859, w %t2860)
+  jmp @L_127
+  @L_206
+  %t2862 =w copy %indent
+  call $print_indent(w %t2862)
+  %t2863 =w copy $L_207
+  %t2864 =w copy %rd
+  %t2865 =w copy %op1
+  %t2866 =w copy %op2
+  %t2867 =w call $printf(w %t2863, w %t2864, w %t2865, w %t2866)
+  jmp @L_127
+  @L_208
+  %t2868 =w copy %indent
+  call $print_indent(w %t2868)
+  %t2869 =w copy $L_209
+  %t2870 =w copy %rd
+  %t2871 =w copy %op1
+  %t2872 =w copy %op2
+  %t2873 =w call $printf(w %t2869, w %t2870, w %t2871, w %t2872)
+  jmp @L_127
+  @L_210
+  %t2874 =w copy %indent
+  call $print_indent(w %t2874)
+  %t2875 =w copy $L_211
+  %t2876 =w copy %rd
+  %t2877 =w copy %op1
+  %t2878 =w copy %op2
+  %t2879 =w call $printf(w %t2875, w %t2876, w %t2877, w %t2878)
+  jmp @L_127
+  @L_212
+  %t2880 =w copy %indent
+  call $print_indent(w %t2880)
+  %t2881 =w copy $L_213
+  %t2882 =w copy %rd
+  %t2883 =w copy %op1
+  %t2884 =w call $printf(w %t2881, w %t2882, w %t2883)
+  jmp @L_127
+  @L_214
+  %t2885 =w copy %indent
+  call $print_indent(w %t2885)
+  %t2886 =w copy $L_215
+  %t2887 =w copy %rd
+  %t2888 =w copy %op1
+  %t2889 =w copy %op2
+  %t2890 =w call $printf(w %t2886, w %t2887, w %t2888, w %t2889)
+  jmp @L_127
+  @L_216
+  %t2891 =w copy %indent
+  call $print_indent(w %t2891)
+  %t2892 =w copy $L_217
+  %t2893 =w copy %rd
+  %t2894 =w copy %op1
+  %t2895 =w copy %op2
+  %t2896 =w call $printf(w %t2892, w %t2893, w %t2894, w %t2895)
+  jmp @L_127
+  @L_218
+  %t2897 =w copy %indent
+  call $print_indent(w %t2897)
+  %t2898 =w copy $L_219
+  %t2899 =w copy %rd
+  %t2900 =w copy %op1
+  %t2901 =w copy %op2
+  %t2902 =w call $printf(w %t2898, w %t2899, w %t2900, w %t2901)
+  jmp @L_127
+  @L_220
+  %t2903 =w copy %indent
+  call $print_indent(w %t2903)
+  %t2904 =w copy $L_221
+  %t2905 =w copy %rd
+  %t2906 =w copy %op1
+  %t2907 =w call $printf(w %t2904, w %t2905, w %t2906)
   jmp @L_127
   @L_222
-  %t2813 =w copy %indent
-  call $print_indent(w %t2813)
-  %t2814 =w copy $L_223
-  %t2815 =w copy %rd
-  %t2816 =w copy %op1
-  %t2817 =w copy %op2
-  %t2818 =w call $printf(w %t2814, w %t2815, w %t2816, w %t2817)
+  %t2908 =w copy %indent
+  call $print_indent(w %t2908)
+  %t2909 =w copy $L_223
+  %t2910 =w copy %rd
+  %t2911 =w copy %op1
+  %t2912 =w copy %op2
+  %t2913 =w call $printf(w %t2909, w %t2910, w %t2911, w %t2912)
   jmp @L_127
   @L_224
-  %t2819 =w copy %indent
-  call $print_indent(w %t2819)
-  %t2820 =w copy $L_225
-  %t2821 =w copy %rd
-  %t2822 =w copy %op1
-  %t2823 =w copy %op2
-  %t2824 =w call $printf(w %t2820, w %t2821, w %t2822, w %t2823)
+  %t2914 =w copy %indent
+  call $print_indent(w %t2914)
+  %t2915 =w copy $L_225
+  %t2916 =w copy %rd
+  %t2917 =w copy %op1
+  %t2918 =w copy %op2
+  %t2919 =w call $printf(w %t2915, w %t2916, w %t2917, w %t2918)
   jmp @L_127
   @L_226
   jmp @L_127
   @L_127
-  %t2825 =w copy $L_227
-  %t2826 =w call $printf(w %t2825)
+  %t2920 =w copy $L_227
+  %t2921 =w call $printf(w %t2920)
   @L_126
-  %t2827 =w copy 1
-  %i =w add %i, %t2827
-  %t2828 =w copy -1
-  %t2829 =w add %i, %t2828
+  %t2922 =w copy 1
+  %i =w add %i, %t2922
+  %t2923 =w copy -1
+  %t2924 =w add %i, %t2923
   jmp @L_for_begin_161
   @L_125
-  %t2830 =w copy $L_228
-  %t2831 =w call $printf(w %t2830)
+  %t2925 =w copy $L_228
+  %t2926 =w call $printf(w %t2925)
   ret
 }
