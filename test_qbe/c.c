@@ -50,7 +50,7 @@ int __syscall(int nr, ...);
 
 typedef int FILE;
 
-void abort();
+void abort(void);
 
 int strlen(char *str)
 {

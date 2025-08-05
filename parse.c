@@ -1419,7 +1419,7 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
       Node *node = new_node(ND_ALLOCA, tok);
       node->ty = ty;
       node->var = var;
-      chain_expr(&current_fn->decls, node);
+      chain_expr(&expr, node);
     }
 
     if (alt_align)

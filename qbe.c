@@ -336,11 +336,11 @@ char *emit_addr(Node *node, bool eval) {
       }
 
       // global variable
-      println("%s =w gaddr %%%s", var, node->var->name);
+      println("%s =w addr $%s", var, node->var->name);
       return var;
     }
     case ND_DEREF:
-      var = emit_expr(node->lhs);
+        var = emit_expr(node->lhs);
       return var;
     case ND_CHAIN:
     case ND_COMMA:
@@ -357,7 +357,7 @@ char *emit_addr(Node *node, bool eval) {
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
         default:
-          addr = emit_addr(node->lhs, false);
+          addr = emit_addr(node->lhs, eval);
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
       }
@@ -457,10 +457,12 @@ char *emit_expr(Node *expr) {
       var = emit_addr(expr->lhs, expr->lhs->kind == ND_VAR);
       char *rhs = emit_expr(expr->rhs);
 
-      if (expr->lhs->kind != ND_VAR) {
-        println("store%c %s, %s", ty_specifier(expr->rhs->ty), var, rhs);
-      } else {
-        println("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
+      if (expr->rhs->kind != ND_COND) {
+        if (expr->lhs->kind != ND_VAR || !expr->lhs->var->is_local) {
+          println("store%c %s, %s", ty_specifier(expr->rhs->ty), var, rhs);
+        } else {
+          println("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
+        }
       }
 
       var = rhs;
@@ -636,22 +638,31 @@ void emit_stmt(Node *stmt) {
     }
     case ND_IF: {
       int c = count();
-      println("@L_if_begin_%d", c);
       char *result_var = emit_cond(stmt->cond);
-      println("jnz %s, @L_if_then_%d, @L_if_else_%d", result_var, c, c);
+
+      if (stmt->els)
+        println("jnz %s, @L_if_then_%d, @L_if_else_%d", result_var, c, c);
+      else
+        println("jnz %s, @L_if_then_%d, @L_if_end_%d", result_var, c, c);
+      
       println("@L_if_then_%d", c);
       emit_stmt(stmt->then);
-      if (!(cond = is_last_insn_jmp))
+      if (stmt->els && !(cond = is_last_insn_jmp))
         println("jmp @L_if_end_%d", c);
-      println("@L_if_else_%d", c);
-      if (stmt->els)
+      if (stmt->els) {
+        println("@L_if_else_%d", c);
         emit_stmt(stmt->els);
+      }
       if (!cond)
         println("@L_if_end_%d", c);
       break;
     }
     case ND_FOR: {
       int c = count();
+
+      // Rename brk_label and cont_label
+      stmt->brk_label = format("L_for_end_%d", c);
+      stmt->cont_label = format("L_for_post_%d", c);
 
       if (stmt->init)
         emit_stmt(stmt->init);
@@ -769,6 +780,10 @@ void emit_function(Obj *prog) {
       continue;
 
     Node *body = var->body;
+
+    if (!body)
+      continue;
+
     Type *return_ty = var->ty->return_ty;
 
     print("function ");
@@ -794,10 +809,7 @@ void emit_function(Obj *prog) {
     if (var->decls)
       emit_expr(var->decls);
 
-    if (body)
-      emit_stmt(body);
-    else
-      println("# DECLARATION ONLY");
+    emit_stmt(body);
 
     /* Generates implicit return */
     if (return_ty->kind == TY_VOID)
