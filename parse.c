@@ -1409,12 +1409,6 @@ static Node *declaration(Token **rest, Token *tok, Type *basety, VarAttr *attr) 
     Obj *var = new_lvar(get_ident(name), ty);
 
     if (opt_qbe) {
-      /* FIXME: This is a hack to allocate any required variables 
-       * at beginning of function, as at this moment I don't understand
-       * the cause of SSA phi resolution failure. To resolve this in a
-       * straightforward way, we simply allocates all variables at the
-       * beginning of function, which is old school's way to do this.
-       */
       /* Generates an allocation instruction */
       Node *node = new_node(ND_ALLOCA, tok);
       node->ty = ty;
