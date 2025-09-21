@@ -2219,10 +2219,24 @@ static Node *secondary_block(Token **rest, Token *tok) {
 }
 
 static void loop_body(Token **rest, Token *tok, Node *node) {
+  static int id = 0;
   char *brk = brk_label;
   char *cont = cont_label;
-  brk_label = node->brk_label = new_unique_name();
-  cont_label = node->cont_label = new_unique_name();
+
+  if (opt_qbe) {
+    if (node->kind == ND_DO) {
+      brk_label = node->brk_label = format("L_do_end_%d", id);
+      cont_label = node->cont_label = format("L_do_post_%d", id++);
+    } else if (node->kind == ND_FOR) {
+      brk_label = node->brk_label = format("L_for_end_%d", id);
+      cont_label = node->cont_label = format("L_for_post_%d", id++);
+    } else {
+      error_tok(tok, "Unexpected kind");
+    }
+  } else {
+    brk_label = node->brk_label = new_unique_name();
+    cont_label = node->cont_label = new_unique_name();
+  }
 
   DeferStmt *brkdefr = brk_defr;
   DeferStmt *contdefr = cont_defr;

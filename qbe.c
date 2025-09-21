@@ -310,7 +310,9 @@ char *emit_arith_assign(Node *expr) {
 }
 
 char *emit_binary_expr(Node *expr, char *op) {
-  char *lhs = emit_expr(expr->lhs), *rhs = emit_expr(expr->rhs), *var = tmp_var();
+  char *var = tmp_var();
+  char *lhs = emit_expr(expr->lhs);
+  char *rhs = emit_expr(expr->rhs);
   println("%s =%c %s %s, %s", var, ty_specifier(expr->ty), op, lhs, rhs);
   return var;
 }
@@ -517,11 +519,31 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_LOGAND: {
-      var = emit_binary_expr(expr, "and");
+      int c = count();
+      var = tmp_var();
+      
+      println("%s =w alloc 1", var);
+      println("%s =w copy 0", var);
+      char *lhs = emit_expr(expr->lhs);
+      println("jnz %s, @L_and_rhs_%d, @L_and_end_%d", lhs, c, c);
+      println("@L_and_rhs_%d", c);
+      char *rhs = emit_expr(expr->rhs);
+      println("%s =w copy %s", var, rhs);
+      println("@L_and_end_%d", c);
       break;
     }
     case ND_LOGOR: {
-      var = emit_binary_expr(expr, "or");
+      int c = count();
+      var = tmp_var();
+      
+      println("%s =w alloc 1", var);
+      println("%s =w copy 1", var);
+      char *lhs = emit_expr(expr->lhs);
+      println("jnz %s, @L_or_end_%d, @L_or_rhs_%d", lhs, c, c);
+      println("@L_or_rhs_%d", c);
+      char *rhs = emit_expr(expr->rhs);
+      println("%s =w copy %s", var, rhs);
+      println("@L_or_end_%d", c);
       break;
     }
     case ND_FUNCALL: {
@@ -660,12 +682,13 @@ void emit_stmt(Node *stmt) {
     case ND_FOR: {
       int c = count();
 
-      // Rename brk_label and cont_label
-      stmt->brk_label = format("L_for_end_%d", c);
-      stmt->cont_label = format("L_for_post_%d", c);
-
+      // stmt->init may contains variable declaration,
+      // to avoid redeclaration on same level, we enter
+      // a synthesized scope here
+      println("@L_for_init_%d", c);
       if (stmt->init)
         emit_stmt(stmt->init);
+      // Syntehsize a condition temp var for later looping usage
 
       println("@L_for_begin_%d", c);
       char *result_var = emit_cond(stmt->cond);
@@ -684,11 +707,11 @@ void emit_stmt(Node *stmt) {
     case ND_DO: {
       int c = count();
 
-      println("@L_begin_%d", c);
+      println("@L_do_then_%d", c);
       emit_stmt(stmt->then);
       println("@%s", stmt->cont_label);
       char *result_var = emit_expr(stmt->cond);
-      println("jnz %s, @%s, %s", result_var, stmt->cont_label, stmt->brk_label);
+      println("jnz %s, @L_do_then_%d, @%s", result_var, c, stmt->brk_label);
       println("@%s", stmt->brk_label);
       break;
     }

@@ -5,146 +5,453 @@
  * file "LICENSE" for information on usage and redistribution of this file.
  */
 
-/* Global objects */
+#pragma once
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "defs.h"
 
-block_t *BLOCKS;
-int blocks_idx = 0;
+/* Lexer */
+char token_str[MAX_TOKEN_LEN];
+token_t next_token;
+char next_char;
+bool skip_newline = true;
+
+bool preproc_match;
+
+/* Point to the first character after where the macro has been called. It is
+ * needed when returning from the macro body.
+ */
+int macro_return_idx;
+
+/* Global objects */
 
 macro_t *MACROS;
 int macros_idx = 0;
 
-/* the first element is reserved for global scope */
-func_t *FUNCS;
-int funcs_idx = 1;
-
-/* FUNC_TRIES is used to improve the performance of the find_func function.
- * Instead of searching through all functions and comparing their names, we can
- * utilize the trie data structure to search for existing functions efficiently.
- * The index starts from 1 because the first trie node represents an empty input
- * string, and it is not possible to record a function with an empty name.
+/* FUNC_MAP is used to integrate function storing and boost lookup
+ * performance, currently it uses FNV-1a hash function to hash function
+ * name.
  */
-trie_t *FUNC_TRIES;
-int func_tries_idx = 1;
+hashmap_t *FUNC_MAP;
+hashmap_t *ALIASES_MAP;
+hashmap_t *CONSTANTS_MAP;
+
+/* Types */
 
 type_t *TYPES;
 int types_idx = 0;
 
-ph1_ir_t *GLOBAL_IR;
-int global_ir_idx = 0;
+type_t *TY_void;
+type_t *TY_char;
+type_t *TY_bool;
+type_t *TY_int;
 
-ph1_ir_t *PH1_IR;
-int ph1_ir_idx = 0;
+/* Arenas */
 
-ph2_ir_t *PH2_IR;
+arena_t *INSN_ARENA;
+
+/* BLOCK_ARENA is responsible for block_t / var_t allocation */
+arena_t *BLOCK_ARENA;
+
+/* BB_ARENA is responsible for basic_block_t / ph2_ir_t allocation */
+arena_t *BB_ARENA;
+
+int bb_label_idx = 0;
+
+ph2_ir_t **PH2_IR_FLATTEN;
 int ph2_ir_idx = 0;
 
-label_lut_t *LABEL_LUT;
-int label_lut_idx = 0;
-
 func_list_t FUNC_LIST;
-func_t GLOBAL_FUNC;
+func_t *GLOBAL_FUNC;
+block_t *GLOBAL_BLOCK;
 basic_block_t *MAIN_BB;
 int elf_offset = 0;
 
 regfile_t REGS[REG_CNT];
 
-alias_t *ALIASES;
-int aliases_idx = 0;
+strbuf_t *SOURCE;
 
-constant_t *CONSTANTS;
-int constants_idx = 0;
-
-char *SOURCE;
-int source_idx = 0;
+hashmap_t *INCLUSION_MAP;
 
 /* ELF sections */
-
-char *elf_code;
-int elf_code_idx = 0;
-char *elf_data;
-int elf_data_idx = 0;
-char *elf_header;
-int elf_header_idx = 0;
+strbuf_t *elf_code;
+strbuf_t *elf_data;
+strbuf_t *elf_header;
+strbuf_t *elf_symtab;
+strbuf_t *elf_strtab;
+strbuf_t *elf_section;
 int elf_header_len = 0x54; /* ELF fixed: 0x34 + 1 * 0x20 */
 int elf_code_start;
 int elf_data_start;
-char *elf_symtab;
-char *elf_strtab;
-char *elf_section;
 
 /**
- * insert_trie() - Inserts a new element into the trie structure.
- * @trie: A pointer to the trie where the name will be inserted.
- * @name: The name to be inserted into the trie.
- * @funcs_index: The index of the pointer to the func_t. The index is recorded
- *     in a 1-indexed format. Because the first element of 'FUNCS' has been
- *     reserved, there is no need to shift it.
- * Return: The index of the pointer to the func_t.
+ * arena_block_create() - Creates a new arena block with given capacity.
+ * The created arena block is guaranteed to be zero-initialized.
+ * @capacity: The capacity of the arena block. Must be positive.
  *
- * If the function has been inserted, the return value is the index of the
- * function in FUNCS. Otherwise, the return value is the value of the parameter
- * @funcs_index.
+ * Return: The pointer of created arena block. NULL if failed to allocate.
  */
-int insert_trie(trie_t *trie, char *name, int funcs_index)
+arena_block_t *arena_block_create(int capacity)
 {
-    char first_char;
-    int fc;
+    arena_block_t *block = malloc(sizeof(arena_block_t));
 
-    while (1) {
-        first_char = *name;
-        fc = first_char;
-        if (!fc) {
-            if (!trie->index)
-                trie->index = funcs_index;
-            return trie->index;
+    if (!block) {
+        printf("Failed to allocate memory for arena block\n");
+        exit(1);
+    }
+
+    block->memory = calloc(capacity, sizeof(char));
+
+    if (!block->memory) {
+        printf("Failed to allocate memory for arena block\n");
+        free(block);
+        exit(1);
+    }
+
+    block->capacity = capacity;
+    block->offset = 0;
+    block->next = NULL;
+    return block;
+}
+
+/**
+ * arena_init() - Initializes the given arena with initial capacity.
+ * @initial_capacity: The initial capacity of the arena. Must be positive.
+ *
+ * Return: The pointer of initialized arena.
+ */
+arena_t *arena_init(int initial_capacity)
+{
+    arena_t *arena = malloc(sizeof(arena_t));
+    arena->head = arena_block_create(initial_capacity);
+    return arena;
+}
+
+/**
+ * arena_alloc() - Allocates memory from the given arena with given size.
+ * The arena may create a new arena block if no space is available.
+ * @arena: The arena to allocate memory from. Must not be NULL.
+ * @size: The size of memory to allocate. Must be positive.
+ *
+ * Return: The pointer of allocated memory. NULL if new arena block is failed to
+ * allocate.
+ */
+void *arena_alloc(arena_t *arena, int size)
+{
+    char *ptr;
+    arena_block_t *block = arena->head;
+
+    while (block) {
+        if (block->offset + size <= block->capacity) {
+            ptr = block->memory + block->offset;
+            block->offset += size;
+            return ptr;
         }
-        if (!trie->next[fc]) {
-            /* FIXME: The func_tries_idx variable may exceed the maximum number,
-             * which can lead to a segmentation fault. This issue is affected by
-             * the number of functions and the length of their names. The proper
-             * way to handle this is to dynamically allocate a new element.
-             */
-            trie->next[fc] = func_tries_idx++;
-            for (int i = 0; i < 128; i++)
-                FUNC_TRIES[trie->next[fc]].next[i] = 0;
-            FUNC_TRIES[trie->next[fc]].index = 0;
-        }
-        trie = &FUNC_TRIES[trie->next[fc]];
-        name = name + 1;
+        if (!block->next)
+            break;
+        block = block->next;
+    }
+
+    /* If no space is available, create a new block
+     * Allocate at least 256 KiB or the requested size
+     */
+    int new_capacity = size > DEFAULT_ARENA_SIZE ? size : DEFAULT_ARENA_SIZE;
+    arena_block_t *new_block = arena_block_create(new_capacity);
+
+    if (!new_block)
+        return NULL;
+
+    block->next = new_block;
+    ptr = new_block->memory + new_block->offset;
+    new_block->offset += size;
+    return ptr;
+}
+
+/**
+ * arena_reset() - Resets the given arena by resetting all blocks' offset to 0.
+ * @arena: The arena to reset. Must not be NULL.
+ */
+void arena_reset(arena_t *arena)
+{
+    arena_block_t *block = arena->head;
+
+    while (block) {
+        block->offset = 0;
+        block = block->next;
     }
 }
 
 /**
- * find_trie() - search the index of the function name in the trie
- * @trie: A pointer to the trie where the name will be searched.
- * @name: The name to be searched.
- *
- * Return: The index of the pointer to the func_t.
- *
- * 0 - the name not found.
- * otherwise - the index of the founded index in the trie array.
+ * arena_free() - Frees the given arena and all its blocks.
+ * @arena: The arena to free. Must not be NULL.
  */
-int find_trie(trie_t *trie, char *name)
+void arena_free(arena_t *arena)
 {
-    char first_char;
-    int fc;
+    arena_block_t *block = arena->head, *next;
 
-    while (1) {
-        first_char = *name;
-        fc = first_char;
-        if (!fc)
-            return trie->index;
-        if (!trie->next[fc])
-            return 0;
-        trie = &FUNC_TRIES[trie->next[fc]];
-        name = name + 1;
+    while (block) {
+        next = block->next;
+        free(block->memory);
+        free(block);
+        block = next;
     }
+
+    free(arena);
+}
+
+/**
+ * hashmap_hash_index() - Hashses a string with FNV-1a hash function
+ * and converts into usable hashmap index. The range of returned
+ * hashmap index is ranged from "(0 ~ 2,147,483,647) mod size" due to
+ * lack of unsigned integer implementation.
+ * @size: The size of map. Must not be negative or 0.
+ * @key: The key string. May be NULL.
+ *
+ * Return: The usable hashmap index.
+ */
+int hashmap_hash_index(int size, char *key)
+{
+    int hash = 0x811c9dc5, mask;
+
+    for (; *key; key++) {
+        hash ^= *key;
+        hash *= 0x01000193;
+    }
+
+    mask = hash >> 31;
+    return ((hash ^ mask) - mask) & (size - 1);
+}
+
+int round_up_pow2(int v)
+{
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+    return v;
+}
+
+/**
+ * hashmap_create() - Creates a hashmap on heap. Notice that
+ * provided size will always be rounded up to nearest power of 2.
+ * @size: The initial bucket size of hashmap. Must not be 0 or
+ * negative.
+ *
+ * Return: The pointer of created hashmap.
+ */
+hashmap_t *hashmap_create(int cap)
+{
+    hashmap_t *map = malloc(sizeof(hashmap_t));
+
+    if (!map) {
+        printf("Failed to allocate hashmap_t with capacity %d\n", cap);
+        return NULL;
+    }
+
+    map->size = 0;
+    map->cap = round_up_pow2(cap);
+    map->buckets = calloc(map->cap, sizeof(hashmap_node_t *));
+
+    if (!map->buckets) {
+        printf("Failed to allocate buckets in hashmap_t\n");
+        free(map);
+        return NULL;
+    }
+
+    return map;
+}
+
+/**
+ * hashmap_node_new() - Creates a hashmap node on heap.
+ * @key: The key of node. Must not be NULL.
+ * @val: The value of node. Could be NULL.
+ *
+ * Return: The pointer of created node.
+ */
+hashmap_node_t *hashmap_node_new(char *key, void *val)
+{
+    if (!key)
+        return NULL;
+
+    int len = strlen(key);
+    hashmap_node_t *node = malloc(sizeof(hashmap_node_t));
+
+
+    if (!node) {
+        printf("Failed to allocate hashmap_node_t\n");
+        return NULL;
+    }
+
+    node->key = calloc(len + 1, sizeof(char));
+
+    if (!node->key) {
+        printf("Failed to allocate hashmap_node_t key with size %d\n");
+        free(node);
+        return NULL;
+    }
+
+    strcpy(node->key, key);
+    node->val = val;
+    node->next = NULL;
+    return node;
+}
+
+void hashmap_rehash(hashmap_t *map)
+{
+    if (!map)
+        return;
+
+    int old_cap = map->cap;
+    hashmap_node_t **old_buckets = map->buckets;
+
+    map->cap <<= 1;
+    map->buckets = calloc(map->cap, sizeof(hashmap_node_t *));
+
+    if (!map->buckets) {
+        printf("Failed to allocate new buckets in hashmap_t\n");
+        map->buckets = old_buckets;
+        map->cap = old_cap;
+        return;
+    }
+
+    for (int i = 0; i < old_cap; i++) {
+        hashmap_node_t *cur = old_buckets[i], *next, *target_cur;
+
+        while (cur) {
+            next = cur->next;
+            cur->next = NULL;
+            int index = hashmap_hash_index(map->cap, cur->key);
+            target_cur = map->buckets[index];
+
+            if (!target_cur) {
+                map->buckets[index] = cur;
+            } else {
+                cur->next = target_cur;
+                map->buckets[index] = cur;
+            }
+
+            cur = next;
+        }
+    }
+
+    free(old_buckets);
+}
+
+/**
+ * hashmap_put() - Puts a key-value pair into given hashmap.
+ * If key already contains a value, then replace it with new
+ * value, the old value will be freed.
+ * @map: The hashmap to be put into. Must not be NULL.
+ * @key: The key string. May be NULL.
+ * @val: The value pointer. May be NULL. This value's lifetime
+ * is held by hashmap.
+ */
+void hashmap_put(hashmap_t *map, char *key, void *val)
+{
+    if (!map)
+        return;
+
+    int index = hashmap_hash_index(map->cap, key);
+    hashmap_node_t *cur = map->buckets[index],
+                   *new_node = hashmap_node_new(key, val);
+
+    if (!cur) {
+        map->buckets[index] = new_node;
+    } else {
+        while (cur->next)
+            cur = cur->next;
+        cur->next = new_node;
+    }
+
+    map->size++;
+    /* Check if size of map exceeds load factor 75% (or 3/4 of capacity) */
+    if ((map->cap >> 2) + (map->cap >> 1) <= map->size)
+        hashmap_rehash(map);
+}
+
+/**
+ * hashmap_get_node() - Gets key-value pair node from hashmap from given key.
+ * @map: The hashmap to be looked up. Must no be NULL.
+ * @key: The key string. May be NULL.
+ *
+ * Return: The look up result, if the key-value pair entry
+ * exists, then returns address of itself, NULL otherwise.
+ */
+hashmap_node_t *hashmap_get_node(hashmap_t *map, char *key)
+{
+    if (!map)
+        return NULL;
+
+    int index = hashmap_hash_index(map->cap, key);
+
+    for (hashmap_node_t *cur = map->buckets[index]; cur; cur = cur->next)
+        if (!strcmp(cur->key, key))
+            return cur;
+
+    return NULL;
+}
+
+/**
+ * hashmap_get() - Gets value from hashmap from given key.
+ * @map: The hashmap to be looked up. Must no be NULL.
+ * @key: The key string. May be NULL.
+ *
+ * Return: The look up result, if the key-value pair entry
+ * exists, then returns its value's address, NULL otherwise.
+ */
+void *hashmap_get(hashmap_t *map, char *key)
+{
+    hashmap_node_t *node = hashmap_get_node(map, key);
+    return node ? node->val : NULL;
+}
+
+/**
+ * hashmap_contains() - Checks if the key-value pair entry exists
+ * from given key.
+ * @map: The hashmap to be looked up. Must no be NULL.
+ * @key: The key string. May be NULL.
+ *
+ * Return: The look up result, if the key-value pair entry
+ * exists, then returns true, false otherwise.
+ */
+bool hashmap_contains(hashmap_t *map, char *key)
+{
+    return hashmap_get_node(map, key);
+}
+
+/**
+ * hashmap_free() - Frees the hashmap, this also frees key-value pair
+ * entry's value.
+ * @map: The hashmap to be looked up. Must no be NULL.
+ */
+void hashmap_free(hashmap_t *map)
+{
+    if (!map)
+        return;
+
+    for (int i = 0; i < map->size; i++) {
+        for (hashmap_node_t *cur = map->buckets[i], *next; cur; cur = next) {
+            next = cur->next;
+            free(cur->key);
+            free(cur->val);
+            free(cur);
+            cur = next;
+        }
+    }
+
+    free(map->buckets);
+    free(map);
 }
 
 /* options */
 
+bool qbe_sil = false;
 int dump_ir = 0;
 int hard_mul_div = 0;
 
@@ -182,25 +489,17 @@ type_t *find_type(char *type_name, int flag)
     return NULL;
 }
 
-ph1_ir_t *add_global_ir(opcode_t op)
+ph2_ir_t *add_existed_ph2_ir(ph2_ir_t *ph2_ir)
 {
-    ph1_ir_t *ir = &GLOBAL_IR[global_ir_idx++];
-    ir->op = op;
-    return ir;
-}
-
-ph1_ir_t *add_ph1_ir(opcode_t op)
-{
-    ph1_ir_t *ph1_ir = &PH1_IR[ph1_ir_idx++];
-    ph1_ir->op = op;
-    return ph1_ir;
+    PH2_IR_FLATTEN[ph2_ir_idx++] = ph2_ir;
+    return ph2_ir;
 }
 
 ph2_ir_t *add_ph2_ir(opcode_t op)
 {
-    ph2_ir_t *ph2_ir = &PH2_IR[ph2_ir_idx++];
+    ph2_ir_t *ph2_ir = arena_alloc(BB_ARENA, sizeof(ph2_ir_t));
     ph2_ir->op = op;
-    return ph2_ir;
+    return add_existed_ph2_ir(ph2_ir);
 }
 
 void set_var_liveout(var_t *var, int end)
@@ -210,57 +509,49 @@ void set_var_liveout(var_t *var, int end)
     var->liveness = end;
 }
 
-void add_label(char *name, int offset)
-{
-    label_lut_t *lut = &LABEL_LUT[label_lut_idx++];
-    strcpy(lut->name, name);
-    lut->offset = offset;
-}
-
-int find_label_offset(char name[])
-{
-    for (int i = 0; i < label_lut_idx; i++) {
-        if (!strcmp(LABEL_LUT[i].name, name))
-            return LABEL_LUT[i].offset;
-    }
-    return -1;
-}
-
 block_t *add_block(block_t *parent, func_t *func, macro_t *macro)
 {
-    block_t *blk = &BLOCKS[blocks_idx];
-    blk->index = blocks_idx++;
+    block_t *blk = arena_alloc(BLOCK_ARENA, sizeof(block_t));
+
     blk->parent = parent;
     blk->func = func;
     blk->macro = macro;
-    blk->next_local = 0;
+    blk->locals.capacity = 16;
+    blk->locals.elements =
+        arena_alloc(BLOCK_ARENA, blk->locals.capacity * sizeof(var_t *));
     return blk;
 }
 
 void add_alias(char *alias, char *value)
 {
-    alias_t *al = &ALIASES[aliases_idx++];
-    strcpy(al->alias, alias);
+    alias_t *al = hashmap_get(ALIASES_MAP, alias);
+    if (!al) {
+        al = malloc(sizeof(alias_t));
+        if (!al) {
+            printf("Failed to allocate alias_t\n");
+            return;
+        }
+        strcpy(al->alias, alias);
+        hashmap_put(ALIASES_MAP, alias, al);
+    }
     strcpy(al->value, value);
     al->disabled = false;
 }
 
 char *find_alias(char alias[])
 {
-    for (int i = 0; i < aliases_idx; i++) {
-        if (!ALIASES[i].disabled && !strcmp(alias, ALIASES[i].alias))
-            return ALIASES[i].value;
-    }
+    alias_t *al = hashmap_get(ALIASES_MAP, alias);
+    if (al && !al->disabled)
+        return al->value;
     return NULL;
 }
 
 bool remove_alias(char *alias)
 {
-    for (int i = 0; i < aliases_idx; i++) {
-        if (!ALIASES[i].disabled && !strcmp(alias, ALIASES[i].alias)) {
-            ALIASES[i].disabled = true;
-            return true;
-        }
+    alias_t *al = hashmap_get(ALIASES_MAP, alias);
+    if (al && !al->disabled) {
+        al->disabled = true;
+        return true;
     }
     return false;
 }
@@ -310,20 +601,7 @@ int find_macro_param_src_idx(char *name, block_t *parent)
     return 0;
 }
 
-func_t *add_func(char *name)
-{
-    func_t *fn;
-    int index = insert_trie(FUNC_TRIES, name, funcs_idx);
-    if (index == funcs_idx) {
-        fn = &FUNCS[funcs_idx++];
-        strcpy(fn->return_def.var_name, name);
-    }
-    fn = &FUNCS[index];
-    fn->stack_size = 4; /* starting point of stack */
-    return fn;
-}
-
-type_t *add_type()
+type_t *add_type(void)
 {
     return &TYPES[types_idx++];
 }
@@ -337,26 +615,20 @@ type_t *add_named_type(char *name)
 
 void add_constant(char alias[], int value)
 {
-    constant_t *constant = &CONSTANTS[constants_idx++];
+    constant_t *constant = malloc(sizeof(constant_t));
+    if (!constant) {
+        printf("Failed to allocate constant_t\n");
+        return;
+    }
+
     strcpy(constant->alias, alias);
     constant->value = value;
+    hashmap_put(CONSTANTS_MAP, alias, constant);
 }
 
 constant_t *find_constant(char alias[])
 {
-    for (int i = 0; i < constants_idx; i++) {
-        if (!strcmp(CONSTANTS[i].alias, alias))
-            return &CONSTANTS[i];
-    }
-    return NULL;
-}
-
-func_t *find_func(char func_name[])
-{
-    int index = find_trie(FUNC_TRIES, func_name);
-    if (index)
-        return &FUNCS[index];
-    return NULL;
+    return hashmap_get(CONSTANTS_MAP, alias);
 }
 
 var_t *find_member(char token[], type_t *type)
@@ -376,19 +648,20 @@ var_t *find_member(char token[], type_t *type)
 
 var_t *find_local_var(char *token, block_t *block)
 {
-    func_t *fn = block->func;
+    func_t *func = block->func;
 
     for (; block; block = block->parent) {
-        for (int i = 0; i < block->next_local; i++) {
-            if (!strcmp(block->locals[i].var_name, token))
-                return &block->locals[i];
+        var_list_t *var_list = &block->locals;
+        for (int i = 0; i < var_list->size; i++) {
+            if (!strcmp(var_list->elements[i]->var_name, token))
+                return var_list->elements[i];
         }
     }
 
-    if (fn) {
-        for (int i = 0; i < fn->num_params; i++) {
-            if (!strcmp(fn->param_defs[i].var_name, token))
-                return &fn->param_defs[i];
+    if (func) {
+        for (int i = 0; i < func->num_params; i++) {
+            if (!strcmp(func->param_defs[i].var_name, token))
+                return &func->param_defs[i];
         }
     }
     return NULL;
@@ -396,11 +669,11 @@ var_t *find_local_var(char *token, block_t *block)
 
 var_t *find_global_var(char *token)
 {
-    block_t *block = &BLOCKS[0];
+    var_list_t *var_list = &GLOBAL_BLOCK->locals;
 
-    for (int i = 0; i < block->next_local; i++) {
-        if (!strcmp(block->locals[i].var_name, token))
-            return &block->locals[i];
+    for (int i = 0; i < var_list->size; i++) {
+        if (!strcmp(var_list->elements[i]->var_name, token))
+            return var_list->elements[i];
     }
     return NULL;
 }
@@ -419,9 +692,7 @@ int size_var(var_t *var)
     if (var->is_ptr > 0 || var->is_func) {
         size = 4;
     } else {
-        type_t *type = find_type(var->type_name, 0);
-        if (!type)
-            error("Incomplete type");
+        type_t *type = var->type;
         if (type->size == 0)
             size = type->base_struct->size;
         else
@@ -432,32 +703,74 @@ int size_var(var_t *var)
     return size;
 }
 
-/* TODO: Integrate with 'func_t' */
-fn_t *add_fn()
+/**
+ * add_func() - Creates a new function and adds it to the
+ * function lookup table and function list if it does not already exist,
+ * or returns the existing instance if the function already exists.
+ *
+ * Synthesized functions (e.g., compiler-generated functions like `__syscall`)
+ * are excluded from SSA analysis.
+ *
+ * @func_name: The name of the function. May be NULL.
+ * @synthesize: Indicates whether the function is synthesized by the compiler.
+ * Synthesized functions will not be analyzed by the SSA unit.
+ *
+ * Return: A pointer to the function.
+ */
+func_t *add_func(char *func_name, bool synthesize)
 {
-    fn_t *n = calloc(1, sizeof(fn_t));
+    func_t *func = hashmap_get(FUNC_MAP, func_name);
+
+    if (func)
+        return func;
+
+    func = calloc(1, sizeof(func_t));
+    hashmap_put(FUNC_MAP, func_name, func);
+    strcpy(func->return_def.var_name, func_name);
+    func->stack_size = 4;
+
+    if (synthesize)
+        return func;
 
     if (!FUNC_LIST.head) {
-        FUNC_LIST.head = n;
-        FUNC_LIST.tail = n;
-        return n;
+        FUNC_LIST.head = func;
+        FUNC_LIST.tail = func;
+    } else {
+        FUNC_LIST.tail->next = func;
+        FUNC_LIST.tail = func;
     }
-    FUNC_LIST.tail->next = n;
-    FUNC_LIST.tail = n;
-    return n;
+
+    return func;
+}
+
+/**
+ * find_func() - Finds the function in function map.
+ * @func_name: The name of the function. May be NULL.
+ *
+ * Return: A pointer to the function if exists, NULL otherwise.
+ */
+func_t *find_func(char *func_name)
+{
+    return hashmap_get(FUNC_MAP, func_name);
 }
 
 /* Create a basic block and set the scope of variables to 'parent' block */
 basic_block_t *bb_create(block_t *parent)
 {
-    basic_block_t *bb = calloc(1, sizeof(basic_block_t));
+    basic_block_t *bb = arena_alloc(BB_ARENA, sizeof(basic_block_t));
 
     for (int i = 0; i < MAX_BB_PRED; i++) {
         bb->prev[i].bb = NULL;
         bb->prev[i].type = NEXT;
     }
     bb->scope = parent;
-    bb->belong_to = parent->func->fn;
+    bb->belong_to = parent->func;
+
+    if (dump_ir) {
+        if (!qbe_sil || strlen(bb->bb_label_name) == 0)
+            snprintf(bb->bb_label_name, MAX_VAR_LEN, ".label.%d", bb_label_idx++);
+    }
+    
     return bb;
 }
 
@@ -562,7 +875,7 @@ void add_insn(block_t *block,
 
     bb->scope = block;
 
-    insn_t *n = calloc(1, sizeof(insn_t));
+    insn_t *n = arena_alloc(INSN_ARENA, sizeof(insn_t));
     n->opcode = op;
     n->rd = rd;
     n->rs1 = rs1;
@@ -582,60 +895,138 @@ void add_insn(block_t *block,
     bb->insn_list.tail = n;
 }
 
+strbuf_t *strbuf_create(int init_capacity)
+{
+    strbuf_t *array = malloc(sizeof(strbuf_t));
+    if (!array)
+        return NULL;
+
+    array->size = 0;
+    array->capacity = init_capacity;
+    array->elements = malloc(array->capacity * sizeof(char));
+    if (!array->elements) {
+        free(array);
+        return NULL;
+    }
+
+    return array;
+}
+
+bool strbuf_extend(strbuf_t *src, int len)
+{
+    int new_size = src->size + len;
+
+    if (new_size < src->capacity)
+        return true;
+
+    if (new_size > src->capacity << 1)
+        src->capacity = new_size;
+    else
+        src->capacity <<= 1;
+
+    char *new_arr = malloc(src->capacity * sizeof(char));
+
+    if (!new_arr)
+        return false;
+
+    memcpy(new_arr, src->elements, src->size * sizeof(char));
+
+    free(src->elements);
+    src->elements = new_arr;
+
+    return true;
+}
+
+bool strbuf_putc(strbuf_t *src, char value)
+{
+    if (!strbuf_extend(src, 1))
+        return false;
+
+    src->elements[src->size] = value;
+    src->size++;
+
+    return true;
+}
+
+bool strbuf_puts(strbuf_t *src, char *value)
+{
+    int len = strlen(value);
+
+    if (!strbuf_extend(src, len))
+        return false;
+
+    strncpy(src->elements + src->size, value, len);
+    src->size += len;
+
+    return true;
+}
+
+void strbuf_free(strbuf_t *src)
+{
+    if (!src)
+        return;
+
+    free(src->elements);
+    free(src);
+}
+
 /* This routine is required because the global variable initializations are
  * not supported now.
  */
-void global_init()
+void global_init(void)
 {
     elf_code_start = ELF_START + elf_header_len;
 
-    BLOCKS = malloc(MAX_BLOCKS * sizeof(block_t));
     MACROS = malloc(MAX_ALIASES * sizeof(macro_t));
-    FUNCS = malloc(MAX_FUNCS * sizeof(func_t));
-    FUNC_TRIES = malloc(MAX_FUNC_TRIES * sizeof(trie_t));
     TYPES = malloc(MAX_TYPES * sizeof(type_t));
-    GLOBAL_IR = malloc(MAX_GLOBAL_IR * sizeof(ph1_ir_t));
-    PH1_IR = malloc(MAX_IR_INSTR * sizeof(ph1_ir_t));
-    PH2_IR = malloc(MAX_IR_INSTR * sizeof(ph2_ir_t));
-    LABEL_LUT = malloc(MAX_LABEL * sizeof(label_lut_t));
-    SOURCE = malloc(MAX_SOURCE);
-    ALIASES = malloc(MAX_ALIASES * sizeof(alias_t));
-    CONSTANTS = malloc(MAX_CONSTANTS * sizeof(constant_t));
+    BLOCK_ARENA = arena_init(DEFAULT_ARENA_SIZE);
+    INSN_ARENA = arena_init(DEFAULT_ARENA_SIZE);
+    BB_ARENA = arena_init(DEFAULT_ARENA_SIZE);
+    PH2_IR_FLATTEN = malloc(MAX_IR_INSTR * sizeof(ph2_ir_t *));
+    SOURCE = strbuf_create(MAX_SOURCE);
+    FUNC_MAP = hashmap_create(DEFAULT_FUNCS_SIZE);
+    INCLUSION_MAP = hashmap_create(DEFAULT_INCLUSIONS_SIZE);
+    ALIASES_MAP = hashmap_create(MAX_ALIASES);
+    CONSTANTS_MAP = hashmap_create(MAX_CONSTANTS);
 
-    elf_code = malloc(MAX_CODE);
-    elf_data = malloc(MAX_DATA);
-    elf_header = malloc(MAX_HEADER);
-    elf_symtab = malloc(MAX_SYMTAB);
-    elf_strtab = malloc(MAX_STRTAB);
-    elf_section = malloc(MAX_SECTION);
-
-    /* set starting point of global stack manually */
-    FUNCS[0].stack_size = 4;
+    elf_code = strbuf_create(MAX_CODE);
+    elf_data = strbuf_create(MAX_DATA);
+    elf_header = strbuf_create(MAX_HEADER);
+    elf_symtab = strbuf_create(MAX_SYMTAB);
+    elf_strtab = strbuf_create(MAX_STRTAB);
+    elf_section = strbuf_create(MAX_SECTION);
 }
 
-void global_release()
+void global_release(void)
 {
-    free(BLOCKS);
     free(MACROS);
-    free(FUNCS);
-    free(FUNC_TRIES);
     free(TYPES);
-    free(GLOBAL_IR);
-    free(PH1_IR);
-    free(PH2_IR);
-    free(LABEL_LUT);
-    free(SOURCE);
-    free(ALIASES);
-    free(CONSTANTS);
+    arena_free(BLOCK_ARENA);
+    arena_free(INSN_ARENA);
+    arena_free(BB_ARENA);
+    free(PH2_IR_FLATTEN);
+    strbuf_free(SOURCE);
+    hashmap_free(FUNC_MAP);
+    hashmap_free(INCLUSION_MAP);
+    hashmap_free(ALIASES_MAP);
+    hashmap_free(CONSTANTS_MAP);
 
-    free(elf_code);
-    free(elf_data);
-    free(elf_header);
-    free(elf_symtab);
-    free(elf_strtab);
-    free(elf_section);
+    strbuf_free(elf_code);
+    strbuf_free(elf_data);
+    strbuf_free(elf_header);
+    strbuf_free(elf_symtab);
+    strbuf_free(elf_strtab);
+    strbuf_free(elf_section);
 }
 
+/* Reports an error without specifying a position */
+void fatal(char *msg)
+{
+    printf("[Error]: %s\n", msg);
+    abort();
+}
+
+/* Reports an error and specifying a position */
 void error(char *msg)
 {
     /* Construct error source diagnostics, enabling precise identification of
@@ -644,18 +1035,20 @@ void error(char *msg)
     int offset, start_idx, i = 0;
     char diagnostic[512 /* MAX_LINE_LEN * 2 */];
 
-    for (offset = source_idx; offset >= 0 && SOURCE[offset] != '\n'; offset--)
+    for (offset = SOURCE->size; offset >= 0 && SOURCE->elements[offset] != '\n';
+         offset--)
         ;
 
     start_idx = offset + 1;
 
-    for (offset = 0; offset < MAX_SOURCE && SOURCE[start_idx + offset] != '\n';
+    for (offset = 0;
+         offset < MAX_SOURCE && SOURCE->elements[start_idx + offset] != '\n';
          offset++) {
-        diagnostic[i++] = SOURCE[start_idx + offset];
+        diagnostic[i++] = SOURCE->elements[start_idx + offset];
     }
     diagnostic[i++] = '\n';
 
-    for (offset = start_idx; offset < source_idx; offset++) {
+    for (offset = start_idx; offset < SOURCE->size; offset++) {
         diagnostic[i++] = ' ';
     }
 
@@ -664,7 +1057,8 @@ void error(char *msg)
     /* TODO: figure out the corresponding C source file path and report line
      * number.
      */
-    printf("Error %s at source location %d\n%s\n", msg, source_idx, diagnostic);
+    printf("[Error]: %s\nOccurs at source location %d.\n%s\n", msg,
+           SOURCE->size, diagnostic);
     abort();
 }
 
@@ -674,214 +1068,276 @@ void print_indent(int indent)
         printf("\t");
 }
 
-void dump_ph1_ir()
+void dump_bb_insn(func_t *func, basic_block_t *bb, bool *at_func_start)
 {
-    int indent = 0;
-    ph1_ir_t *ph1_ir;
-    func_t *fn;
-    char rd[MAX_VAR_LEN], op1[MAX_VAR_LEN], op2[MAX_VAR_LEN];
+    var_t *rd, *rs1, *rs2;
 
-    for (int i = 0; i < ph1_ir_idx; i++) {
-        ph1_ir = &PH1_IR[i];
+    if (bb != func->bbs && bb->insn_list.head) {
+        if (!at_func_start[0])
+            printf("%s:\n", bb->bb_label_name);
+        else
+            at_func_start[0] = false;
+    }
 
-        if (ph1_ir->dest)
-            strcpy(rd, ph1_ir->dest->var_name);
-        if (ph1_ir->src0)
-            strcpy(op1, ph1_ir->src0->var_name);
-        if (ph1_ir->src1)
-            strcpy(op2, ph1_ir->src1->var_name);
+    for (insn_t *insn = bb->insn_list.head; insn; insn = insn->next) {
+        rd = insn->rd;
+        rs1 = insn->rs1;
+        rs2 = insn->rs2;
 
-        switch (ph1_ir->op) {
-        case OP_define:
-            fn = find_func(ph1_ir->func_name);
-            printf("def %s", fn->return_def.type_name);
-
-            for (int j = 0; j < fn->return_def.is_ptr; j++)
-                printf("*");
-            printf(" @%s(", ph1_ir->func_name);
-
-            for (int j = 0; j < fn->num_params; j++) {
-                if (j != 0)
-                    printf(", ");
-                printf("%s", fn->param_defs[j].type_name);
-
-                for (int k = 0; k < fn->param_defs[j].is_ptr; k++)
-                    printf("*");
-                printf(" %%%s", fn->param_defs[j].var_name);
-            }
-            printf(")");
+        switch (insn->opcode) {
+        case OP_phi:
+            print_indent(1);
+            printf("phi %s, %s, %s", rd->var_name, rs1->var_name, rs2->var_name);
             break;
-        case OP_block_start:
-            print_indent(indent);
-            printf("{");
-            indent++;
-            break;
-        case OP_block_end:
-            indent--;
-            print_indent(indent);
-            printf("}");
-            break;
+        case OP_unwound_phi:
+            /* Ignored */
+            continue;
         case OP_allocat:
-            print_indent(indent);
-            printf("allocat %s", ph1_ir->src0->type_name);
-            for (int j = 0; j < ph1_ir->src0->is_ptr; j++)
-                printf("*");
-            printf(" %%%s", op1);
+            print_indent(1);
+            printf("allocat %s", rd->type->type_name);
 
-            if (ph1_ir->src0->array_size > 0)
-                printf("[%d]", ph1_ir->src0->array_size);
+            for (int i = 0; i < rd->is_ptr; i++)
+                printf("*");
+
+            printf(" %%%s", rd->var_name);
+
+            if (rd->array_size > 0)
+                printf("[%d]", rd->array_size);
+
             break;
         case OP_load_constant:
-            print_indent(indent);
-            printf("const %%%s, $%d", rd, ph1_ir->dest->init_val);
+            print_indent(1);
+            printf("const %%%s, %d", rd->var_name, rd->init_val);
             break;
         case OP_load_data_address:
-            print_indent(indent);
+            print_indent(1);
             /* offset from .data section */
-            printf("%%%s = .data (%d)", rd, ph1_ir->dest->init_val);
+            printf("%%%s = .data (%d)", rd->var_name, rd->init_val);
             break;
         case OP_address_of:
-            print_indent(indent);
-            printf("%%%s = &(%%%s)", rd, op1);
+            print_indent(1);
+            printf("%%%s = &(%%%s)", rd->var_name, rs1->var_name);
             break;
         case OP_assign:
-            print_indent(indent);
-            printf("%%%s = %%%s", rd, op1);
-            break;
-        case OP_label:
-            print_indent(0);
-            printf("%s", op1);
+            print_indent(1);
+            printf("%%%s = %%%s", rd->var_name, rs1->var_name);
             break;
         case OP_branch:
-            print_indent(indent);
-            printf("br %%%s, %s, %s", rd, op1, op2);
-            break;
-        case OP_jump:
-            print_indent(indent);
-            printf("j %s", rd);
+            print_indent(1);
+            printf("br %%%s, %s, %s", rs1->var_name, bb->then_->bb_label_name,
+                   bb->else_->bb_label_name);
             break;
         case OP_push:
-            print_indent(indent);
-            printf("push %%%s", op1);
+            print_indent(1);
+            printf("push %%%s", rs1->var_name);
             break;
         case OP_call:
-            print_indent(indent);
-            printf("call @%s, %d", ph1_ir->func_name, ph1_ir->param_num);
+            print_indent(1);
+            printf("call @%s", insn->str);
             break;
         case OP_func_ret:
-            print_indent(indent);
-            printf("retval %%%s", rd);
+            print_indent(1);
+            printf("retval %%%s", rd->var_name);
             break;
         case OP_return:
-            print_indent(indent);
-            if (ph1_ir->src0)
-                printf("ret %%%s", op1);
+            print_indent(1);
+            if (rs1)
+                printf("ret %%%s", rs1->var_name);
             else
                 printf("ret");
             break;
         case OP_read:
-            print_indent(indent);
-            printf("%%%s = (%%%s), %d", rd, op1, ph1_ir->size);
+            print_indent(1);
+            printf("%%%s = (%%%s), %d", rd->var_name, rs1->var_name, insn->sz);
             break;
         case OP_write:
-            print_indent(indent);
-            if (ph1_ir->src0->is_func)
-                printf("(%%%s) = @%s", rd, op1);
+            print_indent(1);
+            if (rs1->is_func)
+                printf("(%%%s) = @%s", rs1->var_name, rs2->var_name);
             else
-                printf("(%%%s) = %%%s, %d", rd, op1, ph1_ir->size);
+                printf("(%%%s) = %%%s, %d", rs1->var_name, rs2->var_name,
+                       insn->sz);
             break;
         case OP_indirect:
-            print_indent(indent);
-            printf("indirect call @(%%%s)", op1);
+            print_indent(1);
+            printf("indirect call @(%%%s)", rs1->var_name);
             break;
         case OP_negate:
-            print_indent(indent);
-            printf("neg %%%s, %%%s", rd, op1);
+            print_indent(1);
+            printf("neg %%%s, %%%s", rd->var_name, rs1->var_name);
             break;
         case OP_add:
-            print_indent(indent);
-            printf("%%%s = add %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = add %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_sub:
-            print_indent(indent);
-            printf("%%%s = sub %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = sub %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_mul:
-            print_indent(indent);
-            printf("%%%s = mul %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = mul %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_div:
-            print_indent(indent);
-            printf("%%%s = div %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = div %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_mod:
-            print_indent(indent);
-            printf("%%%s = mod %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = mod %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_eq:
-            print_indent(indent);
-            printf("%%%s = eq %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = eq %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_neq:
-            print_indent(indent);
-            printf("%%%s = neq %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = neq %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_gt:
-            print_indent(indent);
-            printf("%%%s = gt %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = gt %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_lt:
-            print_indent(indent);
-            printf("%%%s = lt %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = lt %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_geq:
-            print_indent(indent);
-            printf("%%%s = geq %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = geq %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_leq:
-            print_indent(indent);
-            printf("%%%s = leq %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = leq %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_bit_and:
-            print_indent(indent);
-            printf("%%%s = and %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = and %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_bit_or:
-            print_indent(indent);
-            printf("%%%s = or %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = or %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_bit_not:
-            print_indent(indent);
-            printf("%%%s = not %%%s", rd, op1);
+            print_indent(1);
+            printf("%%%s = not %%%s", rd->var_name, rs1->var_name);
             break;
         case OP_bit_xor:
-            print_indent(indent);
-            printf("%%%s = xor %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = xor %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_log_and:
-            print_indent(indent);
-            printf("%%%s = and %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = and %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_log_or:
-            print_indent(indent);
-            printf("%%%s = or %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = or %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_log_not:
-            print_indent(indent);
-            printf("%%%s = not %%%s", rd, op1);
+            print_indent(1);
+            printf("%%%s = not %%%s", rd->var_name, rs1->var_name);
             break;
         case OP_rshift:
-            print_indent(indent);
-            printf("%%%s = rshift %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = rshift %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
             break;
         case OP_lshift:
-            print_indent(indent);
-            printf("%%%s = lshift %%%s, %%%s", rd, op1, op2);
+            print_indent(1);
+            printf("%%%s = lshift %%%s, %%%s", rd->var_name, rs1->var_name,
+                   rs2->var_name);
+            break;
+        case OP_trunc:
+            print_indent(1);
+            printf("%%%s = trunc %%%s, %d", rd->var_name, rs1->var_name,
+                   insn->sz);
+            break;
+        case OP_sign_ext:
+            print_indent(1);
+            printf("%%%s = sign_ext %%%s, %d", rd->var_name, rs1->var_name,
+                   insn->sz);
             break;
         default:
+            printf("<Unsupported opcode: %d>", insn->opcode);
             break;
         }
+
         printf("\n");
     }
-    printf("===\n");
+}
+
+void dump_bb_insn_by_dom(func_t *func, basic_block_t *bb, bool *at_func_start)
+{
+    dump_bb_insn(func, bb, at_func_start);
+    for (int i = 0; i < MAX_BB_DOM_SUCC; i++) {
+        if (!bb->dom_next[i])
+            break;
+        dump_bb_insn_by_dom(func, bb->dom_next[i], at_func_start);
+    }
+}
+
+void dump_insn(void)
+{
+    printf("==<START OF INSN DUMP>==\n");
+
+    for (func_t *func = FUNC_LIST.head; func; func = func->next) {
+        bool at_func_start = true;
+
+        printf("def %s", func->return_def.type->type_name);
+
+        for (int i = 0; i < func->return_def.is_ptr; i++)
+            printf("*");
+        printf(" @%s(", func->return_def.var_name);
+
+        for (int i = 0; i < func->num_params; i++) {
+            if (i != 0)
+                printf(", ");
+            printf("%s", func->param_defs[i].type->type_name);
+
+            for (int k = 0; k < func->param_defs[i].is_ptr; k++)
+                printf("*");
+            printf(" %%%s", func->param_defs[i].var_name);
+        }
+        printf(") {\n");
+
+        dump_bb_insn_by_dom(func, func->bbs, &at_func_start);
+
+        /* Handle implicit return */
+        for (int i = 0; i < MAX_BB_PRED; i++) {
+            basic_block_t *bb = func->exit->prev[i].bb;
+            if (!bb)
+                continue;
+
+            if (func->return_def.type != TY_void)
+                continue;
+
+            if (bb->insn_list.tail)
+                if (bb->insn_list.tail->opcode == OP_return)
+                    continue;
+
+            print_indent(1);
+            printf("ret\n");
+        }
+
+        printf("}\n");
+    }
+
+    printf("==<END OF INSN DUMP>==\n");
 }

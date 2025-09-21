@@ -5,8 +5,8 @@
  * file "LICENSE" for information on usage and redistribution of this file.
  */
 
-#ifndef SHECC_DEFS_H
-#define SHECC_DEFS_H
+#pragma once
+#include <stdbool.h>
 
 /* definitions */
 
@@ -17,21 +17,17 @@
 #define MAX_VAR_LEN 32
 #define MAX_TYPE_LEN 32
 #define MAX_PARAMS 8
-#define MAX_LOCALS 1500
+#define MAX_LOCALS 1600
 #define MAX_FIELDS 64
-#define MAX_FUNCS 512
-#define MAX_FUNC_TRIES 2160
-#define MAX_BLOCKS 2048
-#define MAX_TYPES 64
-#define MAX_IR_INSTR 50000
+#define MAX_TYPES 128
+#define MAX_IR_INSTR 60000
 #define MAX_BB_PRED 128
 #define MAX_BB_DOM_SUCC 64
 #define MAX_BB_RDOM_SUCC 256
 #define MAX_GLOBAL_IR 256
-#define MAX_LABEL 4096
-#define MAX_SOURCE 327680
-#define MAX_CODE 262144
-#define MAX_DATA 262144
+#define MAX_SOURCE 524288
+#define MAX_CODE 524288
+#define MAX_DATA 524288
 #define MAX_SYMTAB 65536
 #define MAX_STRTAB 65536
 #define MAX_HEADER 1024
@@ -41,7 +37,13 @@
 #define MAX_CASES 128
 #define MAX_NESTING 128
 #define MAX_OPERAND_STACK_SIZE 32
-#define MAX_ANALYSIS_STACK_SIZE 750
+#define MAX_ANALYSIS_STACK_SIZE 800
+
+/* Default capacities for common data structures */
+/* Default arena size is initialized with 256 KiB */
+#define DEFAULT_ARENA_SIZE 262144
+#define DEFAULT_FUNCS_SIZE 64
+#define DEFAULT_INCLUSIONS_SIZE 16
 
 #define ELF_START 0x10000
 #define PTR_SIZE 4
@@ -63,6 +65,115 @@
 /* configure host data model when using 'memcpy'. */
 #define HOST_PTR_SIZE __SIZEOF_POINTER__
 #endif
+
+/* Common data structures */
+typedef struct arena_block {
+    char *memory;
+    int capacity;
+    int offset;
+    struct arena_block *next;
+} arena_block_t;
+
+typedef struct {
+    arena_block_t *head;
+} arena_t;
+
+/* string-based hash map definitions */
+
+typedef struct hashmap_node {
+    char *key;
+    void *val;
+    struct hashmap_node *next;
+} hashmap_node_t;
+
+typedef struct {
+    int size;
+    int cap;
+    hashmap_node_t **buckets;
+} hashmap_t;
+
+/* lexer tokens */
+typedef enum {
+    T_start, /* FIXME: it was intended to start the state machine. */
+    T_numeric,
+    T_identifier,
+    T_comma,  /* , */
+    T_string, /* null-terminated string */
+    T_char,
+    T_open_bracket,  /* ( */
+    T_close_bracket, /* ) */
+    T_open_curly,    /* { */
+    T_close_curly,   /* } */
+    T_open_square,   /* [ */
+    T_close_square,  /* ] */
+    T_asterisk,      /* '*' */
+    T_divide,        /* / */
+    T_mod,           /* % */
+    T_bit_or,        /* | */
+    T_bit_xor,       /* ^ */
+    T_bit_not,       /* ~ */
+    T_log_and,       /* && */
+    T_log_or,        /* || */
+    T_log_not,       /* ! */
+    T_lt,            /* < */
+    T_gt,            /* > */
+    T_le,            /* <= */
+    T_ge,            /* >= */
+    T_lshift,        /* << */
+    T_rshift,        /* >> */
+    T_dot,           /* . */
+    T_arrow,         /* -> */
+    T_plus,          /* + */
+    T_minus,         /* - */
+    T_minuseq,       /* -= */
+    T_pluseq,        /* += */
+    T_asteriskeq,    /* *= */
+    T_divideeq,      /* /= */
+    T_modeq,         /* %= */
+    T_lshifteq,      /* <<= */
+    T_rshifteq,      /* >>= */
+    T_xoreq,         /* ^= */
+    T_oreq,          /* |= */
+    T_andeq,         /* &= */
+    T_eq,            /* == */
+    T_noteq,         /* != */
+    T_assign,        /* = */
+    T_increment,     /* ++ */
+    T_decrement,     /* -- */
+    T_question,      /* ? */
+    T_colon,         /* : */
+    T_semicolon,     /* ; */
+    T_eof,           /* end-of-file (EOF) */
+    T_ampersand,     /* & */
+    T_return,
+    T_if,
+    T_else,
+    T_while,
+    T_for,
+    T_do,
+    T_typedef,
+    T_enum,
+    T_struct,
+    T_sizeof,
+    T_elipsis, /* ... */
+    T_switch,
+    T_case,
+    T_break,
+    T_default,
+    T_continue,
+    /* C pre-processor directives */
+    T_cppd_include,
+    T_cppd_define,
+    T_cppd_undef,
+    T_cppd_error,
+    T_cppd_if,
+    T_cppd_elif,
+    T_cppd_else,
+    T_cppd_endif,
+    T_cppd_ifdef,
+    T_cppd_ifndef,
+    T_cppd_pragma
+} token_t;
 
 /* builtin types */
 typedef enum {
@@ -94,12 +205,9 @@ typedef enum {
     OP_load_data_address, /* lookup address of a constant in data section */
 
     /* control flow */
-    OP_label,
-    OP_branch,      /* conditional jump */
-    OP_jump,        /* unconditional jump */
-    OP_func_ret,    /* returned value */
-    OP_block_start, /* code block start */
-    OP_block_end,   /* code block end */
+    OP_branch,   /* conditional jump */
+    OP_jump,     /* unconditional jump */
+    OP_func_ret, /* returned value */
 
     /* function pointer */
     OP_address_of_func, /* resolve function entry */
@@ -140,6 +248,10 @@ typedef enum {
     OP_bit_not,
     OP_negate,
 
+    /* data type conversion */
+    OP_trunc,
+    OP_sign_ext,
+
     /* entry point of the state machine */
     OP_start
 } opcode_t;
@@ -147,7 +259,7 @@ typedef enum {
 /* variable definition */
 typedef struct {
     int counter;
-    int stack[64];
+    int stack[256];
     int stack_idx;
 } rename_t;
 
@@ -168,8 +280,17 @@ typedef struct use_chain_node {
     struct use_chain_node *prev;
 } use_chain_t;
 
+typedef struct var var_t;
+typedef struct type type_t;
+
+typedef struct var_list {
+    int capacity;
+    int size;
+    var_t **elements;
+} var_list_t;
+
 struct var {
-    char type_name[MAX_TYPE_LEN];
+    type_t *type;
     char var_name[MAX_VAR_LEN];
     int is_ptr;
     bool is_func;
@@ -181,7 +302,7 @@ struct var {
     int in_loop;
     struct var *base;
     int subscript;
-    struct var *subscripts[64];
+    struct var *subscripts[256];
     int subscripts_idx;
     rename_t rename;
     ref_block_list_t ref_block_list; /* blocks which kill variable */
@@ -194,8 +315,6 @@ struct var {
     bool is_const; /* whether a constant representaion or not */
 };
 
-typedef struct var var_t;
-
 typedef struct {
     char name[MAX_VAR_LEN];
     bool is_variadic;
@@ -207,49 +326,30 @@ typedef struct {
     bool disabled;
 } macro_t;
 
-typedef struct fn fn_t;
-
-/* function definition */
-typedef struct {
-    var_t return_def;
-    var_t param_defs[MAX_PARAMS];
-    int num_params;
-    int va_args;
-    int stack_size; /* stack always starts at offset 4 for convenience */
-    fn_t *fn;
-} func_t;
+typedef struct func func_t;
 
 /* block definition */
 struct block {
-    var_t locals[MAX_LOCALS];
-    int next_local;
+    var_list_t locals;
     struct block *parent;
     func_t *func;
     macro_t *macro;
-    int locals_size;
-    int index;
+    struct block *next;
 };
 
 typedef struct block block_t;
-
-/* phase-1 IR definition */
-typedef struct {
-    opcode_t op;
-    char func_name[MAX_VAR_LEN];
-    int param_num;
-    int size;
-    var_t *dest;
-    var_t *src0;
-    var_t *src1;
-} ph1_ir_t;
-
-/* label lookup table*/
-typedef struct {
-    char name[MAX_VAR_LEN];
-    int offset;
-} label_lut_t;
-
 typedef struct basic_block basic_block_t;
+
+/* Definition of a growable buffer for a mutable null-terminated string
+ * size:     Current number of elements in the array
+ * capacity: Number of elements that can be stored without resizing
+ * elements: Pointer to the array of characters
+ */
+typedef struct {
+    int size;
+    int capacity;
+    char *elements;
+} strbuf_t;
 
 /* phase-2 IR definition */
 struct ph2_ir {
@@ -277,8 +377,6 @@ struct type {
     int num_fields;
 };
 
-typedef struct type type_t;
-
 /* lvalue details */
 typedef struct {
     int size;
@@ -300,11 +398,6 @@ typedef struct {
     char alias[MAX_VAR_LEN];
     int value;
 } constant_t;
-
-typedef struct {
-    int index;
-    int next[128];
-} trie_t;
 
 struct phi_operand {
     var_t *var;
@@ -363,8 +456,10 @@ struct basic_block {
     insn_list_t insn_list;
     ph2_ir_list_t ph2_ir_list;
     bb_connection_t prev[MAX_BB_PRED];
-    struct basic_block *next;  /* normal BB */
-    struct basic_block *then_; /* conditional BB */
+    char bb_label_name[MAX_VAR_LEN]; /* Used in instruction dumping when ir_dump
+                                        is enabled. */
+    struct basic_block *next;        /* normal BB */
+    struct basic_block *then_;       /* conditional BB */
     struct basic_block *else_;
     struct basic_block *idom;
     struct basic_block *r_idom;
@@ -380,17 +475,17 @@ struct basic_block {
     int live_out_idx;
     int rpo;
     int rpo_r;
-    struct basic_block *DF[64];
-    struct basic_block *RDF[64];
+    struct basic_block *DF[256];
+    struct basic_block *RDF[256];
     int df_idx;
     int rdf_idx;
     int visited;
     bool useful; /* indicate whether this BB contains useful instructions */
-    struct basic_block *dom_next[64];
+    struct basic_block *dom_next[256];
     struct basic_block *dom_prev;
     struct basic_block *rdom_next[256];
     struct basic_block *rdom_prev;
-    fn_t *belong_to;
+    func_t *belong_to;
     block_t *scope;
     symbol_list_t symbol_list; /* variable declaration */
     int elf_offset;
@@ -401,27 +496,40 @@ struct ref_block {
     struct ref_block *next;
 };
 
-/* TODO: integrate func_t into fn_t */
-struct fn {
+/**
+ * Syntatic representation of func, combines syntactic details
+ * (e.g., return type, parameters) with SSA-related information
+ * (e.g., basic blocks, control flow) to support parsing,
+ * analysis, optimization, and code generation.
+ */
+struct func {
+    /* Syntatic info */
+    var_t return_def;
+    var_t param_defs[MAX_PARAMS];
+    int num_params;
+    int va_args;
+    int stack_size; /* stack always starts at offset 4 for convenience */
+
+    /* SSA info */
     basic_block_t *bbs;
     basic_block_t *exit;
     symbol_list_t global_sym_list;
     int bb_cnt;
     int visited;
-    func_t *func;
-    struct fn *next;
+
+    struct func *next;
 };
 
 typedef struct {
-    fn_t *head;
-    fn_t *tail;
+    func_t *head;
+    func_t *tail;
 } func_list_t;
 
 typedef struct {
-    fn_t *fn;
+    func_t *func;
     basic_block_t *bb;
-    void (*preorder_cb)(fn_t *, basic_block_t *);
-    void (*postorder_cb)(fn_t *, basic_block_t *);
+    void (*preorder_cb)(func_t *, basic_block_t *);
+    void (*postorder_cb)(func_t *, basic_block_t *);
 } bb_traversal_args_t;
 
 typedef struct {
@@ -429,4 +537,47 @@ typedef struct {
     int polluted;
 } regfile_t;
 
-#endif
+/* FIXME: replace char[2] with a short data type in ELF header structures */
+/* ELF header */
+typedef struct {
+    char e_ident[16];
+    char e_type[2];
+    char e_machine[2];
+    int e_version;
+    int e_entry;
+    int e_phoff;
+    int e_shoff;
+    int e_flags;
+    char e_ehsize[2];
+    char e_phentsize[2];
+    char e_phnum[2];
+    char e_shentsize[2];
+    char e_shnum[2];
+    char e_shstrndx[2];
+} elf32_hdr_t;
+
+/* ELF program header */
+typedef struct {
+    int p_type;
+    int p_offset;
+    int p_vaddr;
+    int p_paddr;
+    int p_filesz;
+    int p_memsz;
+    int p_flags;
+    int p_align;
+} elf32_phdr_t;
+
+/* ELF section header */
+typedef struct {
+    int sh_name;
+    int sh_type;
+    int sh_flags;
+    int sh_addr;
+    int sh_offset;
+    int sh_size;
+    int sh_link;
+    int sh_info;
+    int sh_addralign;
+    int sh_entsize;
+} elf32_shdr_t;
