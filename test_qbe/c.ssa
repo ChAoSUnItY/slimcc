@@ -206,6 +206,7 @@ function w $strcmp(w %s1, w %s2) {
   %t23 =b loadb %t20
   %t15 =w copy %t23
   @L_and_end_2
+  # END OF LOGICAL
   jnz %t15, @L_for_then_1, @L_for_end_1
   @L_for_then_1
   %t27 =w copy 1
@@ -783,6 +784,7 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   %t382 =w clt %pbi, %t383
   %t375 =w copy %t382
   @L_and_end_30
+  # END OF LOGICAL
   jnz %t375, @L_for_then_29, @L_for_end_10
   @L_for_then_29
   %t385 =w copy 1
@@ -821,6 +823,7 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   %t390 =w cne %t394, %t395
   %t388 =w copy %t390
   @L_and_end_36
+  # END OF LOGICAL
   jnz %t388, @L_if_then_35, @L_if_else_35
   @L_if_then_35
   %t396 =w copy %fmtbuf
@@ -869,6 +872,7 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   %t414 =w ceq %t418, %t419
   %t412 =w copy %t414
   @L_and_end_40
+  # END OF LOGICAL
   jnz %t412, @L_if_then_39, @L_if_end_39
   @L_if_then_39
   %t420 =w copy %fmtbuf
@@ -906,6 +910,7 @@ function v $__format(w %fmtbuf, w %val, w %width, w %zeropad, w %base, w %altern
   %t431 =w cne %t435, %t436
   %t429 =w copy %t431
   @L_and_end_44
+  # END OF LOGICAL
   jnz %t429, @L_if_then_43, @L_if_else_43
   @L_if_then_43
   %t437 =w copy %fmtbuf
@@ -1094,6 +1099,7 @@ function v $__format_to_buf(w %fmtbuf, w %format, w %var_args) {
   %t550 =w cle %t554, %t555
   %t543 =w copy %t550
   @L_and_end_55
+  # END OF LOGICAL
   jnz %t543, @L_if_then_54, @L_if_end_54
   @L_if_then_54
   %t560 =w copy 1
@@ -1127,6 +1133,7 @@ function v $__format_to_buf(w %fmtbuf, w %format, w %var_args) {
   %t573 =w cle %t577, %t578
   %t566 =w copy %t573
   @L_and_end_57
+  # END OF LOGICAL
   jnz %t566, @L_for_then_56, @L_for_end_13
   @L_for_then_56
   %t579 =w copy 10
@@ -1362,6 +1369,7 @@ function w $__free_all() {
   %t728 =b ceq $__alloc_head, 0
   %t726 =w copy %t728
   @L_and_end_66
+  # END OF LOGICAL
   jnz %t726, @L_if_then_65, @L_if_end_65
   @L_if_then_65
   %t729 =w copy 0
@@ -1737,6 +1745,7 @@ function w $malloc(w %size) {
   %t979 =b ceq %best_fit_chunk, 0
   %t977 =w copy %t979
   @L_and_end_84
+  # END OF LOGICAL
   jnz %t977, @L_if_then_83, @L_if_else_83
   @L_if_then_83
   %best_fit_chunk =w copy %fh
@@ -1757,6 +1766,7 @@ function w $malloc(w %size) {
   %t985 =w clt %fh_size, %bsize
   %t982 =w copy %t985
   @L_and_end_86
+  # END OF LOGICAL
   jnz %t982, @L_if_then_85, @L_if_end_85
   @L_if_then_85
   %best_fit_chunk =w copy %fh
@@ -2834,6 +2844,7 @@ function w $find_type(w %type_name, w %flag) {
   %t1728 =w ceq %t1734, %t1735
   %t1719 =w copy %t1728
   @L_and_end_138
+  # END OF LOGICAL
   jnz %t1719, @L_if_then_137, @L_if_end_137
   @L_if_then_137
   %t1740 =w copy 89136
@@ -2979,6 +2990,7 @@ function w $find_alias(w %alias) {
   %t1837 =b ceq %t1836, 0
   %t1833 =w copy %t1837
   @L_and_end_143
+  # END OF LOGICAL
   jnz %t1833, @L_if_then_142, @L_if_end_142
   @L_if_then_142
   %t1838 =w add %al, 32
@@ -3003,6 +3015,7 @@ function b $remove_alias(w %alias) {
   %t1850 =b ceq %t1849, 0
   %t1846 =w copy %t1850
   @L_and_end_145
+  # END OF LOGICAL
   jnz %t1846, @L_if_then_144, @L_if_end_144
   @L_if_then_144
   %t1851 =w add %al, 64
@@ -3064,6 +3077,7 @@ function w $find_macro(w %name) {
   %t1893 =b ceq %t1892, 0
   %t1876 =w copy %t1893
   @L_and_end_148
+  # END OF LOGICAL
   jnz %t1876, @L_if_then_147, @L_if_end_147
   @L_if_then_147
   %t1897 =w copy 11220
@@ -3111,6 +3125,7 @@ function b $remove_macro(w %name) {
   %t1922 =b ceq %t1921, 0
   %t1905 =w copy %t1922
   @L_and_end_151
+  # END OF LOGICAL
   jnz %t1905, @L_if_then_150, @L_if_end_150
   @L_if_then_150
   %t1927 =w copy 11220
@@ -3160,6 +3175,7 @@ function v $error(w %msg) {
   %t1943 =w cne %t1950, %t1951
   %t1940 =w copy %t1943
   @L_and_end_153
+  # END OF LOGICAL
   jnz %t1940, @L_for_then_152, @L_for_end_43
   @L_for_then_152
   @L_for_post_43
@@ -3193,6 +3209,7 @@ function v $error(w %msg) {
   %t1963 =w cne %t1971, %t1972
   %t1960 =w copy %t1963
   @L_and_end_155
+  # END OF LOGICAL
   jnz %t1960, @L_for_then_154, @L_for_end_44
   @L_for_then_154
   %t1977 =w copy 1
@@ -3605,6 +3622,7 @@ function w $size_var(w %var) {
   %t2266 =b loadb %t2264
   %t2258 =w copy %t2266
   @L_or_end_175
+  # END OF LOGICAL
   jnz %t2258, @L_if_then_174, @L_if_else_174
   @L_if_then_174
   %t2268 =w copy 4
@@ -3770,6 +3788,7 @@ function w $bb_create(w %parent) {
   %t2379 =w ceq %t2384, %t2385
   %t2377 =w copy %t2379
   @L_or_end_184
+  # END OF LOGICAL
   jnz %t2377, @L_if_then_183, @L_if_end_183
   @L_if_then_183
   %t2386 =w add %bb, 1040
@@ -4435,6 +4454,7 @@ function v $dump_bb_insn(w %func, w %bb, w %at_func_start) {
   %t2850 =w loadw %t2847
   %t2842 =w copy %t2850
   @L_and_end_214
+  # END OF LOGICAL
   jnz %t2842, @L_if_then_213, @L_if_end_213
   @L_if_then_213
   %t2852 =w copy 0
@@ -5539,6 +5559,7 @@ function b $is_whitespace(b %c) {
   %t3762 =w ceq %c, %t3763
   %t3759 =w copy %t3762
   @L_or_end_271
+  # END OF LOGICAL
   ret %t3759
 }
 function b $peek_char(w %offset) {
@@ -5567,6 +5588,7 @@ function b $is_linebreak(b %c) {
   %t3778 =w ceq %t3781, %t3782
   %t3775 =w copy %t3778
   @L_and_end_272
+  # END OF LOGICAL
   ret %t3775
 }
 function b $is_newline(b %c) {
@@ -5580,6 +5602,7 @@ function b $is_newline(b %c) {
   %t3786 =w ceq %c, %t3787
   %t3783 =w copy %t3786
   @L_or_end_273
+  # END OF LOGICAL
   ret %t3783
 }
 function b $is_alnum(b %c) {
@@ -5633,6 +5656,7 @@ function b $is_alnum(b %c) {
   %t3806 =w ceq %c, %t3807
   %t3788 =w copy %t3806
   @L_or_end_274
+  # END OF LOGICAL
   ret %t3788
 }
 function b $is_digit(b %c) {
@@ -5646,6 +5670,7 @@ function b $is_digit(b %c) {
   %t3811 =w cle %c, %t3812
   %t3808 =w copy %t3811
   @L_and_end_280
+  # END OF LOGICAL
   ret %t3808
 }
 function b $is_hex(b %c) {
@@ -5699,6 +5724,7 @@ function b $is_hex(b %c) {
   @L_and_end_286
   %t3813 =w copy %t3828
   @L_or_end_281
+  # END OF LOGICAL
   ret %t3813
 }
 function b $is_numeric(w %buffer) {
@@ -5742,6 +5768,7 @@ function b $is_numeric(w %buffer) {
   %t3857 =b ceq %t3856, 0
   %t3850 =w copy %t3857
   @L_and_end_290
+  # END OF LOGICAL
   jnz %t3850, @L_if_then_289, @L_if_end_289
   @L_if_then_289
   %t3858 =b copy 0
@@ -5761,6 +5788,7 @@ function b $is_numeric(w %buffer) {
   %t3867 =b ceq %t3866, 0
   %t3859 =w copy %t3867
   @L_and_end_292
+  # END OF LOGICAL
   jnz %t3859, @L_if_then_291, @L_if_end_291
   @L_if_then_291
   %t3868 =b copy 0
@@ -5819,6 +5847,7 @@ function v $skip_whitespace() {
   @L_and_end_297
   %t3892 =w copy %t3895
   @L_or_end_296
+  # END OF LOGICAL
   jnz %t3892, @L_if_then_295, @L_if_end_295
   @L_if_then_295
   %t3899 =w add $SOURCE, 0
@@ -6072,6 +6101,7 @@ function w $lex_token_internal(b %aliasing) {
   %t4049 =b ceq %t4048, 0
   %t4046 =w copy %t4049
   @L_and_end_320
+  # END OF LOGICAL
   jnz %t4046, @L_do_then_319, @L_do_end_59
   @L_do_end_59
   %t4050 =b copy %aliasing
@@ -6247,6 +6277,7 @@ function w $lex_token_internal(b %aliasing) {
   @L_or_rhs_336
   %t4147 =w copy %special
   @L_or_end_336
+  # END OF LOGICAL
   jnz %t4147, @L_for_then_335, @L_for_end_61
   @L_for_then_335
   %t4153 =w alloc 1
@@ -6265,6 +6296,7 @@ function w $lex_token_internal(b %aliasing) {
   %t4156 =w ceq %t4162, %t4163
   %t4153 =w copy %t4156
   @L_and_end_338
+  # END OF LOGICAL
   jnz %t4153, @L_if_then_337, @L_if_else_337
   @L_if_then_337
   %t4165 =w copy 110

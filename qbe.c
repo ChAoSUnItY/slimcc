@@ -8,6 +8,11 @@ static int tmp_var_idx = 0;
 
 static bool is_last_insn_jmp = false;
 
+// Short circuit logic related
+static int shared_logical_label = 0;
+static char *shared_result_var;
+static int logical_depth = 0;
+
 char *tmp_var() {
   return format("%%t%d", tmp_var_idx++);
 }
@@ -372,6 +377,10 @@ char *emit_addr(Node *node, bool eval) {
 char *emit_expr(Node *expr) {
   char *var = "";
 
+  if ((expr->kind == ND_LOGAND || expr->kind == ND_LOGOR) && logical_depth == 0) {
+    shared_result_var = tmp_var();
+  }
+
   switch (expr->kind) {
     case ND_NULL_EXPR: {
       if (expr->next)
@@ -519,13 +528,12 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_LOGAND: {
+      logical_depth++;
       int c = count();
-      var = tmp_var();
       
-      println("%s =w alloc 1", var);
-      println("%s =w copy 0", var);
       char *lhs = emit_expr(expr->lhs);
-      println("jnz %s, @L_and_rhs_%d, @L_and_end_%d", lhs, c, c);
+      
+      println("jnz %s, @L_and_rhs_%d, @L_and_shared_%d", lhs, c, shared_logical_label);
       println("@L_and_rhs_%d", c);
       char *rhs = emit_expr(expr->rhs);
       println("%s =w copy %s", var, rhs);
@@ -533,6 +541,7 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_LOGOR: {
+      logical_depth++;
       int c = count();
       var = tmp_var();
       
@@ -630,6 +639,20 @@ char *emit_expr(Node *expr) {
   }
 
   is_last_insn_jmp = false;
+  
+  if (expr->kind == ND_LOGAND || expr->kind == ND_LOGOR) {
+    logical_depth--;
+
+    if (logical_depth == 0) {
+      // Finalize logical expression here
+      println("# END OF LOGICAL");
+      println("@L_and_end_%d", shared_logical_label);
+      shared_logical_label++;
+    }
+
+    return shared_result_var;
+  }
+
   return var;
 }
 
@@ -795,6 +818,8 @@ void emit_stmt(Node *stmt) {
       break;
     }
   }
+
+  logical_depth = 0;
 }
 
 void emit_function(Obj *prog) {
