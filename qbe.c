@@ -9,9 +9,18 @@ static int tmp_var_idx = 0;
 static bool is_last_insn_jmp = false;
 
 // Short circuit logic related
-static int shared_logical_label = 0;
-static char *shared_result_var;
-static int logical_depth = 0;
+static int shared_logical_label_cnt = 0;
+
+typedef struct {
+  NodeKind kind;
+  char *var_name;
+  int label_id;
+  int imm_label_cnt;
+  int depth;
+} SharedLogicalLabel;
+
+static int shared_logical_label_depth = 0;
+static SharedLogicalLabel shared_logical_labels[32] = {0};
 
 char *tmp_var() {
   return format("%%t%d", tmp_var_idx++);
@@ -134,6 +143,11 @@ int count() {
 void write_indent() {
   for (size_t i = 0; i < indent; i++)
     fprintf(output_file, "  ");
+}
+
+bool is_short_circuit_expr(Node *node, NodeKind sc_kind) {
+  return node->lhs && 
+    ((node->lhs->kind == ND_CAST && node->lhs->lhs->kind == sc_kind) || node->lhs->kind == sc_kind);
 }
 
 /**
@@ -377,8 +391,18 @@ char *emit_addr(Node *node, bool eval) {
 char *emit_expr(Node *expr) {
   char *var = "";
 
-  if ((expr->kind == ND_LOGAND || expr->kind == ND_LOGOR) && logical_depth == 0) {
-    shared_result_var = tmp_var();
+  if (expr->kind == ND_LOGAND || expr->kind == ND_LOGOR) {
+    if (shared_logical_label_depth == 0 || shared_logical_labels[shared_logical_label_depth - 1].kind != expr->kind) {
+      SharedLogicalLabel *label = &shared_logical_labels[shared_logical_label_depth++];
+      label->kind = expr->kind;
+      label->var_name = tmp_var();
+      label->label_id = shared_logical_label_cnt++;
+      label->imm_label_cnt = 0;
+      label->depth = 1;
+    } else {
+      SharedLogicalLabel *label = &shared_logical_labels[shared_logical_label_depth - 1];
+      label->depth++;
+    }
   }
 
   switch (expr->kind) {
@@ -528,37 +552,50 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_LOGAND: {
-      logical_depth++;
-      int c = count();
-      
+      SharedLogicalLabel *shared_label = &shared_logical_labels[shared_logical_label_depth - 1];
+      int shared_label_id = shared_label->label_id;
+      shared_label->imm_label_cnt++;
       char *lhs = emit_expr(expr->lhs);
       
-      println("jnz %s, @L_and_rhs_%d, @L_and_shared_%d", lhs, c, shared_logical_label);
-      println("@L_and_rhs_%d", c);
+      if (!is_short_circuit_expr(expr->lhs, ND_LOGAND)) {
+        println("jnz %s, @L_and_next_%d_%d, @L_and_shared_%d", lhs, shared_label_id, shared_label->imm_label_cnt, shared_label_id);
+      }
+
+      println("@L_and_next_%d_%d", shared_label_id, shared_label->imm_label_cnt);
+      shared_label->imm_label_cnt--;
       char *rhs = emit_expr(expr->rhs);
-      println("%s =w copy %s", var, rhs);
-      println("@L_and_end_%d", c);
+
+      if (!is_short_circuit_expr(expr->rhs, ND_LOGAND)) {
+        println("jnz %s, @L_and_next_%d_%d, @L_and_shared_%d", rhs, shared_label_id, shared_label->imm_label_cnt, shared_label_id);
+      }
       break;
     }
     case ND_LOGOR: {
-      logical_depth++;
-      int c = count();
-      var = tmp_var();
-      
-      println("%s =w alloc 1", var);
-      println("%s =w copy 1", var);
+      SharedLogicalLabel *shared_label = &shared_logical_labels[shared_logical_label_depth - 1];
+      int shared_label_id = shared_label->label_id;
+      shared_label->imm_label_cnt++;
       char *lhs = emit_expr(expr->lhs);
-      println("jnz %s, @L_or_end_%d, @L_or_rhs_%d", lhs, c, c);
-      println("@L_or_rhs_%d", c);
+
+      if (!is_short_circuit_expr(expr->lhs, ND_LOGOR)) {
+        println("jnz %s, @L_or_shared_%d, @L_or_next_%d_%d", lhs, shared_label_id, shared_label_id, shared_label->imm_label_cnt);
+      }
+      
+      println("@L_or_next_%d_%d", shared_label_id, shared_label->imm_label_cnt);
+      shared_label->imm_label_cnt--;
       char *rhs = emit_expr(expr->rhs);
-      println("%s =w copy %s", var, rhs);
-      println("@L_or_end_%d", c);
+
+      if (!is_short_circuit_expr(expr->rhs, ND_LOGOR)) {
+        println("jnz %s, @L_or_shared_%d, @L_or_next_%d_%d", rhs, shared_label_id, shared_label_id, shared_label->imm_label_cnt);
+      }
       break;
     }
     case ND_FUNCALL: {
       char *args[16];
       int i = 0;
       bool has_ret_val = expr->ty->kind != TY_VOID;
+      bool is_lhs_var = expr->lhs->kind == ND_VAR;
+      bool use_fn_ptr = !(is_lhs_var && expr->lhs->var->ty->kind == TY_FUNC);
+      char invocation_spec = use_fn_ptr && (is_lhs_var && expr->lhs->var->is_local) ? '%' : '$';
 
       for (Obj *arg = expr->args; arg; arg = arg->param_next) {
         var = emit_expr(arg->arg_expr);
@@ -568,11 +605,22 @@ char *emit_expr(Node *expr) {
         i++;
       }
 
-      if (has_ret_val) {
-        var = tmp_var();
-        print("%s =%c call $%s(", var, ty_specifier(expr->ty), expr->lhs->var->name);
-      } else
-        print("call $%s(", expr->lhs->var->name);
+      if (is_lhs_var) {
+        if (has_ret_val) {
+          var = tmp_var();
+          print("%s =%c call %c%s(", var, ty_specifier(expr->ty), invocation_spec, expr->lhs->var->name);
+        } else {
+          print("call %c%s(", invocation_spec, expr->lhs->var->name);
+        }
+      } else {
+        char *prepare_var = emit_expr(expr->lhs);
+        if (has_ret_val) {
+          var = tmp_var();
+          print("%s =%c call %s(", var, ty_specifier(expr->ty), prepare_var);
+        } else {
+          print("call %s(", prepare_var);
+        }
+      }
       
       i = 0;
 
@@ -641,16 +689,36 @@ char *emit_expr(Node *expr) {
   is_last_insn_jmp = false;
   
   if (expr->kind == ND_LOGAND || expr->kind == ND_LOGOR) {
-    logical_depth--;
+    SharedLogicalLabel *shared_label = &shared_logical_labels[shared_logical_label_depth - 1];
+    shared_label->depth--;
 
-    if (logical_depth == 0) {
+    if (shared_label->depth == 0) {
       // Finalize logical expression here
-      println("# END OF LOGICAL");
-      println("@L_and_end_%d", shared_logical_label);
-      shared_logical_label++;
+      switch (expr->kind) {
+      case ND_LOGAND:
+        println("@L_and_next_%d_0", shared_label->label_id);
+        println("%s =w copy 1", shared_label->var_name);
+        println("jmp @L_and_end_%d", shared_label->label_id);
+        println("@L_and_shared_%d", shared_label->label_id);
+        println("%s =w copy 0", shared_label->var_name);
+        println("@L_and_end_%d", shared_label->label_id);
+        break;
+      case ND_LOGOR:
+        println("@L_or_next_%d_0", shared_label->label_id);
+        println("%s =w copy 0", shared_label->var_name);
+        println("jmp @L_or_end_%d", shared_label->label_id);
+        println("@L_or_shared_%d", shared_label->label_id);
+        println("%s =w copy 1", shared_label->var_name);
+        println("@L_or_end_%d", shared_label->label_id);
+        break;
+      default:
+        error("Not a valid logical short circuit operator");
+        break;
+      }
+      shared_logical_label_depth--;
     }
 
-    return shared_result_var;
+    return shared_label->var_name;
   }
 
   return var;
@@ -819,7 +887,7 @@ void emit_stmt(Node *stmt) {
     }
   }
 
-  logical_depth = 0;
+  shared_logical_label_depth = 0;
 }
 
 void emit_function(Obj *prog) {

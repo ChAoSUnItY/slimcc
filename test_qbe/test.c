@@ -1,6 +1,11 @@
-#include <stdio.h>
+int a, b, c;
 
 int main(void) {
-    printf("%d is number 8", 1);
-    return 0;
+    a = 1;
+    b = 1;
+    c = 2;
+    if (a && b && c) {
+        c = 0;
+    }
+    return c;
 }
