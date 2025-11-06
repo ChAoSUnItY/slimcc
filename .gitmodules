@@ -1,0 +1,4 @@
+[submodule "shecc"]
+	path = shecc
+	url = https://github.com/ChAoSUnItY/shecc.git
+	branch = feat/qbesil

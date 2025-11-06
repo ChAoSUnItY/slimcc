@@ -1,0 +1,5 @@
+/* target: ARM */
+#pragma once
+#define ARCH_PREDEFINED "__arm__" /* defined by GNU C and RealView */
+#define ELF_MACHINE 0x28 /* up to ARMv7/Aarch32 */
+#define ELF_FLAGS 0x5000200

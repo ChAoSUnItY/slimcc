@@ -1,21 +1,31 @@
+#include "config"
+
 #include "c.c"
 
 #include "defs.h"
 
 #include "lexer.c"
 
-int main(void) {
-    global_init();
-    
-    SOURCE->size = 0;
-    SOURCE->elements = "int main(void) { return 0; }\0";
-    next_char = SOURCE->elements[0];
-    lex_expect(T_start);
+/* #include "elf.c"
 
-    do {
-        printf("%d\n", next_token);
-        lex_accept(next_token);
-    } while ((!lex_accept(T_eof)));
+#include "parser.c" */
+
+/* typedef struct {
+    char name[32];
+} var_t;
+
+typedef struct {
+    var_t return_def;
+} func_t; */
+
+int main(int argc, char *argv[]) {
+    /* global_init();
+    
+    parse("test_qbe/test.c"); */
+    printf("KEK\n");
+
+    func_t *func = 0;
+    char *var_name = func->return_def.var_name;
 
     return 0;
 }

@@ -727,7 +727,7 @@ func_t *add_func(char *func_name, bool synthesize)
     func = calloc(1, sizeof(func_t));
     hashmap_put(FUNC_MAP, func_name, func);
     strcpy(func->return_def.var_name, func_name);
-    func->stack_size = 4;
+    /* func->stack_size = 4;
 
     if (synthesize)
         return func;
@@ -738,7 +738,7 @@ func_t *add_func(char *func_name, bool synthesize)
     } else {
         FUNC_LIST.tail->next = func;
         FUNC_LIST.tail = func;
-    }
+    } */
 
     return func;
 }

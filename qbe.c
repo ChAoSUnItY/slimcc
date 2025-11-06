@@ -236,7 +236,7 @@ char ty_specifier(Type *ty) {
   }
 }
 
-char *emit_addr(Node *node, bool eval);
+char *emit_addr(Node *node);
 char *emit_expr(Node *expr);
 void emit_stmt(Node *stmt);
 
@@ -259,7 +259,7 @@ char *emit_arith_assign(Node *expr) {
     rhs = emit_expr(expr->rhs);
     var = lhs;
   } else {
-    addr = emit_addr(expr->lhs, false);
+    addr = emit_addr(expr->lhs);
     rhs = emit_expr(expr->rhs);
     lhs = tmp_var();
     var = tmp_var();
@@ -336,18 +336,15 @@ char *emit_binary_expr(Node *expr, char *op) {
   return var;
 }
 
-char *emit_addr(Node *node, bool eval) {
+char *emit_addr(Node *node) {
   char *var = tmp_var(), *addr;
 
   switch (node->kind) {
     case ND_VAR: {
       if (node->var->is_local) {
         // local variable
-        if (!eval) {
-          println("%s =w addr %%%s", var, node->var->name);
-          return var;
-        } else
-          return format("%%%s", node->var->name);
+        println("%s =w addr %%%s", var, node->var->name);
+        return var;
       }
 
       if (node->ty->kind == TY_FUNC) {
@@ -361,7 +358,7 @@ char *emit_addr(Node *node, bool eval) {
       return var;
     }
     case ND_DEREF:
-        var = emit_expr(node->lhs);
+      var = emit_expr(node->lhs);
       return var;
     case ND_CHAIN:
     case ND_COMMA:
@@ -378,7 +375,7 @@ char *emit_addr(Node *node, bool eval) {
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
         default:
-          addr = emit_addr(node->lhs, eval);
+          addr = emit_addr(node->lhs);
           println("%s =w add %s, %d", var, addr, node->member->offset);
           return var;
       }
@@ -489,17 +486,9 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_ASSIGN: {
-      var = emit_addr(expr->lhs, expr->lhs->kind == ND_VAR);
+      var = emit_addr(expr->lhs);
       char *rhs = emit_expr(expr->rhs);
-
-      if (expr->rhs->kind != ND_COND) {
-        if (expr->lhs->kind != ND_VAR || !expr->lhs->var->is_local) {
-          println("store%c %s, %s", ty_specifier(expr->rhs->ty), var, rhs);
-        } else {
-          println("%s =%c copy %s", var, ty_specifier(expr->lhs->ty), rhs);
-        }
-      }
-
+      println("store%c %s, %s", ty_specifier(expr->rhs->ty), var, rhs);
       var = rhs;
       break;
     }
@@ -520,14 +509,14 @@ char *emit_expr(Node *expr) {
       break;
     }
     case ND_MEMBER: {
-      char *addr = emit_addr(expr, false), ty_spec = ty_specifier(expr->member->ty);
+      char *addr = emit_addr(expr), ty_spec = ty_specifier(expr->member->ty);
       var = tmp_var();
 
       println("%s =%c load%c %s", var, ty_spec, ty_spec, addr);
       break;
     }
     case ND_ADDR: {
-      var = emit_addr(expr->lhs, false);
+      var = emit_addr(expr->lhs);
       break;
     }
     case ND_DEREF: {
@@ -766,7 +755,7 @@ void emit_stmt(Node *stmt) {
         println("@L_if_else_%d", c);
         emit_stmt(stmt->els);
       }
-      if (!cond)
+      if (!cond || !stmt->els)
         println("@L_if_end_%d", c);
       break;
     }
@@ -782,8 +771,12 @@ void emit_stmt(Node *stmt) {
       // Syntehsize a condition temp var for later looping usage
 
       println("@L_for_begin_%d", c);
-      char *result_var = emit_cond(stmt->cond);
-      println("jnz %s, @L_for_then_%d, @%s", result_var, c, stmt->brk_label);
+
+      if (stmt->cond) {
+        char *result_var = emit_cond(stmt->cond);
+        println("jnz %s, @L_for_then_%d, @%s", result_var, c, stmt->brk_label);
+      }
+
       println("@L_for_then_%d", c);
       emit_stmt(stmt->then);
       println("@%s", stmt->cont_label);

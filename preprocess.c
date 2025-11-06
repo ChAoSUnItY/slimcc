@@ -1705,6 +1705,9 @@ static Token *preprocess3(Token *tok) {
 
 // Entry point function of the preprocessor.
 Token *preprocess(Token *tok) {
+  if (opt_qbe)
+    add_macro("QBE_SIL", true, NULL);
+
   tok = preprocess2(tok);
   if (cond_incl)
     error_tok(cond_incl->tok, "unterminated conditional directive");
